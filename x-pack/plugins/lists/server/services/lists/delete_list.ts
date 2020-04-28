@@ -11,7 +11,7 @@ import { getList } from './get_list';
 
 export interface DeleteListOptions {
   id: Id;
-  dataClient: DataClient;
+  dataClient: DataClient | undefined | null;
   listIndex: string;
   listItemIndex: string;
 }
@@ -26,6 +26,9 @@ export const deleteList = async ({
   if (list == null) {
     return null;
   } else {
+    if (dataClient == null) {
+      throw new Error('Missing DataClient');
+    }
     await dataClient.callAsCurrentUser('deleteByQuery', {
       body: {
         query: {

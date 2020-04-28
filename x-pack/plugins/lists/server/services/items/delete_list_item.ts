@@ -11,7 +11,7 @@ import { getListItem } from '.';
 
 export interface DeleteListItemOptions {
   id: Id;
-  dataClient: DataClient;
+  dataClient: DataClient | undefined | null;
   listItemIndex: string;
 }
 
@@ -24,6 +24,9 @@ export const deleteListItem = async ({
   if (listItem == null) {
     return null;
   } else {
+    if (dataClient == null) {
+      throw new Error('Missing DataClient');
+    }
     await dataClient.callAsCurrentUser('delete', {
       id,
       index: listItemIndex,

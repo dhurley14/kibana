@@ -11,7 +11,12 @@ import { getSpace } from '../utils';
 
 interface GetListItemIndexOptions {
   spaces: SpacesServiceSetup | undefined | null;
-  request: KibanaRequest;
+  request: KibanaRequest | undefined | null;
+  listsItemsIndexName: string;
+}
+
+interface GetListItemIndexWithSpaceIdOptions {
+  spaceId: string | undefined | null;
   listsItemsIndexName: string;
 }
 
@@ -20,3 +25,8 @@ export const getListItemIndex = ({
   request,
   listsItemsIndexName,
 }: GetListItemIndexOptions): string => `${listsItemsIndexName}-${getSpace({ request, spaces })}`;
+
+export const getListItemIndexWithSpaceId = ({
+  spaceId,
+  listsItemsIndexName,
+}: GetListItemIndexWithSpaceIdOptions): string => `${listsItemsIndexName}-${spaceId ?? 'default'}`;

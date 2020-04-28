@@ -7,6 +7,7 @@
 import { PassThrough, Readable } from 'stream';
 
 import { KibanaRequest } from 'kibana/server';
+import { APICaller } from 'target/types/core/server/elasticsearch/api_types';
 
 import { SecurityPluginSetup } from '../../../../security/server';
 import { SpacesServiceSetup } from '../../../../spaces/server';
@@ -24,11 +25,13 @@ import { ConfigType } from '../../config';
 import { DataClient } from '../../types';
 
 export interface ConstructorOptions {
+  apiCaller: APICaller | undefined | null;
   config: ConfigType;
-  dataClient: DataClient;
-  request: KibanaRequest;
+  dataClient: DataClient | undefined | null;
+  request: KibanaRequest | undefined | null;
   spaces: SpacesServiceSetup | undefined | null;
   security: SecurityPluginSetup;
+  spaceId: string | undefined | null;
 }
 
 export interface GetListOptions {
@@ -113,4 +116,5 @@ export interface GetListItemsByValueOptions {
   type: Type;
   listId: string;
   value: string[];
+  apiCaller?: APICaller;
 }

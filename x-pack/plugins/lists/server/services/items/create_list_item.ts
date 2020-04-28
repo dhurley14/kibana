@@ -22,7 +22,7 @@ export interface CreateListItemOptions {
   listId: string;
   type: Type;
   value: string;
-  dataClient: DataClient;
+  dataClient: DataClient | undefined | null;
   listItemIndex: string;
   user: string;
   meta: MetaOrUndefined;
@@ -57,7 +57,9 @@ export const createListItem = async ({
     ...baseBody,
     ...transformListItemToElasticQuery({ type, value }),
   };
-
+  if (dataClient == null) {
+    throw new Error('Missing DataClient');
+  }
   const response: CreateDocumentResponse = await dataClient.callAsCurrentUser('index', {
     body,
     id,

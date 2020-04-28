@@ -5,6 +5,7 @@
  */
 
 import { KibanaRequest, ScopedClusterClient } from 'src/core/server';
+import { APICaller } from 'target/types/core/server/elasticsearch/api_types';
 
 import { SecurityPluginSetup } from '../../../../security/server';
 import { SpacesServiceSetup } from '../../../../spaces/server';
@@ -15,6 +16,7 @@ import {
   deleteList,
   getList,
   getListIndex,
+  getListIndexWithSpaceId,
   getListTemplate,
   updateList,
 } from '../../services/lists';
@@ -27,6 +29,7 @@ import {
   getListItemByValue,
   getListItemByValues,
   getListItemIndex,
+  getListItemIndexWithSpaceId,
   getListItemTemplate,
   importListItemsToStream,
   updateListItem,
@@ -64,25 +67,45 @@ import {
   UpdateListOptions,
 } from './client_types';
 
+export interface ListClientInterface {
+  getListIndex(): string;
+  getListItemIndex(): string;
+}
+
 // TODO: Consider an interface and a factory
 export class ListClient {
+  private readonly apiCaller: APICaller | undefined | null;
   private readonly spaces: SpacesServiceSetup | undefined | null;
   private readonly config: ConfigType;
-  private readonly dataClient: Pick<
-    ScopedClusterClient,
-    'callAsCurrentUser' | 'callAsInternalUser'
-  >;
-  private readonly request: KibanaRequest;
+  private readonly dataClient:
+    | Pick<ScopedClusterClient, 'callAsCurrentUser' | 'callAsInternalUser'>
+    | undefined
+    | null;
+  private readonly request: KibanaRequest | undefined | null;
   private readonly security: SecurityPluginSetup;
+  private readonly spaceId: string | undefined | null;
 
-  constructor({ request, spaces, config, dataClient, security }: ConstructorOptions) {
+  constructor({
+    apiCaller,
+    request,
+    spaces,
+    config,
+    dataClient,
+    security,
+    spaceId,
+  }: ConstructorOptions) {
+    this.apiCaller = apiCaller;
     this.request = request;
     this.spaces = spaces;
     this.config = config;
     this.dataClient = dataClient;
     this.security = security;
+    this.spaceId = spaceId;
   }
 
+  /**
+   * rewrite this to allow a spaceId to be passed down in-lieu of a request obj.
+   */
   public getListIndex = (): string => {
     const {
       spaces,
@@ -92,6 +115,14 @@ export class ListClient {
     return getListIndex({ listsIndexName, request, spaces });
   };
 
+  public getListIndexWithSpaceId = (): string => {
+    const {
+      spaceId,
+      config: { listIndex: listsIndexName },
+    } = this;
+    return getListIndexWithSpaceId({ listsIndexName, spaceId });
+  };
+
   public getListItemIndex = (): string => {
     const {
       spaces,
@@ -99,6 +130,14 @@ export class ListClient {
       config: { listItemIndex: listsItemsIndexName },
     } = this;
     return getListItemIndex({ listsItemsIndexName, request, spaces });
+  };
+
+  public getListItemIndexWithSpaceId = (): string => {
+    const {
+      spaceId,
+      config: { listItemIndex: listsItemsIndexName },
+    } = this;
+    return getListItemIndexWithSpaceId({ listsItemsIndexName, spaceId });
   };
 
   public getList = async ({ id }: GetListOptions): Promise<ListSchema | null> => {
@@ -136,6 +175,9 @@ export class ListClient {
   };
 
   public getListIndexExists = async (): Promise<boolean> => {
+    if (this.dataClient == null) {
+      throw new Error('Missing DataClient');
+    }
     const {
       dataClient: { callAsCurrentUser },
     } = this;
@@ -144,6 +186,9 @@ export class ListClient {
   };
 
   public getListItemIndexExists = async (): Promise<boolean> => {
+    if (this.dataClient == null) {
+      throw new Error('Missing DataClient');
+    }
     const {
       dataClient: { callAsCurrentUser },
     } = this;
@@ -152,6 +197,9 @@ export class ListClient {
   };
 
   public createListBootStrapIndex = async (): Promise<unknown> => {
+    if (this.dataClient == null) {
+      throw new Error('Missing DataClient');
+    }
     const {
       dataClient: { callAsCurrentUser },
     } = this;
@@ -160,6 +208,9 @@ export class ListClient {
   };
 
   public createListItemBootStrapIndex = async (): Promise<unknown> => {
+    if (this.dataClient == null) {
+      throw new Error('Missing DataClient');
+    }
     const {
       dataClient: { callAsCurrentUser },
     } = this;
@@ -168,6 +219,9 @@ export class ListClient {
   };
 
   public getListPolicyExists = async (): Promise<boolean> => {
+    if (this.dataClient == null) {
+      throw new Error('Missing DataClient');
+    }
     const {
       dataClient: { callAsCurrentUser },
     } = this;
@@ -176,6 +230,9 @@ export class ListClient {
   };
 
   public getListItemPolicyExists = async (): Promise<boolean> => {
+    if (this.dataClient == null) {
+      throw new Error('Missing DataClient');
+    }
     const {
       dataClient: { callAsCurrentUser },
     } = this;
@@ -184,6 +241,9 @@ export class ListClient {
   };
 
   public getListTemplateExists = async (): Promise<boolean> => {
+    if (this.dataClient == null) {
+      throw new Error('Missing DataClient');
+    }
     const {
       dataClient: { callAsCurrentUser },
     } = this;
@@ -192,6 +252,9 @@ export class ListClient {
   };
 
   public getListItemTemplateExists = async (): Promise<boolean> => {
+    if (this.dataClient == null) {
+      throw new Error('Missing DataClient');
+    }
     const {
       dataClient: { callAsCurrentUser },
     } = this;
@@ -210,6 +273,9 @@ export class ListClient {
   };
 
   public setListTemplate = async (): Promise<unknown> => {
+    if (this.dataClient == null) {
+      throw new Error('Missing DataClient');
+    }
     const {
       dataClient: { callAsCurrentUser },
     } = this;
@@ -219,6 +285,9 @@ export class ListClient {
   };
 
   public setListItemTemplate = async (): Promise<unknown> => {
+    if (this.dataClient == null) {
+      throw new Error('Missing DataClient');
+    }
     const {
       dataClient: { callAsCurrentUser },
     } = this;
@@ -228,6 +297,9 @@ export class ListClient {
   };
 
   public setListPolicy = async (): Promise<unknown> => {
+    if (this.dataClient == null) {
+      throw new Error('Missing DataClient');
+    }
     const {
       dataClient: { callAsCurrentUser },
     } = this;
@@ -236,6 +308,9 @@ export class ListClient {
   };
 
   public setListItemPolicy = async (): Promise<unknown> => {
+    if (this.dataClient == null) {
+      throw new Error('Missing DataClient');
+    }
     const {
       dataClient: { callAsCurrentUser },
     } = this;
@@ -244,6 +319,9 @@ export class ListClient {
   };
 
   public deleteListIndex = async (): Promise<boolean> => {
+    if (this.dataClient == null) {
+      throw new Error('Missing DataClient');
+    }
     const {
       dataClient: { callAsCurrentUser },
     } = this;
@@ -252,6 +330,9 @@ export class ListClient {
   };
 
   public deleteListItemIndex = async (): Promise<boolean> => {
+    if (this.dataClient == null) {
+      throw new Error('Missing DataClient');
+    }
     const {
       dataClient: { callAsCurrentUser },
     } = this;
@@ -260,6 +341,9 @@ export class ListClient {
   };
 
   public deleteListPolicy = async (): Promise<unknown> => {
+    if (this.dataClient == null) {
+      throw new Error('Missing DataClient');
+    }
     const {
       dataClient: { callAsCurrentUser },
     } = this;
@@ -268,6 +352,9 @@ export class ListClient {
   };
 
   public deleteListItemPolicy = async (): Promise<unknown> => {
+    if (this.dataClient == null) {
+      throw new Error('Missing DataClient');
+    }
     const {
       dataClient: { callAsCurrentUser },
     } = this;
@@ -276,6 +363,9 @@ export class ListClient {
   };
 
   public deleteListTemplate = async (): Promise<unknown> => {
+    if (this.dataClient == null) {
+      throw new Error('Missing DataClient');
+    }
     const {
       dataClient: { callAsCurrentUser },
     } = this;
@@ -284,6 +374,9 @@ export class ListClient {
   };
 
   public deleteListItemTemplate = async (): Promise<unknown> => {
+    if (this.dataClient == null) {
+      throw new Error('Missing DataClient');
+    }
     const {
       dataClient: { callAsCurrentUser },
     } = this;
@@ -452,8 +545,18 @@ export class ListClient {
     listId,
     value,
   }: GetListItemsByValueOptions): Promise<ListItemArraySchema> => {
-    const { dataClient } = this;
-    const listItemIndex = this.getListItemIndex();
+    const { dataClient, apiCaller } = this;
+    const listItemIndex = this.getListItemIndexWithSpaceId();
+    if (apiCaller != null) {
+      return getListItemByValues({
+        apiCaller,
+        dataClient,
+        listId,
+        listItemIndex,
+        type,
+        value,
+      });
+    }
     return getListItemByValues({
       dataClient,
       listId,

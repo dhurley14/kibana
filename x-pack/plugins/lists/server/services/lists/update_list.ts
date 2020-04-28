@@ -20,7 +20,7 @@ import { getList } from '.';
 
 export interface UpdateListOptions {
   id: Id;
-  dataClient: DataClient;
+  dataClient: DataClient | undefined | null;
   listIndex: string;
   user: string;
   name: NameOrUndefined;
@@ -51,6 +51,9 @@ export const updateList = async ({
       updated_at: updatedAt,
       updated_by: user,
     };
+    if (dataClient == null) {
+      throw new Error('Missing DataClient');
+    }
     const response: CreateDocumentResponse = await dataClient.callAsCurrentUser('update', {
       body: { doc },
       id,

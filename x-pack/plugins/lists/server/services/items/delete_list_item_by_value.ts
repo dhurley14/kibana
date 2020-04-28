@@ -14,7 +14,7 @@ export interface DeleteListItemByValueOptions {
   listId: string;
   type: Type;
   value: string;
-  dataClient: DataClient;
+  dataClient: DataClient | undefined | null;
   listItemIndex: string;
 }
 
@@ -38,6 +38,9 @@ export const deleteListItemByValue = async ({
     type,
     value: values,
   });
+  if (dataClient == null) {
+    throw new Error('Missing DataClient');
+  }
   await dataClient.callAsCurrentUser('deleteByQuery', {
     body: {
       query: {

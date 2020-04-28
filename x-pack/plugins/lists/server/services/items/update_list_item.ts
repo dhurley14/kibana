@@ -20,7 +20,7 @@ import { getListItem } from './get_list_item';
 export interface UpdateListItemOptions {
   id: Id;
   value: string | null | undefined;
-  dataClient: DataClient;
+  dataClient: DataClient | undefined | null;
   listItemIndex: string;
   user: string;
   meta: MetaOrUndefined;
@@ -47,7 +47,9 @@ export const updateListItem = async ({
       updated_by: user,
       ...transformListItemToElasticQuery({ type: listItem.type, value: value ?? listItem.value }),
     };
-
+    if (dataClient == null) {
+      throw new Error('Missing DataClient');
+    }
     const response: CreateDocumentResponse = await dataClient.callAsCurrentUser('update', {
       body: {
         doc,

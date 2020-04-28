@@ -10,13 +10,16 @@ import { SecurityPluginSetup } from '../../../../security/server';
 
 interface GetUserOptions {
   security: SecurityPluginSetup;
-  request: KibanaRequest;
+  request: KibanaRequest | undefined | null;
 }
 
 export const getUser = ({ security, request }: GetUserOptions): string => {
-  const authenticatedUser = security.authc.getCurrentUser(request);
-  if (authenticatedUser != null) {
-    return authenticatedUser.username;
+  if (request != null) {
+    const authenticatedUser = security.authc.getCurrentUser(request);
+    if (authenticatedUser != null) {
+      return authenticatedUser.username;
+    }
+    return 'elastic';
   } else {
     return 'elastic';
   }

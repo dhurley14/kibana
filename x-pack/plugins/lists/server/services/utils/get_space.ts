@@ -13,5 +13,11 @@ export const getSpace = ({
   request,
 }: {
   spaces: SpacesServiceSetup | undefined | null;
-  request: KibanaRequest;
-}): string => spaces?.getSpaceId(request) ?? 'default';
+  request: KibanaRequest | undefined | null;
+}): string => {
+  if (request != null) {
+    return spaces?.getSpaceId(request) ?? 'default';
+  } else {
+    return 'default';
+  }
+};

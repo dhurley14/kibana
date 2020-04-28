@@ -5,6 +5,7 @@
  */
 
 import { SearchResponse } from 'elasticsearch';
+import { APICaller } from 'target/types/core/server/elasticsearch/api_types';
 
 import { ListItemArraySchema, SearchEsListItemSchema, Type } from '../../../common/schemas';
 import { DataClient } from '../../types';
@@ -12,19 +13,39 @@ import { getQueryFilterFromTypeValue, transformElasticToListItem } from '../util
 
 export interface GetListItemByValuesOptions {
   listId: string;
-  dataClient: DataClient;
+  dataClient: DataClient | undefined | null;
+  apiCaller?: APICaller;
   listItemIndex: string;
   type: Type;
   value: string[];
 }
 
 export const getListItemByValues = async ({
+  apiCaller,
   listId,
   dataClient,
   listItemIndex,
   type,
   value,
 }: GetListItemByValuesOptions): Promise<ListItemArraySchema> => {
+  if (apiCaller != null) {
+    const response: SearchResponse<SearchEsListItemSchema> = await apiCaller('search', {
+      body: {
+        query: {
+          bool: {
+            filter: getQueryFilterFromTypeValue({ listId, type, value }),
+          },
+        },
+      },
+      ignoreUnavailable: true,
+      index: listItemIndex,
+      size: value.length, // This has a limit on the number which is 10k
+    });
+    return transformElasticToListItem({ response, type });
+  }
+  if (dataClient == null) {
+    throw new Error('Missing DataClient');
+  }
   const response: SearchResponse<SearchEsListItemSchema> = await dataClient.callAsCurrentUser(
     'search',
     {

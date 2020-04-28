@@ -12,7 +12,7 @@ import { deriveTypeFromItem, transformElasticToListItem } from '../utils';
 
 interface GetListItemOptions {
   id: Id;
-  dataClient: DataClient;
+  dataClient: DataClient | undefined | null;
   listItemIndex: string;
 }
 
@@ -21,6 +21,9 @@ export const getListItem = async ({
   dataClient,
   listItemIndex,
 }: GetListItemOptions): Promise<ListItemSchema | null> => {
+  if (dataClient == null) {
+    throw new Error('Missing DataClient');
+  }
   const listItemES: SearchResponse<SearchEsListItemSchema> = await dataClient.callAsCurrentUser(
     'search',
     {

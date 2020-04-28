@@ -23,7 +23,7 @@ export interface CreateListOptions {
   type: Type;
   name: Name;
   description: Description;
-  dataClient: DataClient;
+  dataClient: DataClient | undefined | null;
   listIndex: string;
   user: string;
   meta: MetaOrUndefined;
@@ -43,6 +43,9 @@ export const createList = async ({
   dateNow,
   tieBreaker,
 }: CreateListOptions): Promise<ListSchema> => {
+  if (dataClient == null) {
+    throw new Error('Missing DataClient');
+  }
   const createdAt = dateNow ?? new Date().toISOString();
   const body: IndexEsListSchema = {
     created_at: createdAt,

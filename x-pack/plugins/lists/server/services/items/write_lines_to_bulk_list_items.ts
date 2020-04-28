@@ -16,7 +16,7 @@ import { createListItemsBulk } from './create_list_items_bulk';
 export interface ImportListItemsToStreamOptions {
   listId: string;
   stream: Readable;
-  dataClient: DataClient;
+  dataClient: DataClient | undefined | null;
   listItemIndex: string;
   type: Type;
   user: string;
@@ -54,7 +54,7 @@ export const importListItemsToStream = ({
 
 export interface WriteBufferToItemsOptions {
   listId: string;
-  dataClient: DataClient;
+  dataClient: DataClient | undefined | null;
   listItemIndex: string;
   buffer: string[];
   type: Type;

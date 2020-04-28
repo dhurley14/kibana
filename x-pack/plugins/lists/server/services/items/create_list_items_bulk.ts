@@ -19,7 +19,7 @@ export interface CreateListItemsBulkOptions {
   listId: string;
   type: Type;
   value: string[];
-  dataClient: DataClient;
+  dataClient: DataClient | undefined | null;
   listItemIndex: string;
   user: string;
   meta: MetaOrUndefined;
@@ -62,7 +62,9 @@ export const createListItemsBulk = async ({
     },
     []
   );
-
+  if (dataClient == null) {
+    throw new Error('Missing DataClient');
+  }
   await dataClient.callAsCurrentUser('bulk', {
     body,
     index: listItemIndex,

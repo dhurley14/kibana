@@ -11,7 +11,7 @@ import { DataClient } from '../../types';
 
 interface GetListOptions {
   id: Id;
-  dataClient: DataClient;
+  dataClient: DataClient | undefined | null;
   listIndex: string;
 }
 
@@ -20,6 +20,9 @@ export const getList = async ({
   dataClient,
   listIndex,
 }: GetListOptions): Promise<ListSchema | null> => {
+  if (dataClient == null) {
+    throw new Error('Missing DataClient');
+  }
   const result: SearchResponse<SearchEsListSchema> = await dataClient.callAsCurrentUser('search', {
     body: {
       query: {

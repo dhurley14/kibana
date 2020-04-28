@@ -20,7 +20,7 @@ export const SIZE = 100;
 
 export interface ExportListItemsToStreamOptions {
   listId: string;
-  dataClient: DataClient;
+  dataClient: DataClient | undefined | null;
   listItemIndex: string;
   stream: PassThrough;
   stringToAppend: string | null | undefined;
@@ -60,7 +60,7 @@ export const exportListItemsToStream = ({
 
 export interface WriteNextResponseOptions {
   listId: string;
-  dataClient: DataClient;
+  dataClient: DataClient | undefined | null;
   listItemIndex: string;
   stream: PassThrough;
   searchAfter: string[] | undefined;
@@ -100,7 +100,7 @@ export const getSearchAfterFromResponse = <T>({
     : undefined;
 
 export interface GetResponseOptions {
-  dataClient: DataClient;
+  dataClient: DataClient | undefined | null;
   listId: string;
   searchAfter: undefined | string[];
   listItemIndex: string;
@@ -114,6 +114,9 @@ export const getResponse = async ({
   listItemIndex,
   size = SIZE,
 }: GetResponseOptions): Promise<SearchResponse<SearchEsListItemSchema>> => {
+  if (dataClient == null) {
+    throw new Error('Missing DataClient');
+  }
   return dataClient.callAsCurrentUser('search', {
     body: {
       query: {

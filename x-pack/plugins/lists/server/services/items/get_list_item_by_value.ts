@@ -11,7 +11,7 @@ import { getListItemByValues } from '.';
 
 export interface GetListItemByValueOptions {
   listId: string;
-  dataClient: DataClient;
+  dataClient: DataClient | undefined | null;
   listItemIndex: string;
   type: Type;
   value: string;
