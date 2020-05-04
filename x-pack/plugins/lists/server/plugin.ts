@@ -16,11 +16,11 @@ import { SpacesServiceSetup } from '../../spaces/server';
 
 import { ConfigType } from './config';
 import { initRoutes } from './routes/init_routes';
-import { ListClient, ListClientInterface } from './services/lists/client';
+import { ListClient } from './services/lists/client';
 import { ContextProvider, ContextProviderReturn, PluginsSetup } from './types';
 import { createConfig$ } from './create_config';
 
-export type ListClientType = ListClientInterface;
+export type ListClientType = InstanceType<typeof ListClient>;
 export type GetListClientType = (dataClient: APICaller, spaceId: string) => ListClient;
 export interface ListPluginSetup {
   getListClient: GetListClientType;
@@ -55,6 +55,8 @@ export class ListPlugin
     initRoutes(router);
     return {
       getListClient: (apiCaller, spaceId): ListClient => {
+        // create adapter for apicaller / dataclient and space / space id
+        // just fake the request object with the spaceid on it.
         if (this.security != null) {
           return new ListClient({
             apiCaller,

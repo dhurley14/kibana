@@ -67,11 +67,6 @@ import {
   UpdateListOptions,
 } from './client_types';
 
-export interface ListClientInterface {
-  getListIndex(): string;
-  getListItemIndex(): string;
-}
-
 // TODO: Consider an interface and a factory
 export class ListClient {
   private readonly apiCaller: APICaller | undefined | null;
@@ -102,6 +97,16 @@ export class ListClient {
     this.security = security;
     this.spaceId = spaceId;
   }
+
+  private getCallAsCurrentUser = (): APICaller => {
+    if (this.dataClient == null) {
+      throw new Error('Missing DataClient');
+    }
+    const {
+      dataClient: { callAsCurrentUser },
+    } = this;
+    return callAsCurrentUser;
+  };
 
   /**
    * rewrite this to allow a spaceId to be passed down in-lieu of a request obj.
@@ -175,89 +180,49 @@ export class ListClient {
   };
 
   public getListIndexExists = async (): Promise<boolean> => {
-    if (this.dataClient == null) {
-      throw new Error('Missing DataClient');
-    }
-    const {
-      dataClient: { callAsCurrentUser },
-    } = this;
     const listIndex = this.getListIndex();
+    const callAsCurrentUser = this.getCallAsCurrentUser();
     return getIndexExists(callAsCurrentUser, listIndex);
   };
 
   public getListItemIndexExists = async (): Promise<boolean> => {
-    if (this.dataClient == null) {
-      throw new Error('Missing DataClient');
-    }
-    const {
-      dataClient: { callAsCurrentUser },
-    } = this;
+    const callAsCurrentUser = this.getCallAsCurrentUser();
     const listItemIndex = this.getListItemIndex();
     return getIndexExists(callAsCurrentUser, listItemIndex);
   };
 
   public createListBootStrapIndex = async (): Promise<unknown> => {
-    if (this.dataClient == null) {
-      throw new Error('Missing DataClient');
-    }
-    const {
-      dataClient: { callAsCurrentUser },
-    } = this;
+    const callAsCurrentUser = this.getCallAsCurrentUser();
     const listIndex = this.getListIndex();
     return createBootstrapIndex(callAsCurrentUser, listIndex);
   };
 
   public createListItemBootStrapIndex = async (): Promise<unknown> => {
-    if (this.dataClient == null) {
-      throw new Error('Missing DataClient');
-    }
-    const {
-      dataClient: { callAsCurrentUser },
-    } = this;
+    const callAsCurrentUser = this.getCallAsCurrentUser();
     const listItemIndex = this.getListItemIndex();
     return createBootstrapIndex(callAsCurrentUser, listItemIndex);
   };
 
   public getListPolicyExists = async (): Promise<boolean> => {
-    if (this.dataClient == null) {
-      throw new Error('Missing DataClient');
-    }
-    const {
-      dataClient: { callAsCurrentUser },
-    } = this;
+    const callAsCurrentUser = this.getCallAsCurrentUser();
     const listIndex = this.getListIndex();
     return getPolicyExists(callAsCurrentUser, listIndex);
   };
 
   public getListItemPolicyExists = async (): Promise<boolean> => {
-    if (this.dataClient == null) {
-      throw new Error('Missing DataClient');
-    }
-    const {
-      dataClient: { callAsCurrentUser },
-    } = this;
+    const callAsCurrentUser = this.getCallAsCurrentUser();
     const listsItemIndex = this.getListItemIndex();
     return getPolicyExists(callAsCurrentUser, listsItemIndex);
   };
 
   public getListTemplateExists = async (): Promise<boolean> => {
-    if (this.dataClient == null) {
-      throw new Error('Missing DataClient');
-    }
-    const {
-      dataClient: { callAsCurrentUser },
-    } = this;
+    const callAsCurrentUser = this.getCallAsCurrentUser();
     const listIndex = this.getListIndex();
     return getTemplateExists(callAsCurrentUser, listIndex);
   };
 
   public getListItemTemplateExists = async (): Promise<boolean> => {
-    if (this.dataClient == null) {
-      throw new Error('Missing DataClient');
-    }
-    const {
-      dataClient: { callAsCurrentUser },
-    } = this;
+    const callAsCurrentUser = this.getCallAsCurrentUser();
     const listItemIndex = this.getListItemIndex();
     return getTemplateExists(callAsCurrentUser, listItemIndex);
   };
@@ -285,101 +250,56 @@ export class ListClient {
   };
 
   public setListItemTemplate = async (): Promise<unknown> => {
-    if (this.dataClient == null) {
-      throw new Error('Missing DataClient');
-    }
-    const {
-      dataClient: { callAsCurrentUser },
-    } = this;
+    const callAsCurrentUser = this.getCallAsCurrentUser();
     const template = this.getListItemTemplate();
     const listItemIndex = this.getListItemIndex();
     return setTemplate(callAsCurrentUser, listItemIndex, template);
   };
 
   public setListPolicy = async (): Promise<unknown> => {
-    if (this.dataClient == null) {
-      throw new Error('Missing DataClient');
-    }
-    const {
-      dataClient: { callAsCurrentUser },
-    } = this;
+    const callAsCurrentUser = this.getCallAsCurrentUser();
     const listIndex = this.getListIndex();
     return setPolicy(callAsCurrentUser, listIndex, listPolicy);
   };
 
   public setListItemPolicy = async (): Promise<unknown> => {
-    if (this.dataClient == null) {
-      throw new Error('Missing DataClient');
-    }
-    const {
-      dataClient: { callAsCurrentUser },
-    } = this;
+    const callAsCurrentUser = this.getCallAsCurrentUser();
     const listItemIndex = this.getListItemIndex();
     return setPolicy(callAsCurrentUser, listItemIndex, listsItemsPolicy);
   };
 
   public deleteListIndex = async (): Promise<boolean> => {
-    if (this.dataClient == null) {
-      throw new Error('Missing DataClient');
-    }
-    const {
-      dataClient: { callAsCurrentUser },
-    } = this;
+    const callAsCurrentUser = this.getCallAsCurrentUser();
     const listIndex = this.getListIndex();
     return deleteAllIndex(callAsCurrentUser, `${listIndex}-*`);
   };
 
   public deleteListItemIndex = async (): Promise<boolean> => {
-    if (this.dataClient == null) {
-      throw new Error('Missing DataClient');
-    }
-    const {
-      dataClient: { callAsCurrentUser },
-    } = this;
+    const callAsCurrentUser = this.getCallAsCurrentUser();
     const listItemIndex = this.getListItemIndex();
     return deleteAllIndex(callAsCurrentUser, `${listItemIndex}-*`);
   };
 
   public deleteListPolicy = async (): Promise<unknown> => {
-    if (this.dataClient == null) {
-      throw new Error('Missing DataClient');
-    }
-    const {
-      dataClient: { callAsCurrentUser },
-    } = this;
+    const callAsCurrentUser = this.getCallAsCurrentUser();
     const listIndex = this.getListIndex();
     return deletePolicy(callAsCurrentUser, listIndex);
   };
 
   public deleteListItemPolicy = async (): Promise<unknown> => {
-    if (this.dataClient == null) {
-      throw new Error('Missing DataClient');
-    }
-    const {
-      dataClient: { callAsCurrentUser },
-    } = this;
+    const callAsCurrentUser = this.getCallAsCurrentUser();
     const listItemIndex = this.getListItemIndex();
     return deletePolicy(callAsCurrentUser, listItemIndex);
   };
 
   public deleteListTemplate = async (): Promise<unknown> => {
-    if (this.dataClient == null) {
-      throw new Error('Missing DataClient');
-    }
-    const {
-      dataClient: { callAsCurrentUser },
-    } = this;
+    const callAsCurrentUser = this.getCallAsCurrentUser();
     const listIndex = this.getListIndex();
     return deleteTemplate(callAsCurrentUser, listIndex);
   };
 
   public deleteListItemTemplate = async (): Promise<unknown> => {
-    if (this.dataClient == null) {
-      throw new Error('Missing DataClient');
-    }
-    const {
-      dataClient: { callAsCurrentUser },
-    } = this;
+    const callAsCurrentUser = this.getCallAsCurrentUser();
     const listItemIndex = this.getListItemIndex();
     return deleteTemplate(callAsCurrentUser, listItemIndex);
   };
