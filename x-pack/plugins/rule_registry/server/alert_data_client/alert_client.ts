@@ -279,25 +279,47 @@ export class AlertsClient {
     try {
       // ASSUMPTION: user bulk updating alerts from single owner/space
       // may need to iterate to support rules shared across spaces
-      await this.authorization.ensureAuthorized({
-        ruleTypeId: 'myruletypeid', // can they update multiple at once or will a single one just be passed in?
-        consumer: owner,
+
+      const ruleTypes = await this.authorization.ensureAuthorizedForAllRuleTypes({
+        owner,
         operation: WriteOperations.Update,
         entity: AlertingAuthorizationEntity.Alert,
       });
+
+      const totalRuleTypes = this.authorization.getRuleTypesByProducer(owner);
+
+      console.error('RULE TYPES', ruleTypes);
+
+      // await this.authorization.ensureAuthorized({
+      //   ruleTypeId: 'siem.signals', // can they update multiple at once or will a single one just be passed in?
+      //   consumer: owner,
+      //   operation: WriteOperations.Update,
+      //   entity: AlertingAuthorizationEntity.Alert,
+      // });
 
       try {
         const index = this.authorization.getAuthorizedAlertsIndices(owner);
         if (index == null) {
           throw Error(`cannot find authorized index for owner: ${owner}`);
         }
-        const updateParameters = buildAlertsUpdateParameters({
-          ids,
-          index,
-          status: data.status,
-        });
 
-        return await this.esClient.bulk(updateParameters);
+        const body = ids.flatMap((id) => [
+          {
+            update: {
+              _id: id,
+              _index: this.authorization.getAuthorizedAlertsIndices(ruleTypes[0].producer),
+            },
+          },
+          {
+            doc: { 'kibana.rac.alert.status': data.status },
+          },
+        ]);
+
+        const result = await this.esClient.bulk({
+          index,
+          body,
+        });
+        return result;
       } catch (updateError) {
         this.logger.error(
           `Unable to bulk update alerts for ${owner}. Error follows: ${updateError}`
@@ -305,6 +327,7 @@ export class AlertsClient {
         throw updateError;
       }
     } catch (error) {
+      console.error("HERE'S THE ERROR", error);
       throw Boom.forbidden(
         this.auditLogger.racAuthorizationFailure({
           owner,
