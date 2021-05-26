@@ -16,6 +16,6 @@ cd ../observer && sh ./post_detections_role.sh && sh ./post_detections_user.sh
 cd ..
 
 # Example: ./find_rules.sh
-curl -s -k \
+curl -v -k \
  -u $USER:changeme \
- -X GET ${KIBANA_URL}${SPACE_URL}/api/rac/alerts?id=NoxgpHkBqbdrfX07MqXV | jq .
+ -X GET "${KIBANA_URL}${SPACE_URL}/api/rac/alerts?id=NoxgpHkBqbdrfX07MqXV&assetName=observability-apm" | jq .

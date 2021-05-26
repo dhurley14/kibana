@@ -38,7 +38,11 @@ export default ({ getService }: FtrProviderContext) => {
     describe('Users:', () => {
       it(`${superUser.username} should be able to access the APM alert in ${SPACE1}`, async () => {
         const res = await supertestWithoutAuth
-          .get(`${getSpaceUrlPrefix(SPACE1)}${TEST_URL}?id=NoxgpHkBqbdrfX07MqXV`)
+          .get(
+            `${getSpaceUrlPrefix(
+              SPACE1
+            )}${TEST_URL}?id=NoxgpHkBqbdrfX07MqXV&assetName=observability-apm`
+          )
           .auth(superUser.username, superUser.password)
           .set('kbn-xsrf', 'true')
           .expect(200);
@@ -46,7 +50,11 @@ export default ({ getService }: FtrProviderContext) => {
       });
       it(`${globalRead.username} should be able to access the APM alert in ${SPACE1}`, async () => {
         const res = await supertestWithoutAuth
-          .get(`${getSpaceUrlPrefix(SPACE1)}${TEST_URL}?id=NoxgpHkBqbdrfX07MqXV`)
+          .get(
+            `${getSpaceUrlPrefix(
+              SPACE1
+            )}${TEST_URL}?id=NoxgpHkBqbdrfX07MqXV&assetName=observability-apm`
+          )
           .auth(globalRead.username, globalRead.password)
           .set('kbn-xsrf', 'true')
           .expect(200);
@@ -54,7 +62,11 @@ export default ({ getService }: FtrProviderContext) => {
       });
       it(`${obsOnlySpacesAll.username} should be able to access the APM alert in ${SPACE1}`, async () => {
         const res = await supertestWithoutAuth
-          .get(`${getSpaceUrlPrefix(SPACE1)}${TEST_URL}?id=NoxgpHkBqbdrfX07MqXV`)
+          .get(
+            `${getSpaceUrlPrefix(
+              SPACE1
+            )}${TEST_URL}?id=NoxgpHkBqbdrfX07MqXV&assetName=observability-apm`
+          )
           .auth(obsOnlySpacesAll.username, obsOnlySpacesAll.password)
           .set('kbn-xsrf', 'true')
           .expect(200);
@@ -62,7 +74,11 @@ export default ({ getService }: FtrProviderContext) => {
       });
       it(`${obsOnlyReadSpacesAll.username} should be able to access the APM alert in ${SPACE1}`, async () => {
         const res = await supertestWithoutAuth
-          .get(`${getSpaceUrlPrefix(SPACE1)}${TEST_URL}?id=NoxgpHkBqbdrfX07MqXV`)
+          .get(
+            `${getSpaceUrlPrefix(
+              SPACE1
+            )}${TEST_URL}?id=NoxgpHkBqbdrfX07MqXV&assetName=observability-apm`
+          )
           .auth(obsOnlyReadSpacesAll.username, obsOnlyReadSpacesAll.password)
           .set('kbn-xsrf', 'true')
           .expect(200);
@@ -82,7 +98,11 @@ export default ({ getService }: FtrProviderContext) => {
       ]) {
         it(`${scenario.user.username} should not be able to access the APM alert in ${SPACE1}`, async () => {
           await supertestWithoutAuth
-            .get(`${getSpaceUrlPrefix(SPACE1)}${TEST_URL}?id=NoxgpHkBqbdrfX07MqXV`)
+            .get(
+              `${getSpaceUrlPrefix(
+                SPACE1
+              )}${TEST_URL}?id=NoxgpHkBqbdrfX07MqXV&assetName=observability-apm`
+            )
             .auth(scenario.user.username, scenario.user.password)
             .set('kbn-xsrf', 'true')
             .expect(403);
@@ -97,7 +117,11 @@ export default ({ getService }: FtrProviderContext) => {
       ]) {
         it(`${scenario.user.username} should be able to access the APM alert in ${SPACE2}`, async () => {
           await supertestWithoutAuth
-            .get(`${getSpaceUrlPrefix(SPACE2)}${TEST_URL}?id=NoxgpHkBqbdrfX07MqXV`)
+            .get(
+              `${getSpaceUrlPrefix(
+                SPACE2
+              )}${TEST_URL}?id=NoxgpHkBqbdrfX07MqXV&assetName=observability-apm`
+            )
             .auth(scenario.user.username, scenario.user.password)
             .set('kbn-xsrf', 'true')
             .expect(200);
@@ -121,7 +145,11 @@ export default ({ getService }: FtrProviderContext) => {
       ]) {
         it(`${scenario.user.username} with right to access space1 only, should not be able to access the APM alert in ${SPACE2}`, async () => {
           await supertestWithoutAuth
-            .get(`${getSpaceUrlPrefix(SPACE2)}${TEST_URL}?id=NoxgpHkBqbdrfX07MqXV`)
+            .get(
+              `${getSpaceUrlPrefix(
+                SPACE2
+              )}${TEST_URL}?id=NoxgpHkBqbdrfX07MqXV&assetName=observability-apm`
+            )
             .auth(scenario.user.username, scenario.user.password)
             .set('kbn-xsrf', 'true')
             .expect(403);
