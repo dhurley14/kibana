@@ -35,44 +35,59 @@ export default ({ getService }: FtrProviderContext) => {
     before(async () => {
       await esArchiver.load('rule_registry/alerts');
     });
-    describe.only('Users:', () => {
+    describe('Users:', () => {
+      it(`${superUser.username} should be able to access the APM alert in ${SPACE1}`, async () => {
+        const res = await supertestWithoutAuth
+          .get(`${getSpaceUrlPrefix(SPACE1)}${TEST_URL}?id=NoxgpHkBqbdrfX07MqXV`)
+          .auth(superUser.username, superUser.password)
+          .set('kbn-xsrf', 'true')
+          .expect(200);
+        // console.error('RES', res);
+      });
+      it(`${globalRead.username} should be able to access the APM alert in ${SPACE1}`, async () => {
+        const res = await supertestWithoutAuth
+          .get(`${getSpaceUrlPrefix(SPACE1)}${TEST_URL}?id=NoxgpHkBqbdrfX07MqXV`)
+          .auth(globalRead.username, globalRead.password)
+          .set('kbn-xsrf', 'true')
+          .expect(200);
+        // console.error('RES', res);
+      });
+      it(`${obsOnlySpacesAll.username} should be able to access the APM alert in ${SPACE1}`, async () => {
+        const res = await supertestWithoutAuth
+          .get(`${getSpaceUrlPrefix(SPACE1)}${TEST_URL}?id=NoxgpHkBqbdrfX07MqXV`)
+          .auth(obsOnlySpacesAll.username, obsOnlySpacesAll.password)
+          .set('kbn-xsrf', 'true')
+          .expect(200);
+        // console.error('RES', res);
+      });
+      it(`${obsOnlyReadSpacesAll.username} should be able to access the APM alert in ${SPACE1}`, async () => {
+        const res = await supertestWithoutAuth
+          .get(`${getSpaceUrlPrefix(SPACE1)}${TEST_URL}?id=NoxgpHkBqbdrfX07MqXV`)
+          .auth(obsOnlyReadSpacesAll.username, obsOnlyReadSpacesAll.password)
+          .set('kbn-xsrf', 'true')
+          .expect(200);
+        // console.error('RES', res);
+      });
+
       for (const scenario of [
-        { user: superUser },
-        // { user: globalRead },
-        // { user: secOnly },
-        // { user: secOnlyRead },
-        { user: obsOnlySpacesAll },
-        // { user: obsOnlyReadSpacesAll },
+        {
+          user: noKibanaPrivileges,
+        },
+        {
+          user: secOnly,
+        },
+        {
+          user: secOnlyRead,
+        },
       ]) {
-        it(`${scenario.user.username} should be able to access the fake path in ${SPACE1}`, async () => {
-          const res = await supertestWithoutAuth
+        it(`${scenario.user.username} should not be able to access the APM alert in ${SPACE1}`, async () => {
+          await supertestWithoutAuth
             .get(`${getSpaceUrlPrefix(SPACE1)}${TEST_URL}?id=NoxgpHkBqbdrfX07MqXV`)
             .auth(scenario.user.username, scenario.user.password)
             .set('kbn-xsrf', 'true')
-            .expect(200);
-          // console.error('RES', res);
+            .expect(403);
         });
       }
-
-      // for (const scenario of [
-      //   {
-      //     user: noKibanaPrivileges,
-      //   },
-      //   {
-      //     user: obsOnly,
-      //   },
-      //   {
-      //     user: obsOnlyRead,
-      //   },
-      // ]) {
-      //   it(`${scenario.user.username} should not be able to access the fake path in ${SPACE1}`, async () => {
-      //     await supertestWithoutAuth
-      //       .get(`${getSpaceUrlPrefix(SPACE1)}${TEST_URL}`)
-      //       .auth(scenario.user.username, scenario.user.password)
-      //       .set('kbn-xsrf', 'true')
-      //       .expect(401);
-      //   });
-      // }
     });
 
     describe('Space:', () => {
@@ -80,9 +95,9 @@ export default ({ getService }: FtrProviderContext) => {
         { user: superUser, space: SPACE1 },
         { user: globalRead, space: SPACE1 },
       ]) {
-        it(`${scenario.user.username} should be able to access the fake path in ${SPACE2}`, async () => {
+        it(`${scenario.user.username} should be able to access the APM alert in ${SPACE2}`, async () => {
           await supertestWithoutAuth
-            .get(`${getSpaceUrlPrefix(SPACE2)}${TEST_URL}`)
+            .get(`${getSpaceUrlPrefix(SPACE2)}${TEST_URL}?id=NoxgpHkBqbdrfX07MqXV`)
             .auth(scenario.user.username, scenario.user.password)
             .set('kbn-xsrf', 'true')
             .expect(200);
@@ -104,32 +119,32 @@ export default ({ getService }: FtrProviderContext) => {
           user: obsOnlyRead,
         },
       ]) {
-        it(`${scenario.user.username} with right to access space1 only, should not be able to access the fake path in ${SPACE2}`, async () => {
+        it(`${scenario.user.username} with right to access space1 only, should not be able to access the APM alert in ${SPACE2}`, async () => {
           await supertestWithoutAuth
-            .get(`${getSpaceUrlPrefix(SPACE2)}${TEST_URL}`)
+            .get(`${getSpaceUrlPrefix(SPACE2)}${TEST_URL}?id=NoxgpHkBqbdrfX07MqXV`)
             .auth(scenario.user.username, scenario.user.password)
             .set('kbn-xsrf', 'true')
-            .expect(401);
+            .expect(403);
         });
       }
     });
 
-    // describe('extra params', () => {
-    //   it('should NOT allow to pass a filter query parameter', async () => {
-    //     await supertest
-    //       .get(`${getSpaceUrlPrefix(SPACE1)}${TEST_URL}?sortOrder=asc&namespaces[0]=*`)
-    //       .set('kbn-xsrf', 'true')
-    //       .send()
-    //       .expect(400);
-    //   });
+    describe('extra params', () => {
+      it('should NOT allow to pass a filter query parameter', async () => {
+        await supertest
+          .get(`${getSpaceUrlPrefix(SPACE1)}${TEST_URL}?sortOrder=asc&namespaces[0]=*`)
+          .set('kbn-xsrf', 'true')
+          .send()
+          .expect(400);
+      });
 
-    //   it('should NOT allow to pass a non supported query parameter', async () => {
-    //     await supertest
-    //       .get(`${getSpaceUrlPrefix(SPACE1)}${TEST_URL}?notExists=something`)
-    //       .set('kbn-xsrf', 'true')
-    //       .send()
-    //       .expect(400);
-    //   });
-    // });
+      it('should NOT allow to pass a non supported query parameter', async () => {
+        await supertest
+          .get(`${getSpaceUrlPrefix(SPACE1)}${TEST_URL}?notExists=something`)
+          .set('kbn-xsrf', 'true')
+          .send()
+          .expect(400);
+      });
+    });
   });
 };

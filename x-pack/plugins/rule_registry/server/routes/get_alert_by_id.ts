@@ -8,6 +8,7 @@
 import { IRouter } from 'kibana/server';
 import * as t from 'io-ts';
 import { id as _id } from '@kbn/securitysolution-io-ts-list-types';
+import { transformError, getIndexExists } from '@kbn/securitysolution-es-utils';
 
 import { RacRequestHandlerContext } from '../types';
 import { BASE_RAC_ALERTS_API_PATH } from '../../common/constants';
@@ -39,8 +40,26 @@ export const getAlertByIdRoute = (router: IRouter<RacRequestHandlerContext>) => 
           body: alert,
         });
       } catch (exc) {
-        console.error('ROUTE ERROR', exc);
-        throw exc;
+        const err = transformError(exc);
+        console.error('ROUTE ERROR status code', err.statusCode);
+        const contentType: CustomHttpResponseOptions<T>['headers'] = {
+          'content-type': 'application/json',
+        };
+        const defaultedHeaders: CustomHttpResponseOptions<T>['headers'] = {
+          ...contentType,
+        };
+
+        return response.custom({
+          headers: defaultedHeaders,
+          statusCode: err.statusCode,
+          body: Buffer.from(
+            JSON.stringify({
+              message: err.message,
+              status_code: err.statusCode,
+            })
+          ),
+        });
+        // return response.custom;
       }
     }
   );
