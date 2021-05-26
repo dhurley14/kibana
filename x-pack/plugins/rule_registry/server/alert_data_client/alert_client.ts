@@ -23,6 +23,7 @@ import {
 import { Logger, ElasticsearchClient, HttpResponsePayload } from '../../../../../src/core/server';
 import { buildAlertsSearchQuery, buildAlertsUpdateParameters } from './utils';
 import { RacAuthorizationAuditLogger } from './audit_logger';
+import { RuleDataPluginService } from '../rule_data_plugin_service';
 
 export interface ConstructorOptions {
   logger: Logger;
@@ -30,6 +31,8 @@ export interface ConstructorOptions {
   spaceId?: string;
   auditLogger: RacAuthorizationAuditLogger;
   esClient: ElasticsearchClient;
+  index: string;
+  ruleDataService: RuleDataPluginService;
 }
 
 interface IndexType {
@@ -70,6 +73,7 @@ export interface UpdateOptions<Params extends AlertTypeParams> {
   data: {
     status: string;
   };
+  assetName: string; // observability-apm see here: x-pack/plugins/apm/server/plugin.ts:191
 }
 
 export interface BulkUpdateOptions<Params extends AlertTypeParams> {
@@ -82,6 +86,7 @@ export interface BulkUpdateOptions<Params extends AlertTypeParams> {
 
 interface GetAlertParams {
   id: string;
+  assetName: string; // observability-apm see here: x-pack/plugins/apm/server/plugin.ts:191
 }
 
 export interface GetAlertInstanceSummaryParams {
@@ -98,30 +103,51 @@ export class AlertsClient {
   private readonly logger: Logger;
   private readonly auditLogger: RacAuthorizationAuditLogger;
   private readonly spaceId?: string;
+  private readonly alertsIndex: string;
   private readonly authorization: PublicMethodsOf<AlertingAuthorization>;
   private readonly esClient: ElasticsearchClient;
+  private readonly ruleDataService: RuleDataPluginService;
 
-  constructor({ auditLogger, authorization, logger, spaceId, esClient }: ConstructorOptions) {
+  constructor({
+    auditLogger,
+    authorization,
+    logger,
+    spaceId,
+    esClient,
+    index,
+    ruleDataService,
+  }: ConstructorOptions) {
     this.logger = logger;
     this.spaceId = spaceId;
     this.authorization = authorization;
     this.esClient = esClient;
     this.auditLogger = auditLogger;
+    this.alertsIndex = index;
+    this.ruleDataService = ruleDataService;
+  }
+
+  /**
+   * we are "hard coding" this string similar to how rule registry is doing it
+   * x-pack/plugins/apm/server/plugin.ts:191
+   */
+  public getAlertsIndex(assetName: string) {
+    // possibly append spaceId here?
+    return this.ruleDataService.getFullAssetName(assetName); // await this.authorization.getAuthorizedAlertsIndices();
   }
 
   // TODO: Type out alerts (rule registry fields + alerting alerts type)
-  public async get({ id }: GetAlertParams): Promise<HttpResponsePayload> {
+  public async get({ id, assetName }: GetAlertParams): Promise<HttpResponsePayload> {
     // first search for the alert specified, then check if user has access to it
     // and return search results
     const query = buildAlertsSearchQuery({
-      index: '.alerts-observability-apm',
+      index: this.getAlertsIndex(assetName), // '.alerts-observability-apm',
       alertId: id,
     });
     // TODO: Type out alerts (rule registry fields + alerting alerts type)
     try {
       console.error('QUERY', JSON.stringify(query, null, 2));
       const { body: result } = await this.esClient.get<RawAlert>({
-        index: '.alerts-observability-apm',
+        index: this.getAlertsIndex(assetName), // '.alerts-observability-apm',
         id,
       });
       console.error('rule.id', result._source['rule.id']);
@@ -186,10 +212,11 @@ export class AlertsClient {
     id,
     owner,
     data,
+    assetName,
   }: UpdateOptions<Params>): Promise<PartialAlert<Params>> {
     // TODO: Type out alerts (rule registry fields + alerting alerts type)
     const result = await this.esClient.get({
-      index: '.alerts-observability-apm', // '.siem-signals-devin-hurley-default',
+      index: this.getAlertsIndex(assetName), // '.alerts-observability-apm', // '.siem-signals-devin-hurley-default',
       id,
     });
     console.error('RESULT', result);
@@ -208,7 +235,7 @@ export class AlertsClient {
       console.error('GOT PAST AUTHZ');
 
       try {
-        const index = this.authorization.getAuthorizedAlertsIndices(hits['kibana.rac.alert.owner']);
+        const index = this.getAlertsIndex(assetName); // this.authorization.getAuthorizedAlertsIndices(hits['kibana.rac.alert.owner']);
 
         console.error('INDEX', index);
         const updateParameters = {

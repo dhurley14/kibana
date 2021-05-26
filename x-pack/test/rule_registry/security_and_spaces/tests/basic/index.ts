@@ -23,6 +23,7 @@ export default ({ loadTestFile, getService }: FtrProviderContext): void => {
     });
 
     // Basic
-    loadTestFile(require.resolve('./get_rules'));
+    loadTestFile(require.resolve('./get_alerts'));
+    loadTestFile(require.resolve('./update_alert'));
   });
 };
