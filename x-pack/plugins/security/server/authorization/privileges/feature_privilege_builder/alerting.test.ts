@@ -20,14 +20,8 @@ describe(`feature_privilege_builder`, () => {
 
       const privilege: FeatureKibanaPrivileges = {
         alerting: {
-          rule: {
-            all: [],
-            read: [],
-          },
-          alert: {
-            all: [],
-            read: [],
-          },
+          all: [],
+          read: [],
         },
 
         savedObject: {
@@ -58,10 +52,8 @@ describe(`feature_privilege_builder`, () => {
 
         const privilege: FeatureKibanaPrivileges = {
           alerting: {
-            rule: {
-              all: [],
-              read: ['alert-type'],
-            },
+            all: [],
+            read: ['alert-type'],
           },
 
           savedObject: {
