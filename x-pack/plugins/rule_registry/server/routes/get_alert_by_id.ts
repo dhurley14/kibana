@@ -27,9 +27,9 @@ export const getAlertByIdRoute = (router: IRouter<RacRequestHandlerContext>) => 
           )
         ),
       },
-      // options: {
-      //   tags: ['access:rac'],
-      // },
+      options: {
+        tags: ['access:rac'],
+      },
     },
     async (context, request, response) => {
       try {
