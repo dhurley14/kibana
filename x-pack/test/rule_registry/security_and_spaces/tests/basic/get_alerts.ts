@@ -32,7 +32,7 @@ export default ({ getService }: FtrProviderContext) => {
   const SPACE2 = 'space2';
 
   describe('rbac', () => {
-    describe('Users:', () => {
+    describe('Users get alert:', () => {
       beforeEach(async () => {
         await esArchiver.load('rule_registry/alerts');
       });
