@@ -12,6 +12,7 @@ import { SecurityPluginSetup } from '../../../security/server';
 import { AlertingAuthorization } from '../../../alerting/server/authorization';
 import { AlertsClient } from './alert_client';
 import { RacAuthorizationAuditLogger } from './audit_logger';
+import { RuleDataPluginService } from '../rule_data_plugin_service';
 
 export interface RacClientFactoryOpts {
   logger: Logger;
@@ -19,6 +20,7 @@ export interface RacClientFactoryOpts {
   esClient: ElasticsearchClient;
   getAlertingAuthorization: (request: KibanaRequest) => PublicMethodsOf<AlertingAuthorization>;
   securityPluginSetup: SecurityPluginSetup | undefined;
+  ruleDataService: RuleDataPluginService | undefined;
 }
 
 export class AlertsClientFactory {
@@ -30,6 +32,7 @@ export class AlertsClientFactory {
     request: KibanaRequest
   ) => PublicMethodsOf<AlertingAuthorization>;
   private securityPluginSetup!: SecurityPluginSetup | undefined;
+  private ruleDataService!: RuleDataPluginService | undefined;
 
   public initialize(options: RacClientFactoryOpts) {
     /**
@@ -45,18 +48,21 @@ export class AlertsClientFactory {
     this.getSpaceId = options.getSpaceId;
     this.esClient = options.esClient;
     this.securityPluginSetup = options.securityPluginSetup;
+    this.ruleDataService = options.ruleDataService;
   }
 
-  public async create(request: KibanaRequest): Promise<AlertsClient> {
+  public async create(request: KibanaRequest, index: string): Promise<AlertsClient> {
     const { securityPluginSetup, getAlertingAuthorization, logger } = this;
     const spaceId = this.getSpaceId(request);
 
     return new AlertsClient({
       spaceId,
       logger,
+      index,
       authorization: getAlertingAuthorization(request),
       auditLogger: new RacAuthorizationAuditLogger(securityPluginSetup?.audit.asScoped(request)),
       esClient: this.esClient,
+      ruleDataService: this.ruleDataService,
     });
   }
 }

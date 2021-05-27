@@ -5,7 +5,6 @@
  * 2.0.
  */
 
-import { schema } from '@kbn/config-schema';
 import {
   PluginInitializerContext,
   Plugin,
@@ -39,6 +38,7 @@ export class RuleRegistryPlugin implements Plugin<RuleRegistryPluginSetupContrac
   private readonly logger: Logger;
   private readonly config: RuleRegistryPluginConfig;
   private readonly alertsClientFactory: AlertsClientFactory;
+  private ruleDataService: RuleDataPluginService;
   private security: SecurityPluginSetup | undefined;
 
   constructor(initContext: PluginInitializerContext) {
@@ -70,6 +70,7 @@ export class RuleRegistryPlugin implements Plugin<RuleRegistryPluginSetupContrac
       error.stack = originalError.stack;
       this.logger.error(error);
     });
+    this.ruleDataService = service;
 
     // ALERTS ROUTES
     const router = core.http.createRouter<RacRequestHandlerContext>();
@@ -83,60 +84,9 @@ export class RuleRegistryPlugin implements Plugin<RuleRegistryPluginSetupContrac
     router.get({ path: '/rac-myfakepath', validate: false }, async (context, req, res) => {
       const racClient = await context.rac.getAlertsClient();
       // console.error(`WHATS IN THE RAC CLIENT`, racClient);
-      racClient?.get({ id: 'hello world' });
+      racClient?.get({ id: 'hello world', assetName: 'observability-apm' });
       return res.ok();
     });
-
-    router.get(
-      {
-        path: '/rac-getalert',
-        validate: false,
-      },
-      async (context, request, response) => {
-        try {
-          const alertsClient = await context.rac.getAlertsClient();
-          const { id } = request.query;
-          console.error('ID?', id);
-          const alert = await alertsClient.get({ id });
-          return response.ok({
-            body: alert,
-          });
-        } catch (exc) {
-          console.error('ROUTE ERROR', exc);
-          throw exc;
-        }
-      }
-    );
-
-    router.post(
-      {
-        path: '/update-alert',
-        validate: {
-          body: schema.object({
-            status: schema.string(),
-            ids: schema.arrayOf(schema.string()),
-          }),
-        },
-      },
-      async (context, req, res) => {
-        try {
-          const racClient = await context.rac.getAlertsClient();
-          console.error(req);
-          const { status, ids } = req.body;
-          console.error('STATUS', status);
-          console.error('ID', ids);
-          const thing = await racClient?.update({
-            id: ids[0],
-            owner: 'apm',
-            data: { status },
-          });
-          return res.ok({ body: { success: true, alerts: thing } });
-        } catch (exc) {
-          console.error('OOPS', exc);
-          return res.unauthorized();
-        }
-      }
-    );
 
     return service;
   }
@@ -155,10 +105,11 @@ export class RuleRegistryPlugin implements Plugin<RuleRegistryPluginSetupContrac
         return plugins.alerting.getAlertingAuthorizationWithRequest(request);
       },
       securityPluginSetup: security,
+      ruleDataService: this.ruleDataService,
     });
 
     const getRacClientWithRequest = (request: KibanaRequest) => {
-      return alertsClientFactory.create(request);
+      return alertsClientFactory.create(request, this.config.index);
     };
 
     return {
@@ -168,14 +119,14 @@ export class RuleRegistryPlugin implements Plugin<RuleRegistryPluginSetupContrac
   }
 
   private createRouteHandlerContext = (): IContextProvider<RacRequestHandlerContext, 'rac'> => {
-    const { alertsClientFactory } = this;
+    const { alertsClientFactory, config } = this;
     return async function alertsRouteHandlerContext(
       context,
       request
     ): Promise<RacApiRequestHandlerContext> {
       return {
         getAlertsClient: async () => {
-          const createdClient = alertsClientFactory.create(request);
+          const createdClient = alertsClientFactory.create(request, config.index);
           return createdClient;
         },
       };

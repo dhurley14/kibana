@@ -9,39 +9,44 @@ import { IRouter } from 'kibana/server';
 import * as t from 'io-ts';
 import { id as _id } from '@kbn/securitysolution-io-ts-list-types';
 import { transformError, getIndexExists } from '@kbn/securitysolution-es-utils';
+import { schema } from '@kbn/config-schema';
 
 import { RacRequestHandlerContext } from '../types';
 import { BASE_RAC_ALERTS_API_PATH } from '../../common/constants';
 import { buildRouteValidation } from './utils/route_validation';
 
-export const getAlertByIdRoute = (router: IRouter<RacRequestHandlerContext>) => {
-  router.get(
+export const updateAlertByIdRoute = (router: IRouter<RacRequestHandlerContext>) => {
+  router.post(
     {
       path: BASE_RAC_ALERTS_API_PATH,
       validate: {
-        query: buildRouteValidation(
-          t.exact(
-            t.type({
-              id: _id,
-              assetName: t.string,
-            })
-          )
-        ),
+        body: schema.object({
+          status: schema.string(),
+          ids: schema.arrayOf(schema.string()),
+          assetName: schema.string(),
+        }),
       },
       options: {
         tags: ['access:rac'],
       },
     },
-    async (context, request, response) => {
+    async (context, req, response) => {
       try {
-        const alertsClient = await context.rac.getAlertsClient();
-        const { id, assetName } = request.query;
-        const alert = await alertsClient.get({ id, assetName });
-        return response.ok({
-          body: alert,
+        const racClient = await context.rac.getAlertsClient();
+        console.error(req);
+        const { status, ids, assetName } = req.body;
+        console.error('STATUS', status);
+        console.error('ID', ids);
+        const thing = await racClient?.update({
+          id: ids[0],
+          owner: 'apm',
+          data: { status },
+          assetName,
         });
+        return response.ok({ body: { success: true, alerts: thing } });
       } catch (exc) {
         const err = transformError(exc);
+        console.error(err.message);
         console.error('ROUTE ERROR status code', err.statusCode);
         const contentType: CustomHttpResponseOptions<T>['headers'] = {
           'content-type': 'application/json',
@@ -60,7 +65,6 @@ export const getAlertByIdRoute = (router: IRouter<RacRequestHandlerContext>) => 
             })
           ),
         });
-        // return response.custom;
       }
     }
   );
