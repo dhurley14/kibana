@@ -4,6 +4,7 @@
  * 2.0; you may not use this file except in compliance with the Elastic License
  * 2.0.
  */
+import { schema } from '@kbn/config-schema';
 
 import {
   PluginInitializerContext,
@@ -69,6 +70,7 @@ export class RuleRegistryPlugin
     this.config = initContext.config.get<RuleRegistryPluginConfig>();
     this.logger = initContext.logger.get();
     this.eventLogService = null;
+    this.ruleDataService = null;
     this.alertsClientFactory = new AlertsClientFactory();
   }
 
@@ -87,7 +89,7 @@ export class RuleRegistryPlugin
 
     this.security = plugins.security;
 
-    const ruleDataService = new RuleDataPluginService({
+    const service = new RuleDataPluginService({
       logger: this.logger,
       isWriteEnabled: this.config.write.enabled,
       index: this.config.index,
@@ -97,12 +99,13 @@ export class RuleRegistryPlugin
       },
     });
 
-    ruleDataService.init().catch((originalError) => {
+    service.init().catch((originalError) => {
       const error = new Error('Failed installing assets');
       // @ts-ignore
       error.stack = originalError.stack;
       this.logger.error(error);
     });
+
     this.ruleDataService = service;
 
     // ALERTS ROUTES
@@ -135,37 +138,7 @@ export class RuleRegistryPlugin
 
     this.eventLogService = eventLogService;
 
-    router.post(
-      {
-        path: '/update-alert',
-        validate: {
-          body: schema.object({
-            status: schema.string(),
-            ids: schema.arrayOf(schema.string()),
-          }),
-        },
-      },
-      async (context, req, res) => {
-        try {
-          const racClient = await context.rac.getAlertsClient();
-          console.error(req);
-          const { status, ids } = req.body;
-          console.error('STATUS', status);
-          console.error('ID', ids);
-          const thing = await racClient?.update({
-            id: ids[0],
-            owner: 'apm',
-            data: { status },
-          });
-          return res.ok({ body: { success: true, alerts: thing } });
-        } catch (exc) {
-          console.error('OOPS', exc);
-          return res.unauthorized();
-        }
-      }
-    );
-
-    return { ruleDataService, eventLogService };
+    return { ruleDataService: this.ruleDataService, eventLogService };
   }
 
   public start(core: CoreStart, plugins: RuleRegistryPluginsStart) {
