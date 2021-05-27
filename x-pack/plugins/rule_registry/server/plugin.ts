@@ -124,6 +124,41 @@ export class RuleRegistryPlugin
       return res.ok();
     });
 
+    router.post(
+      {
+        path: '/update-alert',
+        validate: {
+          body: schema.object({
+            status: schema.string(),
+            ids: schema.arrayOf(schema.string()),
+          }),
+        },
+      },
+      async (context, req, res) => {
+        try {
+          const racClient = await context.rac.getAlertsClient();
+          console.error(req);
+          const { status, ids } = req.body;
+          console.error('STATUS', status);
+          console.error('ID', ids);
+          // const thing = await racClient?.update({
+          //   id: ids[0],
+          //   owner: 'apm',
+          //   data: { status },
+          // });
+          const thing = await racClient?.bulkUpdate({
+            ids,
+            owner: 'apm', // should this be observability?
+            data: { status },
+          });
+          return res.ok({ body: { success: true, alerts: thing } });
+        } catch (exc) {
+          console.error('OOPS', exc);
+          return res.unauthorized();
+        }
+      }
+    );
+
     const eventLogService = new EventLogService({
       config: {
         indexPrefix: this.config.index,

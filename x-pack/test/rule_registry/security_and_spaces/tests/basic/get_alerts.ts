@@ -32,10 +32,13 @@ export default ({ getService }: FtrProviderContext) => {
   const SPACE2 = 'space2';
 
   describe('rbac', () => {
-    before(async () => {
-      await esArchiver.load('rule_registry/alerts');
-    });
-    describe('Users:', () => {
+    describe('Users get alert:', () => {
+      beforeEach(async () => {
+        await esArchiver.load('rule_registry/alerts');
+      });
+      afterEach(async () => {
+        await esArchiver.unload('rule_registry/alerts');
+      });
       it(`${superUser.username} should be able to access the APM alert in ${SPACE1}`, async () => {
         const res = await supertestWithoutAuth
           .get(
@@ -46,7 +49,6 @@ export default ({ getService }: FtrProviderContext) => {
           .auth(superUser.username, superUser.password)
           .set('kbn-xsrf', 'true')
           .expect(200);
-        // console.error('RES', res);
       });
       it(`${globalRead.username} should be able to access the APM alert in ${SPACE1}`, async () => {
         const res = await supertestWithoutAuth
@@ -58,7 +60,6 @@ export default ({ getService }: FtrProviderContext) => {
           .auth(globalRead.username, globalRead.password)
           .set('kbn-xsrf', 'true')
           .expect(200);
-        // console.error('RES', res);
       });
       it(`${obsOnlySpacesAll.username} should be able to access the APM alert in ${SPACE1}`, async () => {
         const res = await supertestWithoutAuth
@@ -70,7 +71,6 @@ export default ({ getService }: FtrProviderContext) => {
           .auth(obsOnlySpacesAll.username, obsOnlySpacesAll.password)
           .set('kbn-xsrf', 'true')
           .expect(200);
-        // console.error('RES', res);
       });
       it(`${obsOnlyReadSpacesAll.username} should be able to access the APM alert in ${SPACE1}`, async () => {
         const res = await supertestWithoutAuth
@@ -82,7 +82,6 @@ export default ({ getService }: FtrProviderContext) => {
           .auth(obsOnlyReadSpacesAll.username, obsOnlyReadSpacesAll.password)
           .set('kbn-xsrf', 'true')
           .expect(200);
-        // console.error('RES', res);
       });
 
       for (const scenario of [
@@ -111,6 +110,12 @@ export default ({ getService }: FtrProviderContext) => {
     });
 
     describe('Space:', () => {
+      beforeEach(async () => {
+        await esArchiver.load('rule_registry/alerts');
+      });
+      afterEach(async () => {
+        await esArchiver.unload('rule_registry/alerts');
+      });
       for (const scenario of [
         { user: superUser, space: SPACE1 },
         { user: globalRead, space: SPACE1 },
@@ -158,6 +163,12 @@ export default ({ getService }: FtrProviderContext) => {
     });
 
     describe('extra params', () => {
+      beforeEach(async () => {
+        await esArchiver.load('rule_registry/alerts');
+      });
+      afterEach(async () => {
+        await esArchiver.unload('rule_registry/alerts');
+      });
       it('should NOT allow to pass a filter query parameter', async () => {
         await supertest
           .get(`${getSpaceUrlPrefix(SPACE1)}${TEST_URL}?sortOrder=asc&namespaces[0]=*`)

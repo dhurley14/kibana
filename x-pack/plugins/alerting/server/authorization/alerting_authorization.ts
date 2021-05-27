@@ -146,6 +146,49 @@ export class AlertingAuthorization {
       : undefined;
   }
 
+  public getRuleTypesByProducer(owner: string) {
+    return Array.from(this.alertTypeRegistry.list()).filter(
+      (ruleType) => ruleType.producer !== owner
+    );
+  }
+
+  /**
+   * List all rule types and ensure authz via owner (consumer) and operation.
+   * @param param0 {owner: string, operation: string}
+   */
+  public async ensureAuthorizedForAllRuleTypes({
+    entity,
+    owner,
+    operation,
+  }: {
+    entity: AlertingAuthorizationEntity;
+    owner: string;
+    operation: ReadOperations | WriteOperations;
+  }) {
+    const { authorization } = this;
+
+    const isAvailableConsumer = has(await this.allPossibleConsumers, owner);
+    const ruleTypes = Array.from(this.alertTypeRegistry.list());
+    const ruleTypesByOwner = this.getRuleTypesByProducer(owner);
+    const unAuthorizedRuleTypes = await Promise.allSettled(
+      ruleTypes.map((ruleType) =>
+        this.ensureAuthorized({ ruleTypeId: ruleType.id, consumer: owner, operation, entity })
+      )
+    ).then((results) => {
+      const toReturn = [];
+      results.forEach((result) => {
+        return result.status === 'rejected'
+          ? toReturn.push(result.reason.data.ruleTypeId)
+          : undefined;
+      });
+      return Promise.resolve(toReturn);
+    });
+    return (
+      ruleTypes.filter((ruleType) => !unAuthorizedRuleTypes.includes(ruleType.id)).length ===
+      ruleTypesByOwner.length
+    );
+  }
+
   public async ensureAuthorized({ ruleTypeId, consumer, operation, entity }: EnsureAuthorizedOpts) {
     const { authorization } = this;
 
@@ -214,7 +257,8 @@ export class AlertingAuthorization {
             consumer,
             operation,
             entity
-          )
+          ),
+          { ruleTypeId, scopeTypeConsumer: ScopeType.Consumer, consumer, operation, entity }
         );
       }
 
@@ -257,7 +301,8 @@ export class AlertingAuthorization {
             unauthorizedScope,
             operation,
             entity
-          )
+          ),
+          { ruleTypeId, scopeTypeConsumer: ScopeType.Consumer, consumer, operation, entity }
         );
       }
     } else if (!isAvailableConsumer) {
@@ -270,14 +315,16 @@ export class AlertingAuthorization {
           consumer,
           operation,
           entity
-        )
+        ),
+        { ruleTypeId, scopeTypeConsumer: ScopeType.Consumer, consumer, operation, entity }
       );
     }
   }
 
   public async getFindAuthorizationFilter(
     authorizationEntity: AlertingAuthorizationEntity,
-    filterOpts: AlertingAuthorizationFilterOpts
+    filterOpts: AlertingAuthorizationFilterOpts,
+    operation: ReadOperations | WriteOperations | undefined = ReadOperations.Find
   ): Promise<{
     filter?: KueryNode | JsonObject;
     ensureRuleTypeIsAuthorized: (ruleTypeId: string, consumer: string, auth: string) => void;
@@ -286,7 +333,7 @@ export class AlertingAuthorization {
     if (this.authorization && this.shouldCheckAuthorization()) {
       const { username, authorizedRuleTypes } = await this.augmentRuleTypesWithAuthorization(
         this.alertTypeRegistry.list(),
-        [ReadOperations.Find],
+        [operation],
         authorizationEntity
       );
 
@@ -316,7 +363,7 @@ export class AlertingAuthorization {
                 ruleTypeId,
                 ScopeType.Consumer,
                 consumer,
-                'find',
+                operation,
                 authorizationEntity
               )
             );
@@ -342,7 +389,7 @@ export class AlertingAuthorization {
                 []
               ),
               ScopeType.Consumer,
-              'find',
+              operation,
               authorizationEntity
             );
           }
@@ -368,7 +415,7 @@ export class AlertingAuthorization {
     return authorizedRuleTypes;
   }
 
-  private async augmentRuleTypesWithAuthorization(
+  public async augmentRuleTypesWithAuthorization(
     ruleTypes: Set<RegistryAlertType>,
     operations: Array<ReadOperations | WriteOperations>,
     authorizationEntity: AlertingAuthorizationEntity
