@@ -35,7 +35,6 @@ export const updateAlertByIdRoute = (router: IRouter<RacRequestHandlerContext>) 
 
         const thing = await racClient?.update({
           id: ids[0],
-          owner: 'apm',
           data: { status },
           assetName,
         });

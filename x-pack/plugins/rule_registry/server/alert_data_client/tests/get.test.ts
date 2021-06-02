@@ -44,6 +44,8 @@ describe('get()', () => {
     esClientMock.get.mockResolvedValueOnce(
       elasticsearchClientMock.createApiResponse({
         body: {
+          found: true,
+          _type: 'alert',
           _index: '.alerts-observability-apm',
           _id: 'NoxgpHkBqbdrfX07MqXV',
           _source: {
@@ -100,6 +102,8 @@ describe('get()', () => {
       esClientMock.get.mockResolvedValueOnce(
         elasticsearchClientMock.createApiResponse({
           body: {
+            found: true,
+            _type: 'alert',
             _index: '.alerts-observability-apm',
             _id: 'NoxgpHkBqbdrfX07MqXV',
             _source: {

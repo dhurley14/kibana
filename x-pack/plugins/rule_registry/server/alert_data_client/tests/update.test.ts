@@ -44,6 +44,8 @@ describe('update()', () => {
     esClientMock.get.mockResolvedValueOnce(
       elasticsearchClientMock.createApiResponse({
         body: {
+          found: true,
+          _type: 'alert',
           _index: '.alerts-observability-apm',
           _id: 'NoxgpHkBqbdrfX07MqXV',
           _source: {
@@ -58,9 +60,21 @@ describe('update()', () => {
     esClientMock.update.mockResolvedValueOnce(
       elasticsearchClientMock.createApiResponse({
         body: {
+          _primary_term: 2,
+          result: 'updated',
+          _seq_no: 1,
+          _shards: {
+            failed: 0,
+            successful: 1,
+            total: 1,
+          },
+          _version: 1,
+          _index: '.alerts-observability-apm',
+          _id: 'NoxgpHkBqbdrfX07MqXV',
           get: {
-            _index: '.alerts-observability-apm',
-            _id: 'NoxgpHkBqbdrfX07MqXV',
+            found: true,
+            _seq_no: 1,
+            _primary_term: 2,
             _source: {
               'rule.id': 'apm.error_rate',
               message: 'hello world 1',
@@ -140,6 +154,8 @@ describe('update()', () => {
     esClientMock.get.mockResolvedValueOnce(
       elasticsearchClientMock.createApiResponse({
         body: {
+          found: true,
+          _type: 'alert',
           _index: '.alerts-observability-apm',
           _id: 'NoxgpHkBqbdrfX07MqXV',
           _source: {
@@ -177,6 +193,8 @@ describe('update()', () => {
       esClientMock.get.mockResolvedValueOnce(
         elasticsearchClientMock.createApiResponse({
           body: {
+            found: true,
+            _type: 'alert',
             _index: '.alerts-observability-apm',
             _id: 'NoxgpHkBqbdrfX07MqXV',
             _source: {
@@ -188,12 +206,25 @@ describe('update()', () => {
           },
         })
       );
+
       esClientMock.update.mockResolvedValueOnce(
         elasticsearchClientMock.createApiResponse({
           body: {
+            _primary_term: 2,
+            result: 'updated',
+            _seq_no: 1,
+            _shards: {
+              failed: 0,
+              successful: 1,
+              total: 1,
+            },
+            _version: 1,
+            _index: '.alerts-observability-apm',
+            _id: 'NoxgpHkBqbdrfX07MqXV',
             get: {
-              _index: '.alerts-observability-apm',
-              _id: 'NoxgpHkBqbdrfX07MqXV',
+              found: true,
+              _seq_no: 1,
+              _primary_term: 2,
               _source: {
                 'rule.id': 'apm.error_rate',
                 message: 'hello world 1',

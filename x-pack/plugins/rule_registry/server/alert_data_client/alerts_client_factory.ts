@@ -18,7 +18,7 @@ export interface AlertsClientFactoryProps {
   esClient: ElasticsearchClient;
   getAlertingAuthorization: (request: KibanaRequest) => PublicMethodsOf<AlertingAuthorization>;
   securityPluginSetup: SecurityPluginSetup | undefined;
-  ruleDataService: RuleDataPluginService | null;
+  ruleDataService: PublicMethodsOf<RuleDataPluginService> | null;
 }
 
 export class AlertsClientFactory {
@@ -29,7 +29,7 @@ export class AlertsClientFactory {
     request: KibanaRequest
   ) => PublicMethodsOf<AlertingAuthorization>;
   private securityPluginSetup!: SecurityPluginSetup | undefined;
-  private ruleDataService!: RuleDataPluginService;
+  private ruleDataService!: PublicMethodsOf<RuleDataPluginService>;
 
   public initialize(options: AlertsClientFactoryProps) {
     /**

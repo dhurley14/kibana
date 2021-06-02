@@ -13,7 +13,7 @@ import {
   AlertTypeState,
 } from '../../alerting/common';
 import { AlertType } from '../../alerting/server';
-import { AlertsClient } from './alert_data_client/alert_client';
+import { AlertsClient } from './alert_data_client/alerts_client';
 
 type SimpleAlertType<
   TParams extends AlertTypeParams = {},
