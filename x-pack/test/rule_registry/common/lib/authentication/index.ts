@@ -51,7 +51,7 @@ export const createUsersAndRoles = async (
   };
 
   for (const role of rolesToCreate) {
-    const res = await createRole(role);
+    await createRole(role);
   }
 
   for (const user of usersToCreate) {

@@ -8,13 +8,8 @@
 import {
   secOnly,
   secOnlyRead,
-  globalRead,
-  obsOnly,
-  obsOnlyRead,
   obsOnlySpacesAll,
   obsOnlyReadSpacesAll,
-  obsSec,
-  obsSecRead,
   superUser,
   noKibanaPrivileges,
 } from '../../../common/lib/authentication/users';
@@ -24,12 +19,10 @@ import { getSpaceUrlPrefix } from '../../../common/lib/authentication/spaces';
 // eslint-disable-next-line import/no-default-export
 export default ({ getService }: FtrProviderContext) => {
   const supertestWithoutAuth = getService('supertestWithoutAuth');
-  const supertest = getService('supertest');
   const esArchiver = getService('esArchiver');
 
   const TEST_URL = '/api/rac/alerts';
   const SPACE1 = 'space1';
-  const SPACE2 = 'space2';
 
   describe('rbac', () => {
     describe('Users update:', () => {
