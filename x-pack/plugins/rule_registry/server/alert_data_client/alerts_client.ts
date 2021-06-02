@@ -24,7 +24,7 @@ export interface ConstructorOptions {
   authorization: PublicMethodsOf<AlertingAuthorization>;
   auditLogger?: AuditLogger;
   esClient: ElasticsearchClient;
-  ruleDataService: RuleDataPluginService;
+  ruleDataService: PublicMethodsOf<RuleDataPluginService>;
 }
 
 export interface UpdateOptions<Params extends AlertTypeParams> {
@@ -47,7 +47,7 @@ export class AlertsClient {
   private readonly auditLogger?: AuditLogger;
   private readonly authorization: PublicMethodsOf<AlertingAuthorization>;
   private readonly esClient: ElasticsearchClient;
-  private readonly ruleDataService: RuleDataPluginService;
+  private readonly ruleDataService: PublicMethodsOf<RuleDataPluginService>;
 
   constructor({
     auditLogger,
@@ -109,8 +109,8 @@ export class AlertsClient {
       // this.authorization leverages the alerting plugin's authorization
       // client exposed to us for reuse
       await this.authorization.ensureAuthorized({
-        ruleTypeId: alert['rule.id'],
-        consumer: alert['kibana.rac.alert.owner'],
+        ruleTypeId: alert['rule.id']!, // we assert in fetchAlert that these values are non-null
+        consumer: alert['kibana.rac.alert.owner']!, // we assert in fetchAlert that these values are non-null
         operation: ReadOperations.Get,
         entity: AlertingAuthorizationEntity.Alert,
       });
@@ -149,8 +149,8 @@ export class AlertsClient {
       });
 
       await this.authorization.ensureAuthorized({
-        ruleTypeId: alert['rule.id'],
-        consumer: alert['kibana.rac.alert.owner'],
+        ruleTypeId: alert['rule.id']!, // we assert in fetchAlert that these values are non-null
+        consumer: alert['kibana.rac.alert.owner']!, // we assert in fetchAlert that these values are non-null
         operation: WriteOperations.Update,
         entity: AlertingAuthorizationEntity.Alert,
       });

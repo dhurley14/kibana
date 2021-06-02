@@ -22,7 +22,7 @@ const createAlertingAuthorizationMock = () => {
 };
 
 export const alertingAuthorizationMock: {
-  create: () => AlertingAuthorizationMock;
+  create: () => jest.Mocked<PublicMethodsOf<AlertingAuthorization>>; // AlertingAuthorizationMock;
 } = {
   create: createAlertingAuthorizationMock,
 };

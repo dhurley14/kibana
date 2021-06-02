@@ -21,11 +21,13 @@ const createRuleDataPluginServiceMock = (_: RuleDataPluginServiceConstructorOpti
     createOrUpdateIndexTemplate: jest.fn(),
     createOrUpdateLifecyclePolicy: jest.fn(),
   };
-  return (mocked as unknown) as jest.Mocked<RuleDataPluginService>;
+  return mocked;
 };
 
 export const ruleDataPluginServiceMock: {
-  create: (_: RuleDataPluginServiceConstructorOptions) => jest.Mocked<RuleDataPluginService>;
+  create: (
+    _: RuleDataPluginServiceConstructorOptions
+  ) => jest.Mocked<PublicMethodsOf<RuleDataPluginService>>;
 } = {
   create: createRuleDataPluginServiceMock,
 };

@@ -24,7 +24,7 @@ const ruleDataServiceMock = ruleDataPluginServiceMock.create(
 );
 const alertingAuthMock = alertingAuthorizationMock.create();
 
-const alertsClientFactoryParams: jest.Mocked<AlertsClientFactoryProps> = {
+const alertsClientFactoryParams: AlertsClientFactoryProps = {
   logger: loggingSystemMock.create().get(),
   getAlertingAuthorization: (_: KibanaRequest) => alertingAuthMock,
   securityPluginSetup,
