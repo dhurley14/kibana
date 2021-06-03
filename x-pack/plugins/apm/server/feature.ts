@@ -43,7 +43,7 @@ export const APM_FEATURE = {
           all: Object.values(AlertType),
         },
         alert: {
-          all: Object.values(AlertType),
+          read: Object.values(AlertType),
         },
       },
       management: {

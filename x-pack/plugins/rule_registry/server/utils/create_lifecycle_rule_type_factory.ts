@@ -70,15 +70,12 @@ export const createLifecycleRuleTypeFactory: CreateLifecycleRuleTypeFactory = ({
       const {
         services: { alertInstanceFactory },
         state: previousState,
+        rule,
       } = options;
 
       const ruleExecutorData = getRuleExecutorData(type, options);
-      const so = await options.services.savedObjectsClient.get(
-        'alert',
-        ruleExecutorData[RULE_UUID]
-      );
 
-      logger.debug(`LOGGER RULE REGISTRY CONSUMER ${so.attributes.consumer}`);
+      logger.debug(`LOGGER RULE REGISTRY CONSUMER ${rule.consumer}`);
 
       const decodedState = wrappedStateRt.decode(previousState);
 
@@ -187,7 +184,7 @@ export const createLifecycleRuleTypeFactory: CreateLifecycleRuleTypeFactory = ({
           ...ruleExecutorData,
           [TIMESTAMP]: timestamp,
           [EVENT_KIND]: 'state',
-          [OWNER]: so.attributes.consumer,
+          [OWNER]: rule.consumer,
           [ALERT_ID]: alertId,
         };
 
