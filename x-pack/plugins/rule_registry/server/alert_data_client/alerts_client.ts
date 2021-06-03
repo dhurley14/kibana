@@ -190,4 +190,125 @@ export class AlertsClient {
       throw error;
     }
   }
+
+  public async bulkUpdate<Params extends AlertTypeParams = never>({
+    ids,
+    query,
+    assetName,
+    data,
+  }: BulkUpdateOptions<Params>): Promise<PartialAlert<Params>> {
+    const { status } = data;
+    let queryObject;
+    if (ids) {
+      // maybe use an aggs query to make this fast
+      queryObject = {
+        ids: { values: ids },
+        // USE AGGS and then get returned fields against ensureAuthorizedForAllRuleTypes
+        aggs: {
+          ...(await this.authorization.getFindAuthorizationFilter(
+            AlertingAuthorizationEntity.Alert,
+            {
+              type: AlertingAuthorizationFilterType.ESDSL,
+              fieldNames: { consumer: 'kibana.rac.alert.owner', ruleTypeId: 'rule.id' },
+            },
+            WriteOperations.Update
+          )),
+        },
+      };
+    }
+    console.error('QUERY OBJECT', JSON.stringify(queryObject, null, 2));
+    if (query) {
+      queryObject = {
+        bool: {
+          ...query,
+        },
+      };
+    }
+    try {
+      const result = await this.esClient.updateByQuery({
+        index: this.getAlertsIndex(assetName),
+        conflicts: 'abort', // conflicts ?? 'abort',
+        // @ts-expect-error refresh should allow for 'wait_for'
+        refresh: 'wait_for',
+        body: {
+          script: {
+            source: `ctx._source.signal.status = '${status}'`,
+            lang: 'painless',
+          },
+          query: queryObject,
+        },
+        ignoreUnavailable: true,
+      });
+      return result;
+    } catch (err) {
+      // TODO: Update error message
+      this.logger.error('');
+      console.error('UPDATE ERROR', JSON.stringify(err, null, 2));
+      throw err;
+    }
+    // Looking like we may need to first fetch the alerts to ensure we are
+    // pulling the correct ruleTypeId and owner
+    // await this.esClient.mget()
+
+    // try {
+    //   // ASSUMPTION: user bulk updating alerts from single owner/space
+    //   // may need to iterate to support rules shared across spaces
+
+    //   const ruleTypes = await this.authorization.ensureAuthorizedForAllRuleTypes({
+    //     owner,
+    //     operation: WriteOperations.Update,
+    //     entity: AlertingAuthorizationEntity.Alert,
+    //   });
+
+    //   const totalRuleTypes = this.authorization.getRuleTypesByProducer(owner);
+
+    //   console.error('RULE TYPES', ruleTypes);
+
+    //   // await this.authorization.ensureAuthorized({
+    //   //   ruleTypeId: 'siem.signals', // can they update multiple at once or will a single one just be passed in?
+    //   //   consumer: owner,
+    //   //   operation: WriteOperations.Update,
+    //   //   entity: AlertingAuthorizationEntity.Alert,
+    //   // });
+
+    //   try {
+    //     const index = this.authorization.getAuthorizedAlertsIndices(owner);
+    //     if (index == null) {
+    //       throw Error(`cannot find authorized index for owner: ${owner}`);
+    //     }
+
+    //     const body = ids.flatMap((id) => [
+    //       {
+    //         update: {
+    //           _id: id,
+    //           _index: this.authorization.getAuthorizedAlertsIndices(ruleTypes[0].producer),
+    //         },
+    //       },
+    //       {
+    //         doc: { 'kibana.rac.alert.status': data.status },
+    //       },
+    //     ]);
+
+    //     const result = await this.esClient.bulk({
+    //       index,
+    //       body,
+    //     });
+    //     return result;
+    //   } catch (updateError) {
+    //     this.logger.error(
+    //       `Unable to bulk update alerts for ${owner}. Error follows: ${updateError}`
+    //     );
+    //     throw updateError;
+    //   }
+    // } catch (error) {
+    //   console.error("HERE'S THE ERROR", error);
+    //   throw Boom.forbidden(
+    //     this.auditLogger.racAuthorizationFailure({
+    //       owner,
+    //       operation: ReadOperations.Get,
+    //       type: 'access',
+    //     })
+    //   );
+    // }
+  }
 }
