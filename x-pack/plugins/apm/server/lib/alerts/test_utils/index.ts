@@ -69,6 +69,7 @@ export const createRuleTypeMocks = () => {
     executor: async ({ params }: { params: Record<string, any> }) => {
       return alertExecutor({
         services,
+        rule: { consumer: 'apm' },
         params,
         startedAt: new Date(),
       });
