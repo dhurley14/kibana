@@ -26,6 +26,11 @@ export class RuleDataClient implements IRuleDataClient {
     return await this.options.getClusterClient();
   }
 
+  getIndexName() {
+    // const index = `${[this.options.alias, options.namespace].filter(Boolean).join('-')}*`;
+    return this.options.alias;
+  }
+
   getReader(options: { namespace?: string } = {}): RuleDataReader {
     const index = `${[this.options.alias, options.namespace].filter(Boolean).join('-')}*`;
 

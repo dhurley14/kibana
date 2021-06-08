@@ -6,39 +6,29 @@
  */
 
 import { IRouter } from 'kibana/server';
-import * as t from 'io-ts';
 import { id as _id } from '@kbn/securitysolution-io-ts-list-types';
 import { transformError } from '@kbn/securitysolution-es-utils';
 
 import { RacRequestHandlerContext } from '../types';
 import { BASE_RAC_ALERTS_API_PATH } from '../../common/constants';
-import { buildRouteValidation } from './utils/route_validation';
 
-export const getAlertByIdRoute = (router: IRouter<RacRequestHandlerContext>) => {
+export const getAlertsIndexRoute = (router: IRouter<RacRequestHandlerContext>) => {
   router.get(
     {
-      path: BASE_RAC_ALERTS_API_PATH,
-      validate: {
-        query: buildRouteValidation(
-          t.exact(
-            t.type({
-              id: _id,
-              indexName: t.string,
-            })
-          )
-        ),
-      },
+      path: `${BASE_RAC_ALERTS_API_PATH}/index`,
+      validate: false,
       options: {
         tags: ['access:rac'],
       },
     },
     async (context, request, response) => {
+      const APM_SERVER_FEATURE_ID = 'apm';
+      const SERVER_APP_ID = 'siem';
       try {
         const alertsClient = await context.rac.getAlertsClient();
-        const { id, indexName } = request.query;
-        const alert = await alertsClient.get({ id, indexName });
+        const indexName = await alertsClient.getAlertsIndex([APM_SERVER_FEATURE_ID, SERVER_APP_ID]);
         return response.ok({
-          body: alert,
+          body: { index_name: indexName },
         });
       } catch (exc) {
         const err = transformError(exc);
