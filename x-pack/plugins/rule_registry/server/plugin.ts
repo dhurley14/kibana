@@ -117,7 +117,7 @@ export class RuleRegistryPlugin
     // handler is called when '/path' resource is requested with `GET` method
     router.get({ path: '/rac-myfakepath', validate: false }, async (context, req, res) => {
       const racClient = await context.rac.getAlertsClient();
-      racClient?.get({ id: 'hello world', assetName: 'observability-apm' });
+      racClient?.get({ id: 'hello world', indexName: '.alerts-observability-apm' });
       return res.ok();
     });
 

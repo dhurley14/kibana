@@ -5,6 +5,8 @@
  * 2.0.
  */
 
+import expect from '@kbn/expect';
+
 import {
   secOnly,
   secOnlyRead,
@@ -28,8 +30,22 @@ export default ({ getService }: FtrProviderContext) => {
   const esArchiver = getService('esArchiver');
 
   const TEST_URL = '/api/rac/alerts';
+  const ALERTS_INDEX_URL = `${TEST_URL}/index`;
   const SPACE1 = 'space1';
   const SPACE2 = 'space2';
+
+  const getAPMIndexName = async (user) => {
+    const { body: indexNames } = await supertestWithoutAuth
+      .get(`${getSpaceUrlPrefix(SPACE1)}${ALERTS_INDEX_URL}`)
+      .auth(user.username, user.password)
+      .set('kbn-xsrf', 'true')
+      .expect(200);
+    const observabilityIndex = indexNames.index_name.find(
+      (indexName) => indexName === '.alerts-observability-apm'
+    );
+    expect(observabilityIndex).to.eql('.alerts-observability-apm');
+    return observabilityIndex;
+  };
 
   describe('rbac', () => {
     before(async () => {
@@ -37,44 +53,40 @@ export default ({ getService }: FtrProviderContext) => {
     });
     describe('Users:', () => {
       it(`${superUser.username} should be able to access the APM alert in ${SPACE1}`, async () => {
+        const apmIndex = await getAPMIndexName(superUser);
         await supertestWithoutAuth
           .get(
-            `${getSpaceUrlPrefix(
-              SPACE1
-            )}${TEST_URL}?id=NoxgpHkBqbdrfX07MqXV&assetName=observability-apm`
+            `${getSpaceUrlPrefix(SPACE1)}${TEST_URL}?id=NoxgpHkBqbdrfX07MqXV&indexName=${apmIndex}`
           )
           .auth(superUser.username, superUser.password)
           .set('kbn-xsrf', 'true')
           .expect(200);
       });
       it(`${globalRead.username} should be able to access the APM alert in ${SPACE1}`, async () => {
+        const apmIndex = await getAPMIndexName(superUser);
         await supertestWithoutAuth
           .get(
-            `${getSpaceUrlPrefix(
-              SPACE1
-            )}${TEST_URL}?id=NoxgpHkBqbdrfX07MqXV&assetName=observability-apm`
+            `${getSpaceUrlPrefix(SPACE1)}${TEST_URL}?id=NoxgpHkBqbdrfX07MqXV&indexName=${apmIndex}`
           )
           .auth(globalRead.username, globalRead.password)
           .set('kbn-xsrf', 'true')
           .expect(200);
       });
       it(`${obsOnlySpacesAll.username} should be able to access the APM alert in ${SPACE1}`, async () => {
+        const apmIndex = await getAPMIndexName(superUser);
         await supertestWithoutAuth
           .get(
-            `${getSpaceUrlPrefix(
-              SPACE1
-            )}${TEST_URL}?id=NoxgpHkBqbdrfX07MqXV&assetName=observability-apm`
+            `${getSpaceUrlPrefix(SPACE1)}${TEST_URL}?id=NoxgpHkBqbdrfX07MqXV&indexName=${apmIndex}`
           )
           .auth(obsOnlySpacesAll.username, obsOnlySpacesAll.password)
           .set('kbn-xsrf', 'true')
           .expect(200);
       });
       it(`${obsOnlyReadSpacesAll.username} should be able to access the APM alert in ${SPACE1}`, async () => {
+        const apmIndex = await getAPMIndexName(superUser);
         await supertestWithoutAuth
           .get(
-            `${getSpaceUrlPrefix(
-              SPACE1
-            )}${TEST_URL}?id=NoxgpHkBqbdrfX07MqXV&assetName=observability-apm`
+            `${getSpaceUrlPrefix(SPACE1)}${TEST_URL}?id=NoxgpHkBqbdrfX07MqXV&indexName=${apmIndex}`
           )
           .auth(obsOnlyReadSpacesAll.username, obsOnlyReadSpacesAll.password)
           .set('kbn-xsrf', 'true')
@@ -93,11 +105,12 @@ export default ({ getService }: FtrProviderContext) => {
         },
       ]) {
         it(`${scenario.user.username} should not be able to access the APM alert in ${SPACE1}`, async () => {
+          const apmIndex = await getAPMIndexName(superUser);
           await supertestWithoutAuth
             .get(
               `${getSpaceUrlPrefix(
                 SPACE1
-              )}${TEST_URL}?id=NoxgpHkBqbdrfX07MqXV&assetName=observability-apm`
+              )}${TEST_URL}?id=NoxgpHkBqbdrfX07MqXV&indexName=${apmIndex}`
             )
             .auth(scenario.user.username, scenario.user.password)
             .set('kbn-xsrf', 'true')
@@ -112,11 +125,12 @@ export default ({ getService }: FtrProviderContext) => {
         { user: globalRead, space: SPACE1 },
       ]) {
         it(`${scenario.user.username} should be able to access the APM alert in ${SPACE2}`, async () => {
+          const apmIndex = await getAPMIndexName(superUser);
           await supertestWithoutAuth
             .get(
               `${getSpaceUrlPrefix(
                 SPACE2
-              )}${TEST_URL}?id=NoxgpHkBqbdrfX07MqXV&assetName=observability-apm`
+              )}${TEST_URL}?id=NoxgpHkBqbdrfX07MqXV&indexName=${apmIndex}`
             )
             .auth(scenario.user.username, scenario.user.password)
             .set('kbn-xsrf', 'true')
@@ -140,11 +154,12 @@ export default ({ getService }: FtrProviderContext) => {
         },
       ]) {
         it(`${scenario.user.username} with right to access space1 only, should not be able to access the APM alert in ${SPACE2}`, async () => {
+          const apmIndex = await getAPMIndexName(superUser);
           await supertestWithoutAuth
             .get(
               `${getSpaceUrlPrefix(
                 SPACE2
-              )}${TEST_URL}?id=NoxgpHkBqbdrfX07MqXV&assetName=observability-apm`
+              )}${TEST_URL}?id=NoxgpHkBqbdrfX07MqXV&indexName=${apmIndex}`
             )
             .auth(scenario.user.username, scenario.user.password)
             .set('kbn-xsrf', 'true')

@@ -21,7 +21,7 @@ export const updateAlertByIdRoute = (router: IRouter<RacRequestHandlerContext>) 
         body: schema.object({
           status: schema.string(),
           ids: schema.arrayOf(schema.string()),
-          assetName: schema.string(),
+          indexName: schema.string(),
         }),
       },
       options: {
@@ -31,12 +31,12 @@ export const updateAlertByIdRoute = (router: IRouter<RacRequestHandlerContext>) 
     async (context, req, response) => {
       try {
         const racClient = await context.rac.getAlertsClient();
-        const { status, ids, assetName } = req.body;
+        const { status, ids, indexName } = req.body;
 
         const thing = await racClient?.update({
           id: ids[0],
           data: { status },
-          assetName,
+          indexName,
         });
         return response.ok({ body: { success: true, alerts: thing } });
       } catch (exc) {

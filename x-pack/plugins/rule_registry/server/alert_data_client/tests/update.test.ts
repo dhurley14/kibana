@@ -88,7 +88,7 @@ describe('update()', () => {
     const result = await alertsClient.update({
       id: '1',
       data: { status: 'closed' },
-      assetName: 'observability-apm',
+      indexName: '.alerts-observability-apm',
     });
     expect(result).toMatchInlineSnapshot(`
       Object {
@@ -133,7 +133,7 @@ describe('update()', () => {
       alertsClient.update({
         id: '1',
         data: { status: 'closed' },
-        assetName: 'observability-apm',
+        indexName: '.alerts-observability-apm',
       })
     ).rejects.toThrowErrorMatchingInlineSnapshot(`"something when wrong on get"`);
     expect(auditLogger.log).toHaveBeenCalledWith({
@@ -173,7 +173,7 @@ describe('update()', () => {
       alertsClient.update({
         id: '1',
         data: { status: 'closed' },
-        assetName: 'observability-apm',
+        indexName: '.alerts-observability-apm',
       })
     ).rejects.toThrowErrorMatchingInlineSnapshot(`"something when wrong on update"`);
     expect(auditLogger.log).toHaveBeenCalledWith({
@@ -242,7 +242,7 @@ describe('update()', () => {
       const result = await alertsClient.update({
         id: '1',
         data: { status: 'closed' },
-        assetName: 'observability-apm',
+        indexName: '.alerts-observability-apm',
       });
 
       expect(alertingAuthMock.ensureAuthorized).toHaveBeenCalledWith({
@@ -271,7 +271,7 @@ describe('update()', () => {
         alertsClient.update({
           id: '1',
           data: { status: 'closed' },
-          assetName: 'observability-apm',
+          indexName: '.alerts-observability-apm',
         })
       ).rejects.toMatchInlineSnapshot(
         `[Error: Unauthorized to get a "apm.error_rate" alert for "apm"]`

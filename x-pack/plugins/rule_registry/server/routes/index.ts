@@ -9,8 +9,10 @@ import { IRouter } from 'kibana/server';
 import { RacRequestHandlerContext } from '../types';
 import { getAlertByIdRoute } from './get_alert_by_id';
 import { updateAlertByIdRoute } from './update_alert_by_id';
+import { getAlertsIndexRoute } from './get_alert_index';
 
 export function defineRoutes(router: IRouter<RacRequestHandlerContext>) {
   getAlertByIdRoute(router);
   updateAlertByIdRoute(router);
+  getAlertsIndexRoute(router);
 }
