@@ -68,23 +68,10 @@ export class AlertsClient {
     return this.ruleDataService?.getFullAssetName();
   }
 
-  /**
-   * OUTDATED: we are "hard coding" this string similar to how rule registry is doing it
-   * x-pack/plugins/apm/server/plugin.ts:191
-   */
   public async getAlertsIndex(featureIds: string[]) {
     return this.authorization.getAuthorizedAlertsIndices(
       featureIds.length !== 0 ? featureIds : ['apm', 'siem']
     );
-    // const indexExists = await this.ruleDataService?.assertFullAssetNameExists(assetName);
-    // this.logger.debug(`DOES THE INDEX EXIST? ${JSON.stringify(indexExists)}`);
-    // const fullAssetName = this.ruleDataService?.getFullAssetName(assetName);
-    // if (indexExists) {
-    //   return fullAssetName;
-    // }
-    // const errorMessage = `Missing index alias ${fullAssetName} not found for given asset name ${assetName}`;
-    // this.logger.error(errorMessage);
-    // throw new Error(errorMessage);
   }
 
   private async fetchAlert({ id, indexName }: GetAlertParams): Promise<ParsedTechnicalFields> {
