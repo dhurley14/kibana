@@ -20,7 +20,6 @@ export enum AlertingAuthorizationFilterType {
 export interface AlertingAuthorizationFilterOpts {
   type: AlertingAuthorizationFilterType;
   fieldNames: AlertingAuthorizationFilterFieldNames;
-  owner?: string;
 }
 
 interface AlertingAuthorizationFilterFieldNames {
