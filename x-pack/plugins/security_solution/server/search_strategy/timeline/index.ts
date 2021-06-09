@@ -46,18 +46,6 @@ export const securitySolutionTimelineSearchStrategyProvider = <T extends Timelin
         securitySolutionTimelineFactory[factoryQueryType];
 
       const getAuthFilter = async () => {
-        // const {
-        //   filter: authorizationFilter,
-        //   ensureRuleTypeIsAuthorized,
-        //   logSuccessfulAuthorization,
-        // } = await alertingAuthorizationClient.getFindAuthorizationFilter(
-        //   AlertingAuthorizationEntity.Alert,
-        //   {
-        //     type: AlertingAuthorizationFilterType.ESDSL,
-        //     fieldNames: { consumer: 'kibana.rac.alert.owner', ruleTypeId: 'rule.id' },
-        //   }
-        // );
-
         return alertingAuthorizationClient.getFindAuthorizationFilter(
           AlertingAuthorizationEntity.Alert,
           {
@@ -69,8 +57,7 @@ export const securitySolutionTimelineSearchStrategyProvider = <T extends Timelin
 
       return from(getAuthFilter()).pipe(
         flatMap(({ filter }) => {
-          console.log('---------------------ARG----------------', JSON.stringify(filter));
-          const dsl = queryFactory.buildDsl(request, filter);
+          const dsl = queryFactory.buildDsl({ ...request, authFilter: filter });
           return es.search({ ...request, params: dsl }, options, deps);
         }),
         map((response) => {

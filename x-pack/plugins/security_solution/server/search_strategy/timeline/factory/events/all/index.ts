@@ -23,7 +23,7 @@ import { TIMELINE_EVENTS_FIELDS } from './constants';
 import { buildFieldsRequest, formatTimelineData } from './helpers';
 
 export const timelineEventsAll: SecuritySolutionTimelineFactory<TimelineEventsQueries.all> = {
-  buildDsl: (options: TimelineEventsAllRequestOptions, authFilter) => {
+  buildDsl: ({ authFilter, ...options }: TimelineEventsAllRequestOptions) => {
     if (options.pagination && options.pagination.querySize >= DEFAULT_MAX_TABLE_QUERY_SIZE) {
       throw new Error(`No query size above ${DEFAULT_MAX_TABLE_QUERY_SIZE}`);
     }

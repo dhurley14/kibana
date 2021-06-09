@@ -5,6 +5,7 @@
  * 2.0.
  */
 
+import { JsonObject } from 'src/plugins/kibana_utils/common';
 import { IEsSearchResponse } from '../../../../../../../../src/plugins/data/common';
 import { Ecs } from '../../../../ecs';
 import { CursorType, Inspect, Maybe, PaginationInputPaginated } from '../../../common';
@@ -38,4 +39,5 @@ export interface TimelineEventsAllRequestOptions extends TimelineRequestOptionsP
   fields: string[] | Array<{ field: string; include_unmapped: boolean }>;
   fieldRequested: string[];
   language: 'eql' | 'kuery' | 'lucene';
+  authFilter?: JsonObject;
 }
