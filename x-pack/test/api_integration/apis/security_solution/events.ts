@@ -7,6 +7,7 @@
 
 import expect from '@kbn/expect';
 
+import { secOnly } from '../../../rule_registry/common/lib/authentication/users';
 import {
   createSpacesAndUsers,
   deleteSpacesAndUsers,
@@ -411,6 +412,7 @@ export default function ({ getService }: FtrProviderContext) {
   const retry = getService('retry');
   const esArchiver = getService('esArchiver');
   const supertest = getService('supertest');
+  const supertestWithoutAuth = getService('supertestWithoutAuth');
 
   describe('Timeline', () => {
     // before(() => esArchiver.load('x-pack/test/functional/es_archives/auditbeat/hosts'));
@@ -468,53 +470,41 @@ export default function ({ getService }: FtrProviderContext) {
       });
     });
 
-    it('Make sure that we get Timeline data using the hunter role and do not receive observability alerts', async () => {
+    it.skip('Make sure that we get Timeline data using the hunter role and do not receive observability alerts', async () => {
       await retry.try(async () => {
-        const requestBody = {
-          defaultIndex: ['.alerts*'], // query both .alerts-observability-apm and .alerts-security-solution
-          docValueFields: [{ field: '*' }],
-          factoryQueryType: TimelineEventsQueries.all,
-          fieldRequested: FIELD_REQUESTED,
-          fields: [],
-          filterQuery: {
-            bool: {
-              filter: [
-                {
-                  match_all: {},
-                },
-              ],
-            },
-          },
-          pagination: {
-            activePage: 0,
-            querySize: 25,
-          },
-          language: 'kuery',
-          sort: [
-            {
-              field: '@timestamp',
-              direction: Direction.desc,
-              type: 'number',
-            },
-          ],
-          timerange: {
-            from: FROM,
-            to: TO,
-            interval: '12h',
-          },
-        };
-        // console.error('REQUEST BODY', JSON.stringify(requestBody, null, 2));
         const resp = await supertestWithoutAuth
           .post('/internal/search/securitySolutionTimelineSearchStrategy/')
           .auth(secOnly.username, secOnly.password)
           .set('kbn-xsrf', 'true')
           .set('Content-Type', 'application/json')
-          .send(requestBody);
-        // .expect(200);
-        // console.error('WHAT IS THE RESP', JSON.stringify(resp, null, 2));
+          .send({
+            defaultIndex: ['.alerts*'], // query both .alerts-observability-apm and .alerts-security-solution
+            docValueFields: DOC_VALUE_FIELDS,
+            factoryQueryType: TimelineEventsQueries.all,
+            fieldRequested: FIELD_REQUESTED,
+            fields: [],
+            filterQuery: FILTER_VALUE,
+            pagination: {
+              activePage: 0,
+              querySize: 25,
+            },
+            language: 'kuery',
+            sort: [
+              {
+                field: '@timestamp',
+                direction: Direction.desc,
+                type: 'number',
+              },
+            ],
+            timerange: {
+              from: FROM,
+              to: TO,
+              interval: '12h',
+            },
+          })
+          .expect(200);
 
         const timeline = resp.body;
-        // console.error('TIMELINE', JSON.stringify(timeline, null, 2));
 
         expect(timeline.totalCount).to.be(1);
       });
