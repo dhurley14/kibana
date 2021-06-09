@@ -9,7 +9,7 @@ import { once } from 'lodash';
 import { Observable } from 'rxjs';
 import { i18n } from '@kbn/i18n';
 import LRU from 'lru-cache';
-
+import { mappingFromFieldMap } from '../../rule_registry/common/mapping_from_field_map';
 import {
   CoreSetup,
   CoreStart,
@@ -237,7 +237,11 @@ export class Plugin implements IPlugin<PluginSetup, PluginStart, SetupPlugins, S
               settings: {
                 number_of_shards: 1,
               },
-              mappings: {}, // TODO: Add mappings here via `mappingFromFieldMap()`
+              mappings: mappingFromFieldMap({
+                'kibana.rac.alert.owner': {
+                  type: 'keyword',
+                },
+              }), // TODO: Add mappings here via `mappingFromFieldMap()`
             },
           },
         });
@@ -302,76 +306,186 @@ export class Plugin implements IPlugin<PluginSetup, PluginStart, SetupPlugins, S
       ...(experimentalFeatures.ruleRegistryEnabled ? referenceRuleTypes : []),
     ];
 
-    plugins.features.registerKibanaFeature({
-      id: SERVER_APP_ID,
-      name: i18n.translate('xpack.securitySolution.featureRegistry.linkSecuritySolutionTitle', {
-        defaultMessage: 'Security',
-      }),
-      order: 1100,
-      category: DEFAULT_APP_CATEGORIES.security,
-      app: [...securitySubPlugins, 'kibana'],
-      catalogue: ['securitySolution'],
-      management: {
-        insightsAndAlerting: ['triggersActions'],
-      },
-      alerting: ruleTypes,
-      privileges: {
-        all: {
-          app: [...securitySubPlugins, 'kibana'],
-          catalogue: ['securitySolution'],
-          api: ['securitySolution', 'lists-all', 'lists-read', 'rac'],
-          savedObject: {
-            all: [
-              'alert',
-              ...caseSavedObjects,
-              'exception-list',
-              'exception-list-agnostic',
-              ...savedObjectTypes,
-            ],
-            read: ['config'],
-          },
-          alerting: {
-            rule: {
-              all: ruleTypes,
-            },
-            alert: {
-              all: ruleTypes,
-            },
-          },
-          management: {
-            insightsAndAlerting: ['triggersActions'],
-          },
-          ui: ['show', 'crud'],
+    if (experimentalFeatures.ruleRegistryEnabled) {
+      plugins.features.registerKibanaFeature({
+        id: SERVER_APP_ID,
+        name: i18n.translate('xpack.securitySolution.featureRegistry.linkSecuritySolutionTitle', {
+          defaultMessage: 'Security',
+        }),
+        order: 1100,
+        category: DEFAULT_APP_CATEGORIES.security,
+        app: [...securitySubPlugins, 'kibana'],
+        catalogue: ['securitySolution'],
+        management: {
+          insightsAndAlerting: ['triggersActions'],
         },
-        read: {
-          app: [...securitySubPlugins, 'kibana'],
-          catalogue: ['securitySolution'],
-          api: ['securitySolution', 'lists-read', 'rac'],
-          savedObject: {
-            all: [],
-            read: [
-              'config',
-              ...caseSavedObjects,
-              'exception-list',
-              'exception-list-agnostic',
-              ...savedObjectTypes,
+        alerting: ruleTypes,
+        privileges: {
+          all: {
+            app: [...securitySubPlugins, 'kibana'],
+            catalogue: ['securitySolution'],
+            api: ['securitySolution', 'lists-all', 'lists-read', 'rac'],
+            savedObject: {
+              all: [
+                'alert',
+                ...caseSavedObjects,
+                'exception-list',
+                'exception-list-agnostic',
+                ...savedObjectTypes,
+              ],
+              read: ['config'],
+            },
+            alerting: {
+              rule: {
+                all: ruleTypes,
+              },
+              alert: {
+                all: ruleTypes,
+              },
+            },
+            management: {
+              insightsAndAlerting: ['triggersActions'],
+            },
+            ui: ['show', 'crud'],
+          },
+          read: {
+            app: [...securitySubPlugins, 'kibana'],
+            catalogue: ['securitySolution'],
+            api: ['securitySolution', 'lists-read', 'rac'],
+            savedObject: {
+              all: [],
+              read: [
+                'config',
+                ...caseSavedObjects,
+                'exception-list',
+                'exception-list-agnostic',
+                ...savedObjectTypes,
+              ],
+            },
+            alerting: {
+              rule: {
+                read: ruleTypes,
+              },
+              alert: {
+                read: ruleTypes,
+              },
+            },
+            management: {
+              insightsAndAlerting: ['triggersActions'],
+            },
+            ui: ['show'],
+          },
+        },
+        subFeatures: [
+          {
+            name: i18n.translate('xpack.securitySolution.featureRegistry.manageAlerts', {
+              defaultMessage: 'Manage Alerts',
+            }),
+            privilegeGroups: [
+              {
+                groupType: 'independent',
+                privileges: [
+                  {
+                    id: 'alert_manage',
+                    name: i18n.translate(
+                      'xpack.securitySolution.featureRegistry.subfeature.securitySolutionFeatureName',
+                      {
+                        defaultMessage: 'Manage Alerts',
+                      }
+                    ),
+                    includeIn: 'all' as 'all',
+                    alerting: {
+                      rule: {
+                        all: ruleTypes,
+                      },
+                      alert: {
+                        all: ruleTypes,
+                      },
+                    },
+                    savedObject: {
+                      all: [],
+                      read: [],
+                    },
+                    ui: [],
+                  },
+                ],
+              },
             ],
           },
-          alerting: {
-            rule: {
-              read: ruleTypes,
-            },
-            alert: {
-              read: ruleTypes,
-            },
-          },
-          management: {
-            insightsAndAlerting: ['triggersActions'],
-          },
-          ui: ['show'],
+        ],
+      });
+    } else {
+      plugins.features.registerKibanaFeature({
+        id: SERVER_APP_ID,
+        name: i18n.translate('xpack.securitySolution.featureRegistry.linkSecuritySolutionTitle', {
+          defaultMessage: 'Security',
+        }),
+        order: 1100,
+        category: DEFAULT_APP_CATEGORIES.security,
+        app: [...securitySubPlugins, 'kibana'],
+        catalogue: ['securitySolution'],
+        management: {
+          insightsAndAlerting: ['triggersActions'],
         },
-      },
-    });
+        alerting: ruleTypes,
+        privileges: {
+          all: {
+            app: [...securitySubPlugins, 'kibana'],
+            catalogue: ['securitySolution'],
+            api: ['securitySolution', 'lists-all', 'lists-read', 'rac'],
+            savedObject: {
+              all: [
+                'alert',
+                ...caseSavedObjects,
+                'exception-list',
+                'exception-list-agnostic',
+                ...savedObjectTypes,
+              ],
+              read: ['config'],
+            },
+            alerting: {
+              rule: {
+                all: ruleTypes,
+              },
+              alert: {
+                all: ruleTypes,
+              },
+            },
+            management: {
+              insightsAndAlerting: ['triggersActions'],
+            },
+            ui: ['show', 'crud'],
+          },
+          read: {
+            app: [...securitySubPlugins, 'kibana'],
+            catalogue: ['securitySolution'],
+            api: ['securitySolution', 'lists-read', 'rac'],
+            savedObject: {
+              all: [],
+              read: [
+                'config',
+                ...caseSavedObjects,
+                'exception-list',
+                'exception-list-agnostic',
+                ...savedObjectTypes,
+              ],
+            },
+            alerting: {
+              rule: {
+                read: ruleTypes,
+              },
+              alert: {
+                read: ruleTypes,
+              },
+            },
+            management: {
+              insightsAndAlerting: ['triggersActions'],
+            },
+            ui: ['show'],
+          },
+        },
+      });
+    }
 
     // Continue to register legacy rules against alerting client exposed through rule-registry
     if (this.setupPlugins.alerting != null) {
@@ -415,7 +529,8 @@ export class Plugin implements IPlugin<PluginSetup, PluginStart, SetupPlugins, S
         endpointContext
       );
       const securitySolutionTimelineSearchStrategy = securitySolutionTimelineSearchStrategyProvider(
-        depsStart.data
+        depsStart.data,
+        depsStart.alerting
       );
       const securitySolutionTimelineEqlSearchStrategy = securitySolutionTimelineEqlSearchStrategyProvider(
         depsStart.data

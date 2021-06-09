@@ -258,6 +258,8 @@ export class AlertingAuthorization {
         authorizationEntity
       );
 
+      console.log('---------------YO-----------', authorizedRuleTypes);
+
       if (!authorizedRuleTypes.size) {
         throw Boom.forbidden(
           this.auditLogger.logUnscopedAuthorizationFailure(username!, 'find', authorizationEntity)
@@ -381,6 +383,8 @@ export class AlertingAuthorization {
       const { username, hasAllRequested, privileges } = await checkPrivileges({
         kibana: [...privilegeToRuleType.keys()],
       });
+
+      console.log('-----------WTF-------------', JSON.stringify(privileges));
 
       return {
         username,

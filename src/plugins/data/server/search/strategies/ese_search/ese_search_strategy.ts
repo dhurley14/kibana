@@ -39,7 +39,7 @@ export const enhancedEsSearchStrategyProvider = (
   legacyConfig$: Observable<SharedGlobalConfig>,
   logger: Logger,
   usage?: SearchUsage,
-  useInternalUser: boolean = false
+  useInternalUser: boolean = true
 ): ISearchStrategy => {
   async function cancelAsyncSearch(id: string, esClient: IScopedClusterClient) {
     try {

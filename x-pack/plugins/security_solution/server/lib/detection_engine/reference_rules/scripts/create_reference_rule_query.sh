@@ -5,8 +5,9 @@
 # 2.0; you may not use this file except in compliance with the Elastic License
 # 2.0.
 #
+set -e
 
-curl -X POST http://localhost:5601/${BASE_PATH}/api/alerts/alert \
+curl -X POST http://localhost:5601/s/awesome-possum/api/alerts/alert \
      -u ${ELASTICSEARCH_USERNAME}:${ELASTICSEARCH_PASSWORD} \
      -H 'kbn-xsrf: true' \
      -H 'Content-Type: application/json' \

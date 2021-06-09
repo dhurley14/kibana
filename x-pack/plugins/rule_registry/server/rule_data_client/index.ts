@@ -81,6 +81,8 @@ export class RuleDataClient implements IRuleDataClient {
               });
             }
             const error = new ResponseError(response);
+            console.log('-----GET WRITER------', JSON.stringify(error));
+
             throw error;
           }
           return response;

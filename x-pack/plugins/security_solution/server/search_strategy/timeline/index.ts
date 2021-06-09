@@ -5,13 +5,19 @@
  * 2.0.
  */
 
-import { map, mergeMap } from 'rxjs/operators';
+import { map, flatMap, mergeMap } from 'rxjs/operators';
+import { from } from 'rxjs';
 import {
   ISearchStrategy,
   PluginStart,
   shimHitsTotal,
 } from '../../../../../../src/plugins/data/server';
 import { ENHANCED_ES_SEARCH_STRATEGY } from '../../../../../../src/plugins/data/common';
+import {
+  PluginStartContract as AlertPluginStartContract,
+  AlertingAuthorizationEntity,
+  AlertingAuthorizationFilterType,
+} from '../../../../alerting/server';
 import {
   TimelineFactoryQueryTypes,
   TimelineStrategyResponseType,
@@ -21,18 +27,52 @@ import { securitySolutionTimelineFactory } from './factory';
 import { SecuritySolutionTimelineFactory } from './factory/types';
 
 export const securitySolutionTimelineSearchStrategyProvider = <T extends TimelineFactoryQueryTypes>(
-  data: PluginStart
+  data: PluginStart,
+  alerting: AlertPluginStartContract
 ): ISearchStrategy<TimelineStrategyRequestType<T>, TimelineStrategyResponseType<T>> => {
   const es = data.search.getSearchStrategy(ENHANCED_ES_SEARCH_STRATEGY);
   return {
     search: (request, options, deps) => {
-      if (request.factoryQueryType == null) {
+      const factoryQueryType = request.factoryQueryType;
+
+      if (factoryQueryType == null) {
         throw new Error('factoryQueryType is required');
       }
+      const alertingAuthorizationClient = alerting.getAlertingAuthorizationWithRequest(
+        deps.request
+      );
+
       const queryFactory: SecuritySolutionTimelineFactory<T> =
-        securitySolutionTimelineFactory[request.factoryQueryType];
-      const dsl = queryFactory.buildDsl(request);
-      return es.search({ ...request, params: dsl }, options, deps).pipe(
+        securitySolutionTimelineFactory[factoryQueryType];
+
+      const getAuthFilter = async () => {
+        // const {
+        //   filter: authorizationFilter,
+        //   ensureRuleTypeIsAuthorized,
+        //   logSuccessfulAuthorization,
+        // } = await alertingAuthorizationClient.getFindAuthorizationFilter(
+        //   AlertingAuthorizationEntity.Alert,
+        //   {
+        //     type: AlertingAuthorizationFilterType.ESDSL,
+        //     fieldNames: { consumer: 'kibana.rac.alert.owner', ruleTypeId: 'rule.id' },
+        //   }
+        // );
+
+        return alertingAuthorizationClient.getFindAuthorizationFilter(
+          AlertingAuthorizationEntity.Alert,
+          {
+            type: AlertingAuthorizationFilterType.ESDSL,
+            fieldNames: { consumer: 'kibana.rac.alert.owner', ruleTypeId: 'rule.id' },
+          }
+        );
+      };
+
+      return from(getAuthFilter()).pipe(
+        flatMap(({ filter }) => {
+          console.log('---------------------ARG----------------', JSON.stringify(filter));
+          const dsl = queryFactory.buildDsl(request, filter);
+          return es.search({ ...request, params: dsl }, options, deps);
+        }),
         map((response) => {
           return {
             ...response,
