@@ -77,19 +77,21 @@ export const createPersistenceRuleTypeFactory: CreatePersistenceRuleTypeFactory 
                 const alertUuid = event['kibana.rac.alert.uuid'];
                 const isAlert = alertUuid != null;
                 return {
-                  ...event,
+                  // ...event,
                   'event.kind': 'signal',
-                  'kibana.rac.alert.id': '???',
+                  'rule.id': 'apm.error_rate',
+                  // 'kibana.rac.alert.id': '???',
                   'kibana.rac.alert.status': 'open',
-                  'kibana.rac.alert.uuid': v4(),
-                  'kibana.rac.alert.ancestors': isAlert
-                    ? ((event['kibana.rac.alert.ancestors'] as string[]) ?? []).concat([
-                        alertUuid!,
-                      ] as string[])
-                    : [],
-                  'kibana.rac.alert.depth': isAlert
-                    ? ((event['kibana.rac.alert.depth'] as number) ?? 0) + 1
-                    : 0,
+                  'kibana.rac.alert.owner': 'apm',
+                  // 'kibana.rac.alert.uuid': v4(),
+                  // 'kibana.rac.alert.ancestors': isAlert
+                  //   ? ((event['kibana.rac.alert.ancestors'] as string[]) ?? []).concat([
+                  //       alertUuid!,
+                  //     ] as string[])
+                  //   : [],
+                  // 'kibana.rac.alert.depth': isAlert
+                  //   ? ((event['kibana.rac.alert.depth'] as number) ?? 0) + 1
+                  //   : 0,
                   '@timestamp': timestamp,
                 };
               });

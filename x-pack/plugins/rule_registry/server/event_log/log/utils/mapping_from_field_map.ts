@@ -11,7 +11,7 @@ import { IndexMappings } from '../../elasticsearch';
 
 export function mappingFromFieldMap(fieldMap: FieldMap): IndexMappings {
   const mappings = {
-    dynamic: 'strict' as const,
+    dynamic: true,
     properties: {},
   };
 
