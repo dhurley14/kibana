@@ -12,7 +12,6 @@ import {
   PluginStart,
   shimHitsTotal,
 } from '../../../../../../src/plugins/data/server';
-import { ENHANCED_ES_SEARCH_STRATEGY } from '../../../../../../src/plugins/data/common';
 import {
   PluginStartContract as AlertPluginStartContract,
   AlertingAuthorizationEntity,
@@ -30,7 +29,7 @@ export const securitySolutionTimelineSearchStrategyProvider = <T extends Timelin
   data: PluginStart,
   alerting: AlertPluginStartContract
 ): ISearchStrategy<TimelineStrategyRequestType<T>, TimelineStrategyResponseType<T>> => {
-  const es = data.search.getSearchStrategy(ENHANCED_ES_SEARCH_STRATEGY);
+  const es = data.search.searchAsInternalUser;
   return {
     search: (request, options, deps) => {
       const factoryQueryType = request.factoryQueryType;
