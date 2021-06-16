@@ -364,6 +364,7 @@ export class AlertingAuthorization {
     username?: string;
     hasAllRequested: boolean;
     authorizedRuleTypes: Set<RegistryAlertTypeWithAuth>;
+    unauthorizedRuleTypes: Set<RegistryAlertTypeWithAuth> | undefined;
   }> {
     const fIds = featuresIds ?? (await this.featuresIds);
     if (this.authorization && this.shouldCheckAuthorization()) {
@@ -402,39 +403,53 @@ export class AlertingAuthorization {
         kibana: [...privilegeToRuleType.keys()],
       });
 
+      let authorizedRuleTypes;
+      let unauthorizedRuleTypes;
+      if (hasAllRequested) {
+        authorizedRuleTypes = this.augmentWithAuthorizedConsumers(
+          ruleTypes,
+          await this.allPossibleConsumers
+        );
+      } else {
+        [authorizedRuleTypes, unauthorizedRuleTypes] = privileges.kibana.reduce(
+          ([authzRuleTypes, unauthzRuleTypes], { authorized, privilege }) => {
+            if (authorized && privilegeToRuleType.has(privilege)) {
+              const [
+                ruleType,
+                feature,
+                hasPrivileges,
+                isAuthorizedAtProducerLevel,
+              ] = privilegeToRuleType.get(privilege)!;
+              ruleType.authorizedConsumers[feature] = mergeHasPrivileges(
+                hasPrivileges,
+                ruleType.authorizedConsumers[feature]
+              );
+
+              if (isAuthorizedAtProducerLevel && this.exemptConsumerIds.length > 0) {
+                // granting privileges under the producer automatically authorized exempt consumer IDs as well
+                this.exemptConsumerIds.forEach((exemptId: string) => {
+                  ruleType.authorizedConsumers[exemptId] = mergeHasPrivileges(
+                    hasPrivileges,
+                    ruleType.authorizedConsumers[exemptId]
+                  );
+                });
+              }
+              authzRuleTypes.add(ruleType);
+            } else if (!authorized) {
+              const [ruleType, , , ,] = privilegeToRuleType.get(privilege)!;
+              unauthzRuleTypes.add(ruleType);
+            }
+            return [authzRuleTypes, unauthzRuleTypes];
+          },
+          [new Set<RegistryAlertTypeWithAuth>(), new Set<RegistryAlertTypeWithAuth>()]
+        );
+      }
+
       return {
         username,
         hasAllRequested,
-        authorizedRuleTypes: hasAllRequested
-          ? // has access to all features
-            this.augmentWithAuthorizedConsumers(ruleTypes, await this.allPossibleConsumers)
-          : // only has some of the required privileges
-            privileges.kibana.reduce((authorizedRuleTypes, { authorized, privilege }) => {
-              if (authorized && privilegeToRuleType.has(privilege)) {
-                const [
-                  ruleType,
-                  feature,
-                  hasPrivileges,
-                  isAuthorizedAtProducerLevel,
-                ] = privilegeToRuleType.get(privilege)!;
-                ruleType.authorizedConsumers[feature] = mergeHasPrivileges(
-                  hasPrivileges,
-                  ruleType.authorizedConsumers[feature]
-                );
-
-                if (isAuthorizedAtProducerLevel && this.exemptConsumerIds.length > 0) {
-                  // granting privileges under the producer automatically authorized exempt consumer IDs as well
-                  this.exemptConsumerIds.forEach((exemptId: string) => {
-                    ruleType.authorizedConsumers[exemptId] = mergeHasPrivileges(
-                      hasPrivileges,
-                      ruleType.authorizedConsumers[exemptId]
-                    );
-                  });
-                }
-                authorizedRuleTypes.add(ruleType);
-              }
-              return authorizedRuleTypes;
-            }, new Set<RegistryAlertTypeWithAuth>()),
+        authorizedRuleTypes,
+        unauthorizedRuleTypes,
       };
     } else {
       return {
@@ -443,6 +458,7 @@ export class AlertingAuthorization {
           new Set([...ruleTypes].filter((ruleType) => fIds.has(ruleType.producer))),
           await this.allPossibleConsumers
         ),
+        unauthorizedRuleTypes: undefined,
       };
     }
   }

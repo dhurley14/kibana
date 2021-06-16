@@ -55,11 +55,11 @@ export default ({ getService }: FtrProviderContext) => {
 
     describe('Signals from audit beat are of the expected structure', () => {
       beforeEach(async () => {
-        await esArchiver.load('auditbeat/hosts');
+        await esArchiver.load('x-pack/test/functional/es_archives/auditbeat/hosts');
       });
 
       afterEach(async () => {
-        await esArchiver.unload('auditbeat/hosts');
+        await esArchiver.unload('x-pack/test/functional/es_archives/auditbeat/hosts');
       });
 
       it('should have the specific audit record for _id or none of these tests below will pass', async () => {
@@ -860,7 +860,7 @@ export default ({ getService }: FtrProviderContext) => {
             'host.id': '8cc95778cce5407c809480e8e32ad76b',
             event: { kind: 'signal' },
             signal: {
-              _meta: { version: 35 },
+              _meta: { version: SIGNALS_TEMPLATE_VERSION },
               parents: [
                 {
                   depth: 0,
@@ -1019,7 +1019,7 @@ export default ({ getService }: FtrProviderContext) => {
             'host.id': '8cc95778cce5407c809480e8e32ad76b',
             event: { kind: 'signal' },
             signal: {
-              _meta: { version: 35 },
+              _meta: { version: SIGNALS_TEMPLATE_VERSION },
               parents: [
                 {
                   depth: 0,
@@ -1110,7 +1110,7 @@ export default ({ getService }: FtrProviderContext) => {
             'process.name': 'sshd',
             event: { kind: 'signal' },
             signal: {
-              _meta: { version: 35 },
+              _meta: { version: SIGNALS_TEMPLATE_VERSION },
               parents: [
                 {
                   depth: 0,
@@ -1170,11 +1170,11 @@ export default ({ getService }: FtrProviderContext) => {
      */
     describe('Signals generated from name clashes', () => {
       beforeEach(async () => {
-        await esArchiver.load('signals/numeric_name_clash');
+        await esArchiver.load('x-pack/test/functional/es_archives/signals/numeric_name_clash');
       });
 
       afterEach(async () => {
-        await esArchiver.unload('signals/numeric_name_clash');
+        await esArchiver.unload('x-pack/test/functional/es_archives/signals/numeric_name_clash');
       });
 
       it('should have the specific audit record for _id or none of these tests below will pass', async () => {
@@ -1326,11 +1326,11 @@ export default ({ getService }: FtrProviderContext) => {
      */
     describe('Signals generated from object clashes', () => {
       beforeEach(async () => {
-        await esArchiver.load('signals/object_clash');
+        await esArchiver.load('x-pack/test/functional/es_archives/signals/object_clash');
       });
 
       afterEach(async () => {
-        await esArchiver.unload('signals/object_clash');
+        await esArchiver.unload('x-pack/test/functional/es_archives/signals/object_clash');
       });
 
       it('should have the specific audit record for _id or none of these tests below will pass', async () => {
@@ -1485,11 +1485,13 @@ export default ({ getService }: FtrProviderContext) => {
      */
     describe('Signals generated from events with custom severity and risk score fields', () => {
       beforeEach(async () => {
-        await esArchiver.load('signals/severity_risk_overrides');
+        await esArchiver.load('x-pack/test/functional/es_archives/signals/severity_risk_overrides');
       });
 
       afterEach(async () => {
-        await esArchiver.unload('signals/severity_risk_overrides');
+        await esArchiver.unload(
+          'x-pack/test/functional/es_archives/signals/severity_risk_overrides'
+        );
       });
 
       const executeRuleAndGetSignals = async (rule: QueryCreateSchema) => {
@@ -1634,13 +1636,13 @@ export default ({ getService }: FtrProviderContext) => {
       beforeEach(async () => {
         await deleteSignalsIndex(supertest);
         await createSignalsIndex(supertest);
-        await esArchiver.load('auditbeat/hosts');
+        await esArchiver.load('x-pack/test/functional/es_archives/auditbeat/hosts');
       });
 
       afterEach(async () => {
         await deleteSignalsIndex(supertest);
         await deleteAllAlerts(supertest);
-        await esArchiver.load('auditbeat/hosts');
+        await esArchiver.load('x-pack/test/functional/es_archives/auditbeat/hosts');
       });
 
       it('should generate signals with name_override field', async () => {

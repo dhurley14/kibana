@@ -56,7 +56,6 @@ export default ({ getService }: FtrProviderContext) => {
           .send({ ids: ['NoxgpHkBqbdrfX07MqXV'], status: 'closed', indexName: apmIndex })
           .expect(200);
       });
-
       it(`${obsOnlySpacesAll.username} should be able to update the APM alert in ${SPACE1}`, async () => {
         const apmIndex = await getAPMIndexName(superUser);
         await supertestWithoutAuth

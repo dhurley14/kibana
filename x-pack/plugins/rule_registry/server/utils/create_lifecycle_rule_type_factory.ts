@@ -75,6 +75,8 @@ export const createLifecycleRuleTypeFactory: CreateLifecycleRuleTypeFactory = ({
 
       const ruleExecutorData = getRuleExecutorData(type, options);
 
+      logger.debug(`LOGGER RULE REGISTRY CONSUMER ${rule.consumer}`);
+
       const decodedState = wrappedStateRt.decode(previousState);
 
       const state = isLeft(decodedState)
@@ -222,6 +224,8 @@ export const createLifecycleRuleTypeFactory: CreateLifecycleRuleTypeFactory = ({
 
         return event;
       });
+
+      logger.debug(`LOGGER EVENTSTOINDEX: ${JSON.stringify(eventsToIndex, null, 2)}`);
 
       if (eventsToIndex.length) {
         logger.debug(`Preparing to index ${eventsToIndex.length} alerts.`);
