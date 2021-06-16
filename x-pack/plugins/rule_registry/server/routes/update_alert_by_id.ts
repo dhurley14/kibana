@@ -6,10 +6,11 @@
  */
 
 import { IRouter } from 'kibana/server';
+import * as t from 'io-ts';
 import { id as _id } from '@kbn/securitysolution-io-ts-list-types';
 import { transformError } from '@kbn/securitysolution-es-utils';
-import { schema } from '@kbn/config-schema';
 
+import { buildRouteValidation } from './utils/route_validation';
 import { RacRequestHandlerContext } from '../types';
 import { BASE_RAC_ALERTS_API_PATH } from '../../common/constants';
 
@@ -18,11 +19,15 @@ export const updateAlertByIdRoute = (router: IRouter<RacRequestHandlerContext>) 
     {
       path: BASE_RAC_ALERTS_API_PATH,
       validate: {
-        body: schema.object({
-          status: schema.string(),
-          ids: schema.arrayOf(schema.string()),
-          indexName: schema.string(),
-        }),
+        body: buildRouteValidation(
+          t.exact(
+            t.type({
+              status: t.string,
+              ids: t.array(t.string),
+              indexName: t.string,
+            })
+          )
+        ),
       },
       options: {
         tags: ['access:rac'],
@@ -30,15 +35,15 @@ export const updateAlertByIdRoute = (router: IRouter<RacRequestHandlerContext>) 
     },
     async (context, req, response) => {
       try {
-        const racClient = await context.rac.getAlertsClient();
+        const alertsClient = await context.rac.getAlertsClient();
         const { status, ids, indexName } = req.body;
 
-        const thing = await racClient?.update({
+        const updatedAlert = await alertsClient.update({
           id: ids[0],
           data: { status },
           indexName,
         });
-        return response.ok({ body: { success: true, alerts: thing } });
+        return response.ok({ body: { success: true, alerts: updatedAlert } });
       } catch (exc) {
         const err = transformError(exc);
 

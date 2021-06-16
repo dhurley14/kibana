@@ -112,6 +112,60 @@ describe('update()', () => {
         },
       ]
     `);
+  });
+
+  test('logs successful event in audit logger', async () => {
+    const alertsClient = new AlertsClient(alertsClientParams);
+    esClientMock.get.mockResolvedValueOnce(
+      elasticsearchClientMock.createApiResponse({
+        body: {
+          found: true,
+          _type: 'alert',
+          _index: '.alerts-observability-apm',
+          _id: 'NoxgpHkBqbdrfX07MqXV',
+          _source: {
+            'rule.id': 'apm.error_rate',
+            message: 'hello world 1',
+            'kibana.rac.alert.owner': 'apm',
+            'kibana.rac.alert.status': 'open',
+          },
+        },
+      })
+    );
+    esClientMock.update.mockResolvedValueOnce(
+      elasticsearchClientMock.createApiResponse({
+        body: {
+          _primary_term: 2,
+          result: 'updated',
+          _seq_no: 1,
+          _shards: {
+            failed: 0,
+            successful: 1,
+            total: 1,
+          },
+          _version: 1,
+          _index: '.alerts-observability-apm',
+          _id: 'NoxgpHkBqbdrfX07MqXV',
+          get: {
+            found: true,
+            _seq_no: 1,
+            _primary_term: 2,
+            _source: {
+              'rule.id': 'apm.error_rate',
+              message: 'hello world 1',
+              'kibana.rac.alert.owner': 'apm',
+              'kibana.rac.alert.status': 'closed',
+            },
+          },
+        },
+      })
+    );
+    await alertsClient.update({
+      id: '1',
+      data: { status: 'closed' },
+      indexName: '.alerts-observability-apm',
+    });
+
     expect(auditLogger.log).toHaveBeenCalledWith({
       error: undefined,
       event: {
@@ -125,7 +179,7 @@ describe('update()', () => {
   });
 
   test(`throws an error if ES client get fails`, async () => {
-    const error = new Error('something when wrong on get');
+    const error = new Error('something went wrong on get');
     const alertsClient = new AlertsClient(alertsClientParams);
     esClientMock.get.mockRejectedValue(error);
 
@@ -135,9 +189,9 @@ describe('update()', () => {
         data: { status: 'closed' },
         indexName: '.alerts-observability-apm',
       })
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`"something when wrong on get"`);
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`"something went wrong on get"`);
     expect(auditLogger.log).toHaveBeenCalledWith({
-      error: { code: 'Error', message: 'something when wrong on get' },
+      error: { code: 'Error', message: 'something went wrong on get' },
       event: {
         action: 'alert_update',
         category: ['database'],
@@ -149,7 +203,7 @@ describe('update()', () => {
   });
 
   test(`throws an error if ES client update fails`, async () => {
-    const error = new Error('something when wrong on update');
+    const error = new Error('something went wrong on update');
     const alertsClient = new AlertsClient(alertsClientParams);
     esClientMock.get.mockResolvedValueOnce(
       elasticsearchClientMock.createApiResponse({
@@ -175,9 +229,9 @@ describe('update()', () => {
         data: { status: 'closed' },
         indexName: '.alerts-observability-apm',
       })
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`"something when wrong on update"`);
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`"something went wrong on update"`);
     expect(auditLogger.log).toHaveBeenCalledWith({
-      error: { code: 'Error', message: 'something when wrong on update' },
+      error: { code: 'Error', message: 'something went wrong on update' },
       event: {
         action: 'alert_update',
         category: ['database'],
