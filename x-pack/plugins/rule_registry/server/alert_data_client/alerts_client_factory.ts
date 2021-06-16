@@ -8,8 +8,7 @@
 import { ElasticsearchClient, KibanaRequest, Logger } from 'src/core/server';
 import { PublicMethodsOf } from '@kbn/utility-types';
 import { SecurityPluginSetup } from '../../../security/server';
-// eslint-disable-next-line @kbn/eslint/no-restricted-paths
-import { AlertingAuthorization } from '../../../alerting/server/authorization';
+import { AlertingAuthorization } from '../../../alerting/server';
 import { AlertsClient } from './alerts_client';
 
 export interface AlertsClientFactoryProps {

@@ -75,7 +75,7 @@ export const APM_FEATURE = {
   },
   subFeatures: [
     {
-      name: i18n.translate('xpack.apm.featureRegistry.manageAlerts', {
+      name: i18n.translate('xpack.apm.featureRegistry.manageAlertsName', {
         defaultMessage: 'Manage Alerts',
       }),
       privilegeGroups: [

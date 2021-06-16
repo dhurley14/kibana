@@ -23,7 +23,6 @@ export const getAlertByIdRoute = (router: IRouter<RacRequestHandlerContext>) => 
           t.exact(
             t.type({
               id: _id,
-              indexName: t.string,
             })
           )
         ),
@@ -35,8 +34,8 @@ export const getAlertByIdRoute = (router: IRouter<RacRequestHandlerContext>) => 
     async (context, request, response) => {
       try {
         const alertsClient = await context.rac.getAlertsClient();
-        const { id, indexName } = request.query;
-        const alert = await alertsClient.get({ id, indexName });
+        const { id } = request.query;
+        const alert = await alertsClient.get({ id });
         return response.ok({
           body: alert,
         });
@@ -59,7 +58,6 @@ export const getAlertByIdRoute = (router: IRouter<RacRequestHandlerContext>) => 
             })
           ),
         });
-        // return response.custom;
       }
     }
   );

@@ -66,6 +66,28 @@ describe('get()', () => {
         },
       ]
     `);
+  });
+
+  test('logs successful event in audit logger', async () => {
+    const alertsClient = new AlertsClient(alertsClientParams);
+    esClientMock.get.mockResolvedValueOnce(
+      elasticsearchClientMock.createApiResponse({
+        body: {
+          found: true,
+          _type: 'alert',
+          _index: '.alerts-observability-apm',
+          _id: 'NoxgpHkBqbdrfX07MqXV',
+          _source: {
+            'rule.id': 'apm.error_rate',
+            message: 'hello world 1',
+            'kibana.rac.alert.owner': 'apm',
+            'kibana.rac.alert.status': 'open',
+          },
+        },
+      })
+    );
+    await alertsClient.get({ id: '1', indexName: '.alerts-observability-apm' });
+
     expect(auditLogger.log).toHaveBeenCalledWith({
       error: undefined,
       event: { action: 'alert_get', category: ['database'], outcome: 'success', type: ['access'] },
@@ -74,15 +96,15 @@ describe('get()', () => {
   });
 
   test(`throws an error if ES client get fails`, async () => {
-    const error = new Error('something when wrong');
+    const error = new Error('something went wrong');
     const alertsClient = new AlertsClient(alertsClientParams);
     esClientMock.get.mockRejectedValue(error);
 
     await expect(
       alertsClient.get({ id: '1', indexName: '.alerts-observability-apm' })
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`"something when wrong"`);
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`"something went wrong"`);
     expect(auditLogger.log).toHaveBeenCalledWith({
-      error: { code: 'Error', message: 'something when wrong' },
+      error: { code: 'Error', message: 'something went wrong' },
       event: { action: 'alert_get', category: ['database'], outcome: 'failure', type: ['access'] },
       message: 'Failed attempt to access alert [id=1]',
     });

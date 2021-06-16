@@ -16,7 +16,6 @@ import {
 import { ecsComponentTemplate } from '../../common/assets/component_templates/ecs_component_template';
 import { defaultLifecyclePolicy } from '../../common/assets/lifecycle_policies/default_lifecycle_policy';
 import { ClusterPutComponentTemplateBody, PutIndexTemplateRequest } from '../../common/types';
-// import { ClusterClient } from 'src/core/server/elasticsearch/client';
 
 const BOOTSTRAP_TIMEOUT = 60000;
 
@@ -157,7 +156,6 @@ export class RuleDataPluginService {
   }
 
   getFullAssetName(assetName?: string) {
-    // return [this.options.index, assetName].filter(Boolean).join('-');
     return [this.fullAssetName, assetName].filter(Boolean).join('-');
   }
 

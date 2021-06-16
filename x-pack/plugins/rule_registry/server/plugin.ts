@@ -114,12 +114,6 @@ export class RuleRegistryPlugin
     );
 
     defineRoutes(router);
-    // handler is called when '/path' resource is requested with `GET` method
-    router.get({ path: '/rac-myfakepath', validate: false }, async (context, req, res) => {
-      const racClient = await context.rac.getAlertsClient();
-      racClient?.get({ id: 'hello world', indexName: '.alerts-observability-apm' });
-      return res.ok();
-    });
 
     const eventLogService = new EventLogService({
       config: {
