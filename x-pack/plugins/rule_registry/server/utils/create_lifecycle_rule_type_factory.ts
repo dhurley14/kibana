@@ -25,6 +25,7 @@ import {
   ALERT_UUID,
   EVENT_ACTION,
   EVENT_KIND,
+  OWNER,
   RULE_UUID,
   TIMESTAMP,
 } from '../../common/technical_rule_data_field_names';
@@ -69,9 +70,12 @@ export const createLifecycleRuleTypeFactory: CreateLifecycleRuleTypeFactory = ({
       const {
         services: { alertInstanceFactory },
         state: previousState,
+        rule,
       } = options;
 
       const ruleExecutorData = getRuleExecutorData(type, options);
+
+      logger.debug(`LOGGER RULE REGISTRY CONSUMER ${rule.consumer}`);
 
       const decodedState = wrappedStateRt.decode(previousState);
 
@@ -180,6 +184,7 @@ export const createLifecycleRuleTypeFactory: CreateLifecycleRuleTypeFactory = ({
           ...ruleExecutorData,
           [TIMESTAMP]: timestamp,
           [EVENT_KIND]: 'state',
+          [OWNER]: rule.consumer,
           [ALERT_ID]: alertId,
         };
 
@@ -220,7 +225,11 @@ export const createLifecycleRuleTypeFactory: CreateLifecycleRuleTypeFactory = ({
         return event;
       });
 
+      logger.debug(`LOGGER EVENTSTOINDEX: ${JSON.stringify(eventsToIndex, null, 2)}`);
+
       if (eventsToIndex.length) {
+        logger.debug('LOGGER ABOUT TO INDEX ALERTS');
+
         await ruleDataClient.getWriter().bulk({
           body: eventsToIndex.flatMap((event) => [{ index: {} }, event]),
         });

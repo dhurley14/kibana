@@ -13,6 +13,7 @@ import {
   getApmIndexSettings,
 } from '../../lib/settings/apm_indices/get_apm_indices';
 import { saveApmIndices } from '../../lib/settings/apm_indices/save_apm_indices';
+// import { APM_SERVER_FEATURE_ID } from '../../../common/alert_types';
 
 // get list of apm indices and values
 const apmIndexSettingsRoute = createApmServerRoute({
@@ -63,7 +64,29 @@ const saveApmIndicesRoute = createApmServerRoute({
   },
 });
 
+// const getApmAlertsAsDataIndexRoute = createApmServerRoute({
+//   endpoint: 'GET /api/apm/settings/apm-alerts-as-data-indices',
+//   options: { tags: ['access:apm'] },
+//   handler: async (resources) => {
+//     const { context } = resources;
+//     console.error(context);
+//     const alertsAsDataClient = await context.rac?.getAlertsClient();
+//     if (alertsAsDataClient == null) {
+//       throw new Error('Missing alerts as data client');
+//     }
+//     const res = await alertsAsDataClient.getAlertsIndex([
+//       APM_SERVER_FEATURE_ID,
+//       'siem',
+//     ]);
+//     console.error('RESPONSE', JSON.stringify(res, null, 2));
+//     return res[0];
+//     // return alertsAsDataClient.getFullAssetName();
+//     // return ruleDataClient.getIndexName();
+//   },
+// });
+
 export const apmIndicesRouteRepository = createApmServerRouteRepository()
   .add(apmIndexSettingsRoute)
   .add(apmIndicesRoute)
   .add(saveApmIndicesRoute);
+// .add(getApmAlertsAsDataIndexRoute);
