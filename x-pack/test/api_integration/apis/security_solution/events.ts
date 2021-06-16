@@ -8,6 +8,10 @@
 import expect from '@kbn/expect';
 
 import {
+  createSpacesAndUsers,
+  deleteSpacesAndUsers,
+} from '../../../rule_registry/common/lib/authentication/';
+import {
   Direction,
   TimelineEventsQueries,
 } from '../../../../plugins/security_solution/common/search_strategy';
@@ -409,8 +413,18 @@ export default function ({ getService }: FtrProviderContext) {
   const supertest = getService('supertest');
 
   describe('Timeline', () => {
-    before(() => esArchiver.load('x-pack/test/functional/es_archives/auditbeat/hosts'));
-    after(() => esArchiver.unload('x-pack/test/functional/es_archives/auditbeat/hosts'));
+    // before(() => esArchiver.load('x-pack/test/functional/es_archives/auditbeat/hosts'));
+    // after(() => esArchiver.unload('x-pack/test/functional/es_archives/auditbeat/hosts'));
+    before(async () => {
+      await esArchiver.load('auditbeat/hosts');
+      await esArchiver.load('rule_registry/alerts');
+      await createSpacesAndUsers(getService);
+    });
+    after(async () => {
+      await esArchiver.unload('auditbeat/hosts');
+      await esArchiver.load('rule_registry/alerts');
+      await deleteSpacesAndUsers(getService);
+    });
 
     it('Make sure that we get Timeline data', async () => {
       await retry.try(async () => {
@@ -451,6 +465,58 @@ export default function ({ getService }: FtrProviderContext) {
         expect(timeline.totalCount).to.be(TOTAL_COUNT);
         expect(timeline.pageInfo.activePage).to.equal(ACTIVE_PAGE);
         expect(timeline.pageInfo.querySize).to.equal(PAGE_SIZE);
+      });
+    });
+
+    it('Make sure that we get Timeline data using the hunter role and do not receive observability alerts', async () => {
+      await retry.try(async () => {
+        const requestBody = {
+          defaultIndex: ['.alerts*'], // query both .alerts-observability-apm and .alerts-security-solution
+          docValueFields: [{ field: '*' }],
+          factoryQueryType: TimelineEventsQueries.all,
+          fieldRequested: FIELD_REQUESTED,
+          fields: [],
+          filterQuery: {
+            bool: {
+              filter: [
+                {
+                  match_all: {},
+                },
+              ],
+            },
+          },
+          pagination: {
+            activePage: 0,
+            querySize: 25,
+          },
+          language: 'kuery',
+          sort: [
+            {
+              field: '@timestamp',
+              direction: Direction.desc,
+              type: 'number',
+            },
+          ],
+          timerange: {
+            from: FROM,
+            to: TO,
+            interval: '12h',
+          },
+        };
+        // console.error('REQUEST BODY', JSON.stringify(requestBody, null, 2));
+        const resp = await supertestWithoutAuth
+          .post('/internal/search/securitySolutionTimelineSearchStrategy/')
+          .auth(secOnly.username, secOnly.password)
+          .set('kbn-xsrf', 'true')
+          .set('Content-Type', 'application/json')
+          .send(requestBody);
+        // .expect(200);
+        // console.error('WHAT IS THE RESP', JSON.stringify(resp, null, 2));
+
+        const timeline = resp.body;
+        // console.error('TIMELINE', JSON.stringify(timeline, null, 2));
+
+        expect(timeline.totalCount).to.be(1);
       });
     });
 

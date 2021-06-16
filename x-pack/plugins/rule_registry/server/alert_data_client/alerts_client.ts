@@ -74,6 +74,7 @@ export class AlertsClient {
     );
   }
 
+  // pull concrete index name off of document
   private async fetchAlert({ id, indexName }: GetAlertParams): Promise<ParsedTechnicalFields> {
     try {
       const result = await this.esClient.get<ParsedTechnicalFields>({
