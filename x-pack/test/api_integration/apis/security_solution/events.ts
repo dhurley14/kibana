@@ -415,16 +415,14 @@ export default function ({ getService }: FtrProviderContext) {
   const supertestWithoutAuth = getService('supertestWithoutAuth');
 
   describe('Timeline', () => {
-    // before(() => esArchiver.load('x-pack/test/functional/es_archives/auditbeat/hosts'));
-    // after(() => esArchiver.unload('x-pack/test/functional/es_archives/auditbeat/hosts'));
     before(async () => {
-      await esArchiver.load('auditbeat/hosts');
-      await esArchiver.load('rule_registry/alerts');
+      await esArchiver.load('x-pack/test/functional/es_archives/auditbeat/hosts');
+      await esArchiver.load('x-pack/test/functional/es_archives/rule_registry/alerts');
       await createSpacesAndUsers(getService);
     });
     after(async () => {
-      await esArchiver.unload('auditbeat/hosts');
-      await esArchiver.load('rule_registry/alerts');
+      await esArchiver.unload('x-pack/test/functional/es_archives/auditbeat/hosts');
+      await esArchiver.load('x-pack/test/functional/es_archives/rule_registry/alerts');
       await deleteSpacesAndUsers(getService);
     });
 
@@ -470,14 +468,15 @@ export default function ({ getService }: FtrProviderContext) {
       });
     });
 
-    it.only('Make sure that we get Timeline data using the hunter role and do not receive observability alerts', async () => {
+    // TODO: unskip this test once authz is added to search strategy
+    it.skip('Make sure that we get Timeline data using the hunter role and do not receive observability alerts', async () => {
       await retry.try(async () => {
         const requestBody = {
           defaultIndex: ['.alerts*'], // query both .alerts-observability-apm and .alerts-security-solution
-          docValueFields: [{ field: '*' }],
+          docValueFields: [],
           factoryQueryType: TimelineEventsQueries.all,
           fieldRequested: FIELD_REQUESTED,
-          fields: [],
+          // fields: [],
           filterQuery: {
             bool: {
               filter: [
@@ -505,19 +504,20 @@ export default function ({ getService }: FtrProviderContext) {
             interval: '12h',
           },
         };
-        console.error('REQUEST BODY', JSON.stringify(requestBody, null, 2));
         const resp = await supertestWithoutAuth
           .post('/internal/search/securitySolutionTimelineSearchStrategy/')
           .auth(secOnly.username, secOnly.password)
           .set('kbn-xsrf', 'true')
           .set('Content-Type', 'application/json')
-          .send(requestBody);
-        // .expect(200);
-        console.error('WHAT IS THE RESP', JSON.stringify(resp, null, 2));
+          .send(requestBody)
+          .expect(200);
 
         const timeline = resp.body;
-        console.error('TIMELINE', JSON.stringify(timeline, null, 2));
 
+        // we inject one alert into the security solutions alerts index and another alert into the observability alerts index
+        // therefore when accessing the .alerts* index with the security solution user,
+        // only security solution alerts should be returned since the security solution user
+        // is not authorized to view observability alerts.
         expect(timeline.totalCount).to.be(1);
       });
     });
