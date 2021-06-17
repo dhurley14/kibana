@@ -15,7 +15,6 @@ import {
 } from '../../../alerting/server/authorization';
 import { Logger, ElasticsearchClient } from '../../../../../src/core/server';
 import { alertAuditEvent, AlertAuditAction } from './audit_events';
-import { RuleDataPluginService } from '../rule_data_plugin_service';
 import { AuditLogger } from '../../../security/server';
 import { OWNER, RULE_ID } from '../../common/technical_rule_data_field_names';
 import { ParsedTechnicalFields } from '../../common/parse_technical_fields';
@@ -25,7 +24,6 @@ export interface ConstructorOptions {
   authorization: PublicMethodsOf<AlertingAuthorization>;
   auditLogger?: AuditLogger;
   esClient: ElasticsearchClient;
-  ruleDataService: PublicMethodsOf<RuleDataPluginService>;
 }
 
 export interface UpdateOptions<Params extends AlertTypeParams> {
@@ -43,29 +41,22 @@ interface GetAlertParams {
   indexName: string;
 }
 
+/**
+ * Provides apis to interact with alerts as data
+ * ensures the request is authorized to perform read / write actions
+ * on alerts as data.
+ */
 export class AlertsClient {
   private readonly logger: Logger;
   private readonly auditLogger?: AuditLogger;
   private readonly authorization: PublicMethodsOf<AlertingAuthorization>;
   private readonly esClient: ElasticsearchClient;
-  private readonly ruleDataService: PublicMethodsOf<RuleDataPluginService>;
 
-  constructor({
-    auditLogger,
-    authorization,
-    logger,
-    esClient,
-    ruleDataService,
-  }: ConstructorOptions) {
+  constructor({ auditLogger, authorization, logger, esClient }: ConstructorOptions) {
     this.logger = logger;
     this.authorization = authorization;
     this.esClient = esClient;
     this.auditLogger = auditLogger;
-    this.ruleDataService = ruleDataService;
-  }
-
-  public getFullAssetName() {
-    return this.ruleDataService?.getFullAssetName();
   }
 
   public async getAlertsIndex(featureIds: string[]) {

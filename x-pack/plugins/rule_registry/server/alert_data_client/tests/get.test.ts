@@ -9,14 +9,9 @@ import { AlertsClient, ConstructorOptions } from '../alerts_client';
 import { loggingSystemMock } from '../../../../../../src/core/server/mocks';
 // eslint-disable-next-line @kbn/eslint/no-restricted-paths
 import { elasticsearchClientMock } from 'src/core/server/elasticsearch/client/mocks';
-import { ruleDataPluginServiceMock } from '../../rule_data_plugin_service/rule_data_plugin_service.mock';
-import { RuleDataPluginServiceConstructorOptions } from '../../rule_data_plugin_service';
 import { alertingAuthorizationMock } from '../../../../alerting/server/authorization/alerting_authorization.mock';
 import { AuditLogger } from '../../../../security/server';
 
-const ruleDataServiceMock = ruleDataPluginServiceMock.create(
-  {} as RuleDataPluginServiceConstructorOptions
-);
 const alertingAuthMock = alertingAuthorizationMock.create();
 const esClientMock = elasticsearchClientMock.createElasticsearchClient();
 const auditLogger = {
@@ -25,10 +20,6 @@ const auditLogger = {
 
 const alertsClientParams: jest.Mocked<ConstructorOptions> = {
   logger: loggingSystemMock.create().get(),
-  ruleDataService: {
-    ...ruleDataServiceMock,
-    getFullAssetName: (_?: string | undefined) => '.alerts-observability-apm',
-  },
   authorization: alertingAuthMock,
   esClient: esClientMock,
   auditLogger,

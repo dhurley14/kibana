@@ -149,7 +149,6 @@ export class RuleRegistryPlugin
         return plugins.alerting.getAlertingAuthorizationWithRequest(request);
       },
       securityPluginSetup: security,
-      ruleDataService: this.ruleDataService!,
     });
 
     const getRacClientWithRequest = (request: KibanaRequest) => {

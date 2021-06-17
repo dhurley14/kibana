@@ -29,7 +29,6 @@ const alertsClientFactoryParams: AlertsClientFactoryProps = {
   getAlertingAuthorization: (_: KibanaRequest) => alertingAuthMock,
   securityPluginSetup,
   esClient: {} as ElasticsearchClient,
-  ruleDataService: ruleDataServiceMock,
 };
 
 const fakeRequest = ({
@@ -88,7 +87,6 @@ test('throws an error if ruleDataService not available', () => {
   expect(() =>
     factory.initialize({
       ...alertsClientFactoryParams,
-      ruleDataService: null,
     })
   ).toThrowErrorMatchingInlineSnapshot(`"Rule registry data service required for alerts client"`);
 });

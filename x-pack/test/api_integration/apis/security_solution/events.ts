@@ -506,7 +506,7 @@ export default function ({ getService }: FtrProviderContext) {
         };
         const resp = await supertestWithoutAuth
           .post('/internal/search/securitySolutionTimelineSearchStrategy/')
-          .auth(secOnly.username, secOnly.password)
+          .auth(secOnly.username, secOnly.password) // using security 'hunter' role
           .set('kbn-xsrf', 'true')
           .set('Content-Type', 'application/json')
           .send(requestBody)

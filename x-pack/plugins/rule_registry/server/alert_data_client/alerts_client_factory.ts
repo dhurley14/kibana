@@ -11,14 +11,12 @@ import { SecurityPluginSetup } from '../../../security/server';
 // eslint-disable-next-line @kbn/eslint/no-restricted-paths
 import { AlertingAuthorization } from '../../../alerting/server/authorization';
 import { AlertsClient } from './alerts_client';
-import { RuleDataPluginService } from '../rule_data_plugin_service';
 
 export interface AlertsClientFactoryProps {
   logger: Logger;
   esClient: ElasticsearchClient;
   getAlertingAuthorization: (request: KibanaRequest) => PublicMethodsOf<AlertingAuthorization>;
   securityPluginSetup: SecurityPluginSetup | undefined;
-  ruleDataService: PublicMethodsOf<RuleDataPluginService> | null;
 }
 
 export class AlertsClientFactory {
@@ -29,7 +27,6 @@ export class AlertsClientFactory {
     request: KibanaRequest
   ) => PublicMethodsOf<AlertingAuthorization>;
   private securityPluginSetup!: SecurityPluginSetup | undefined;
-  private ruleDataService!: PublicMethodsOf<RuleDataPluginService>;
 
   public initialize(options: AlertsClientFactoryProps) {
     /**
@@ -39,16 +36,11 @@ export class AlertsClientFactory {
       throw new Error('AlertsClientFactory (RAC) already initialized');
     }
 
-    if (options.ruleDataService == null) {
-      throw new Error('Rule registry data service required for alerts client');
-    }
-
     this.getAlertingAuthorization = options.getAlertingAuthorization;
     this.isInitialized = true;
     this.logger = options.logger;
     this.esClient = options.esClient;
     this.securityPluginSetup = options.securityPluginSetup;
-    this.ruleDataService = options.ruleDataService;
   }
 
   public async create(request: KibanaRequest): Promise<AlertsClient> {
@@ -59,7 +51,6 @@ export class AlertsClientFactory {
       authorization: getAlertingAuthorization(request),
       auditLogger: securityPluginSetup?.audit.asScoped(request),
       esClient: this.esClient,
-      ruleDataService: this.ruleDataService!,
     });
   }
 }

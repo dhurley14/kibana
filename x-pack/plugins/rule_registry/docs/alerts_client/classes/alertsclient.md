@@ -2,6 +2,10 @@
 
 # Class: AlertsClient
 
+Provides apis to interact with alerts as data
+ensures the request is authorized to perform read / write actions
+on alerts as data.
+
 ## Table of contents
 
 ### Constructors
@@ -38,7 +42,7 @@
 
 #### Defined in
 
-[alerts_client.ts:51](https://github.com/dhurley14/kibana/blob/7aeac695545/x-pack/plugins/rule_registry/server/alert_data_client/alerts_client.ts#L51)
+[alerts_client.ts:56](https://github.com/dhurley14/kibana/blob/25bf227f8c6/x-pack/plugins/rule_registry/server/alert_data_client/alerts_client.ts#L56)
 
 ## Properties
 
@@ -48,7 +52,7 @@
 
 #### Defined in
 
-[alerts_client.ts:48](https://github.com/dhurley14/kibana/blob/7aeac695545/x-pack/plugins/rule_registry/server/alert_data_client/alerts_client.ts#L48)
+[alerts_client.ts:53](https://github.com/dhurley14/kibana/blob/25bf227f8c6/x-pack/plugins/rule_registry/server/alert_data_client/alerts_client.ts#L53)
 
 ___
 
@@ -58,7 +62,7 @@ ___
 
 #### Defined in
 
-[alerts_client.ts:49](https://github.com/dhurley14/kibana/blob/7aeac695545/x-pack/plugins/rule_registry/server/alert_data_client/alerts_client.ts#L49)
+[alerts_client.ts:54](https://github.com/dhurley14/kibana/blob/25bf227f8c6/x-pack/plugins/rule_registry/server/alert_data_client/alerts_client.ts#L54)
 
 ___
 
@@ -68,7 +72,7 @@ ___
 
 #### Defined in
 
-[alerts_client.ts:50](https://github.com/dhurley14/kibana/blob/7aeac695545/x-pack/plugins/rule_registry/server/alert_data_client/alerts_client.ts#L50)
+[alerts_client.ts:55](https://github.com/dhurley14/kibana/blob/25bf227f8c6/x-pack/plugins/rule_registry/server/alert_data_client/alerts_client.ts#L55)
 
 ___
 
@@ -78,7 +82,7 @@ ___
 
 #### Defined in
 
-[alerts_client.ts:47](https://github.com/dhurley14/kibana/blob/7aeac695545/x-pack/plugins/rule_registry/server/alert_data_client/alerts_client.ts#L47)
+[alerts_client.ts:52](https://github.com/dhurley14/kibana/blob/25bf227f8c6/x-pack/plugins/rule_registry/server/alert_data_client/alerts_client.ts#L52)
 
 ___
 
@@ -88,7 +92,7 @@ ___
 
 #### Defined in
 
-[alerts_client.ts:51](https://github.com/dhurley14/kibana/blob/7aeac695545/x-pack/plugins/rule_registry/server/alert_data_client/alerts_client.ts#L51)
+[alerts_client.ts:56](https://github.com/dhurley14/kibana/blob/25bf227f8c6/x-pack/plugins/rule_registry/server/alert_data_client/alerts_client.ts#L56)
 
 ## Methods
 
@@ -108,7 +112,7 @@ ___
 
 #### Defined in
 
-[alerts_client.ts:78](https://github.com/dhurley14/kibana/blob/7aeac695545/x-pack/plugins/rule_registry/server/alert_data_client/alerts_client.ts#L78)
+[alerts_client.ts:83](https://github.com/dhurley14/kibana/blob/25bf227f8c6/x-pack/plugins/rule_registry/server/alert_data_client/alerts_client.ts#L83)
 
 ___
 
@@ -128,7 +132,7 @@ ___
 
 #### Defined in
 
-[alerts_client.ts:103](https://github.com/dhurley14/kibana/blob/7aeac695545/x-pack/plugins/rule_registry/server/alert_data_client/alerts_client.ts#L103)
+[alerts_client.ts:108](https://github.com/dhurley14/kibana/blob/25bf227f8c6/x-pack/plugins/rule_registry/server/alert_data_client/alerts_client.ts#L108)
 
 ___
 
@@ -148,7 +152,7 @@ ___
 
 #### Defined in
 
-[alerts_client.ts:71](https://github.com/dhurley14/kibana/blob/7aeac695545/x-pack/plugins/rule_registry/server/alert_data_client/alerts_client.ts#L71)
+[alerts_client.ts:76](https://github.com/dhurley14/kibana/blob/25bf227f8c6/x-pack/plugins/rule_registry/server/alert_data_client/alerts_client.ts#L76)
 
 ___
 
@@ -162,7 +166,7 @@ ___
 
 #### Defined in
 
-[alerts_client.ts:67](https://github.com/dhurley14/kibana/blob/7aeac695545/x-pack/plugins/rule_registry/server/alert_data_client/alerts_client.ts#L67)
+[alerts_client.ts:72](https://github.com/dhurley14/kibana/blob/25bf227f8c6/x-pack/plugins/rule_registry/server/alert_data_client/alerts_client.ts#L72)
 
 ___
 
@@ -188,4 +192,4 @@ ___
 
 #### Defined in
 
-[alerts_client.ts:141](https://github.com/dhurley14/kibana/blob/7aeac695545/x-pack/plugins/rule_registry/server/alert_data_client/alerts_client.ts#L141)
+[alerts_client.ts:146](https://github.com/dhurley14/kibana/blob/25bf227f8c6/x-pack/plugins/rule_registry/server/alert_data_client/alerts_client.ts#L146)

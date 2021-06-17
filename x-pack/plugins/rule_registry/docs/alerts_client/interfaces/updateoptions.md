@@ -30,7 +30,7 @@
 
 #### Defined in
 
-[alerts_client.ts:33](https://github.com/dhurley14/kibana/blob/7aeac695545/x-pack/plugins/rule_registry/server/alert_data_client/alerts_client.ts#L33)
+[alerts_client.ts:33](https://github.com/dhurley14/kibana/blob/25bf227f8c6/x-pack/plugins/rule_registry/server/alert_data_client/alerts_client.ts#L33)
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 #### Defined in
 
-[alerts_client.ts:32](https://github.com/dhurley14/kibana/blob/7aeac695545/x-pack/plugins/rule_registry/server/alert_data_client/alerts_client.ts#L32)
+[alerts_client.ts:32](https://github.com/dhurley14/kibana/blob/25bf227f8c6/x-pack/plugins/rule_registry/server/alert_data_client/alerts_client.ts#L32)
 
 ___
 
@@ -50,4 +50,4 @@ ___
 
 #### Defined in
 
-[alerts_client.ts:37](https://github.com/dhurley14/kibana/blob/7aeac695545/x-pack/plugins/rule_registry/server/alert_data_client/alerts_client.ts#L37)
+[alerts_client.ts:37](https://github.com/dhurley14/kibana/blob/25bf227f8c6/x-pack/plugins/rule_registry/server/alert_data_client/alerts_client.ts#L37)
