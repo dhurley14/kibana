@@ -38,7 +38,7 @@ export interface UpdateOptions<Params extends AlertTypeParams> {
   data: {
     status: string;
   };
-  indexName: string;
+  index: string;
 }
 
 interface GetAlertParams {
@@ -94,11 +94,12 @@ export class AlertsClient {
     }
   }
 
-  public async get({ id }: GetAlertParams): Promise<ParsedTechnicalFields> {
+  public async get({ id, index }: GetAlertParams): Promise<ParsedTechnicalFields> {
     try {
       // first search for the alert by id, then use the alert info to check if user has access to it
       const alert = await this.fetchAlert({
         id,
+        index,
       });
 
       // this.authorization leverages the alerting plugin's authorization
@@ -134,11 +135,12 @@ export class AlertsClient {
   public async update<Params extends AlertTypeParams = never>({
     id,
     data,
-    indexName,
+    index,
   }: UpdateOptions<Params>): Promise<ParsedTechnicalFields | null | undefined> {
     try {
       const alert = await this.fetchAlert({
         id,
+        index,
       });
 
       await this.authorization.ensureAuthorized({
@@ -150,7 +152,7 @@ export class AlertsClient {
 
       const updateParameters = {
         id,
-        index: indexName,
+        index,
         body: {
           doc: {
             [ALERT_STATUS]: data.status,

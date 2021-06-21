@@ -32,23 +32,39 @@ beforeEach(() => {
 describe('get()', () => {
   test('calls ES client with given params', async () => {
     const alertsClient = new AlertsClient(alertsClientParams);
-    esClientMock.get.mockResolvedValueOnce(
+    esClientMock.search.mockResolvedValueOnce(
       elasticsearchClientMock.createApiResponse({
         body: {
-          found: true,
-          _type: 'alert',
-          _index: '.alerts-observability-apm',
-          _id: 'NoxgpHkBqbdrfX07MqXV',
-          _source: {
-            'rule.id': 'apm.error_rate',
-            message: 'hello world 1',
-            'kibana.rac.alert.owner': 'apm',
-            'kibana.rac.alert.status': 'open',
+          took: 5,
+          timed_out: false,
+          _shards: {
+            total: 1,
+            successful: 1,
+            failed: 0,
+            skipped: 0,
+          },
+          hits: {
+            total: 1,
+            max_score: 999,
+            hits: [
+              {
+                found: true,
+                _type: 'alert',
+                _index: '.alerts-observability-apm',
+                _id: 'NoxgpHkBqbdrfX07MqXV',
+                _source: {
+                  'rule.id': 'apm.error_rate',
+                  message: 'hello world 1',
+                  'kibana.rac.alert.owner': 'apm',
+                  'kibana.rac.alert.status': 'open',
+                },
+              },
+            ],
           },
         },
       })
     );
-    const result = await alertsClient.get({ id: '1', indexName: '.alerts-observability-apm' });
+    const result = await alertsClient.get({ id: '1', index: '.alerts-observability-apm' });
     expect(result).toMatchInlineSnapshot(`
       Object {
         "kibana.rac.alert.owner": "apm",
@@ -57,11 +73,17 @@ describe('get()', () => {
         "rule.id": "apm.error_rate",
       }
     `);
-    expect(esClientMock.get).toHaveBeenCalledTimes(1);
-    expect(esClientMock.get.mock.calls[0]).toMatchInlineSnapshot(`
+    expect(esClientMock.search).toHaveBeenCalledTimes(1);
+    expect(esClientMock.search.mock.calls[0]).toMatchInlineSnapshot(`
       Array [
         Object {
-          "id": "1",
+          "body": Object {
+            "query": Object {
+              "term": Object {
+                "_id": "1",
+              },
+            },
+          },
           "index": ".alerts-observability-apm",
         },
       ]
@@ -70,23 +92,39 @@ describe('get()', () => {
 
   test('logs successful event in audit logger', async () => {
     const alertsClient = new AlertsClient(alertsClientParams);
-    esClientMock.get.mockResolvedValueOnce(
+    esClientMock.search.mockResolvedValueOnce(
       elasticsearchClientMock.createApiResponse({
         body: {
-          found: true,
-          _type: 'alert',
-          _index: '.alerts-observability-apm',
-          _id: 'NoxgpHkBqbdrfX07MqXV',
-          _source: {
-            'rule.id': 'apm.error_rate',
-            message: 'hello world 1',
-            'kibana.rac.alert.owner': 'apm',
-            'kibana.rac.alert.status': 'open',
+          took: 5,
+          timed_out: false,
+          _shards: {
+            total: 1,
+            successful: 1,
+            failed: 0,
+            skipped: 0,
+          },
+          hits: {
+            total: 1,
+            max_score: 999,
+            hits: [
+              {
+                found: true,
+                _type: 'alert',
+                _index: '.alerts-observability-apm',
+                _id: 'NoxgpHkBqbdrfX07MqXV',
+                _source: {
+                  'rule.id': 'apm.error_rate',
+                  message: 'hello world 1',
+                  'kibana.rac.alert.owner': 'apm',
+                  'kibana.rac.alert.status': 'open',
+                },
+              },
+            ],
           },
         },
       })
     );
-    await alertsClient.get({ id: '1', indexName: '.alerts-observability-apm' });
+    await alertsClient.get({ id: '1', index: '.alerts-observability-apm' });
 
     expect(auditLogger.log).toHaveBeenCalledWith({
       error: undefined,
@@ -98,10 +136,10 @@ describe('get()', () => {
   test(`throws an error if ES client get fails`, async () => {
     const error = new Error('something went wrong');
     const alertsClient = new AlertsClient(alertsClientParams);
-    esClientMock.get.mockRejectedValue(error);
+    esClientMock.search.mockRejectedValue(error);
 
     await expect(
-      alertsClient.get({ id: '1', indexName: '.alerts-observability-apm' })
+      alertsClient.get({ id: '1', index: '.alerts-observability-apm' })
     ).rejects.toThrowErrorMatchingInlineSnapshot(`"something went wrong"`);
     expect(auditLogger.log).toHaveBeenCalledWith({
       error: { code: 'Error', message: 'something went wrong' },
@@ -112,18 +150,34 @@ describe('get()', () => {
 
   describe('authorization', () => {
     beforeEach(() => {
-      esClientMock.get.mockResolvedValueOnce(
+      esClientMock.search.mockResolvedValueOnce(
         elasticsearchClientMock.createApiResponse({
           body: {
-            found: true,
-            _type: 'alert',
-            _index: '.alerts-observability-apm',
-            _id: 'NoxgpHkBqbdrfX07MqXV',
-            _source: {
-              'rule.id': 'apm.error_rate',
-              message: 'hello world 1',
-              'kibana.rac.alert.owner': 'apm',
-              'kibana.rac.alert.status': 'open',
+            took: 5,
+            timed_out: false,
+            _shards: {
+              total: 1,
+              successful: 1,
+              failed: 0,
+              skipped: 0,
+            },
+            hits: {
+              total: 1,
+              max_score: 999,
+              hits: [
+                {
+                  found: true,
+                  _type: 'alert',
+                  _index: '.alerts-observability-apm',
+                  _id: 'NoxgpHkBqbdrfX07MqXV',
+                  _source: {
+                    'rule.id': 'apm.error_rate',
+                    message: 'hello world 1',
+                    'kibana.rac.alert.owner': 'apm',
+                    'kibana.rac.alert.status': 'open',
+                  },
+                },
+              ],
             },
           },
         })
@@ -132,7 +186,7 @@ describe('get()', () => {
 
     test('returns alert if user is authorized to read alert under the consumer', async () => {
       const alertsClient = new AlertsClient(alertsClientParams);
-      const result = await alertsClient.get({ id: '1', indexName: '.alerts-observability-apm' });
+      const result = await alertsClient.get({ id: '1', index: '.alerts-observability-apm' });
 
       expect(alertingAuthMock.ensureAuthorized).toHaveBeenCalledWith({
         entity: 'alert',
@@ -157,7 +211,7 @@ describe('get()', () => {
       );
 
       await expect(
-        alertsClient.get({ id: '1', indexName: '.alerts-observability-apm' })
+        alertsClient.get({ id: '1', index: '.alerts-observability-apm' })
       ).rejects.toMatchInlineSnapshot(
         `[Error: Unauthorized to get a "apm.error_rate" alert for "apm"]`
       );

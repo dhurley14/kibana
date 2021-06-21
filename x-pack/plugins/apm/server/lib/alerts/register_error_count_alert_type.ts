@@ -22,7 +22,6 @@ import {
   APM_SERVER_FEATURE_ID,
   ALERT_TYPES_CONFIG,
 } from '../../../common/alert_types';
-import { asMutableArray } from '../../../common/utils/as_mutable_array';
 import {
   PROCESSOR_EVENT,
   SERVICE_ENVIRONMENT,

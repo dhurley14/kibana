@@ -217,7 +217,7 @@ beforeEach(() => {
 });
 
 describe('AlertingAuthorization', () => {
-  xdescribe('constructor', () => {
+  describe('constructor', () => {
     test(`fetches the user's current space`, async () => {
       const space = {
         id: uuid.v4(),
@@ -239,7 +239,7 @@ describe('AlertingAuthorization', () => {
     });
   });
 
-  xdescribe('ensureAuthorized', () => {
+  describe('ensureAuthorized', () => {
     test('is a no-op when there is no authorization api', async () => {
       const alertAuthorization = new AlertingAuthorization({
         request,
@@ -886,7 +886,7 @@ describe('AlertingAuthorization', () => {
     });
   });
 
-  xdescribe('getFindAuthorizationFilter', () => {
+  describe('getFindAuthorizationFilter', () => {
     const myOtherAppAlertType: RegistryAlertType = {
       actionGroups: [],
       actionVariables: undefined,
@@ -1236,7 +1236,7 @@ describe('AlertingAuthorization', () => {
     });
   });
 
-  xdescribe('filterByRuleTypeAuthorization', () => {
+  describe('filterByRuleTypeAuthorization', () => {
     const myOtherAppAlertType: RegistryAlertType = {
       actionGroups: [],
       actionVariables: undefined,

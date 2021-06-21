@@ -50,7 +50,7 @@ describe('getAlertByIdRoute', () => {
       requestMock.create({
         method: 'get',
         path: BASE_RAC_ALERTS_API_PATH,
-        query: { id: 'alert-1', index: '.alerts-me' },
+        query: { id: 'alert-1', indexName: '.alerts-me' },
       }),
       context
     );

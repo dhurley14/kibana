@@ -12,16 +12,11 @@ import { ElasticsearchClient, KibanaRequest } from 'src/core/server';
 import { loggingSystemMock } from 'src/core/server/mocks';
 import { securityMock } from '../../../security/server/mocks';
 import { AuditLogger } from '../../../security/server';
-import { ruleDataPluginServiceMock } from '../rule_data_plugin_service/rule_data_plugin_service.mock';
 import { alertingAuthorizationMock } from '../../../alerting/server/authorization/alerting_authorization.mock';
-import { RuleDataPluginServiceConstructorOptions } from '../rule_data_plugin_service';
 
 jest.mock('./alerts_client');
 
 const securityPluginSetup = securityMock.createSetup();
-const ruleDataServiceMock = ruleDataPluginServiceMock.create(
-  {} as RuleDataPluginServiceConstructorOptions
-);
 const alertingAuthMock = alertingAuthorizationMock.create();
 
 const alertsClientFactoryParams: AlertsClientFactoryProps = {
@@ -51,42 +46,33 @@ const auditLogger = {
   log: jest.fn(),
 } as jest.Mocked<AuditLogger>;
 
-beforeEach(() => {
-  jest.resetAllMocks();
+describe('AlertsClientFactory', () => {
+  beforeEach(() => {
+    jest.resetAllMocks();
 
-  securityPluginSetup.audit.asScoped.mockReturnValue(auditLogger);
-});
-
-test('creates an alerts client with proper constructor arguments', async () => {
-  const factory = new AlertsClientFactory();
-  factory.initialize({ ...alertsClientFactoryParams });
-  const request = KibanaRequest.from(fakeRequest);
-  await factory.create(request);
-
-  expect(jest.requireMock('./alerts_client').AlertsClient).toHaveBeenCalledWith({
-    authorization: alertingAuthMock,
-    logger: alertsClientFactoryParams.logger,
-    auditLogger,
-    esClient: {},
-    ruleDataService: ruleDataServiceMock,
+    securityPluginSetup.audit.asScoped.mockReturnValue(auditLogger);
   });
-});
 
-test('throws an error if already initialized', () => {
-  const factory = new AlertsClientFactory();
-  factory.initialize({ ...alertsClientFactoryParams });
+  test('creates an alerts client with proper constructor arguments', async () => {
+    const factory = new AlertsClientFactory();
+    factory.initialize({ ...alertsClientFactoryParams });
+    const request = KibanaRequest.from(fakeRequest);
+    await factory.create(request);
 
-  expect(() =>
-    factory.initialize({ ...alertsClientFactoryParams })
-  ).toThrowErrorMatchingInlineSnapshot(`"AlertsClientFactory (RAC) already initialized"`);
-});
+    expect(jest.requireMock('./alerts_client').AlertsClient).toHaveBeenCalledWith({
+      authorization: alertingAuthMock,
+      logger: alertsClientFactoryParams.logger,
+      auditLogger,
+      esClient: {},
+    });
+  });
 
-test('throws an error if ruleDataService not available', () => {
-  const factory = new AlertsClientFactory();
+  test('throws an error if already initialized', () => {
+    const factory = new AlertsClientFactory();
+    factory.initialize({ ...alertsClientFactoryParams });
 
-  expect(() =>
-    factory.initialize({
-      ...alertsClientFactoryParams,
-    })
-  ).toThrowErrorMatchingInlineSnapshot(`"Rule registry data service required for alerts client"`);
+    expect(() =>
+      factory.initialize({ ...alertsClientFactoryParams })
+    ).toThrowErrorMatchingInlineSnapshot(`"AlertsClientFactory (RAC) already initialized"`);
+  });
 });
