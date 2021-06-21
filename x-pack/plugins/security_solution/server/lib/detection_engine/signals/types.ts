@@ -212,6 +212,7 @@ export interface Signal {
   };
   original_time?: string;
   original_event?: SearchTypes;
+  owner?: string;
   status: Status;
   threshold_result?: ThresholdResult;
   original_signal?: SearchTypes;
@@ -236,6 +237,7 @@ export interface AlertAttributes<T extends RuleParams = RuleParams> {
   schedule: {
     interval: string;
   };
+  consumer: string;
   throttle: string;
   params: T;
 }

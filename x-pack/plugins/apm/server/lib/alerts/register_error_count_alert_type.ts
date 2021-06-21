@@ -17,7 +17,12 @@ import {
   getEnvironmentEsField,
   getEnvironmentLabel,
 } from '../../../common/environment_filter_values';
-import { AlertType, ALERT_TYPES_CONFIG } from '../../../common/alert_types';
+import {
+  AlertType,
+  APM_SERVER_FEATURE_ID,
+  ALERT_TYPES_CONFIG,
+} from '../../../common/alert_types';
+import { asMutableArray } from '../../../common/utils/as_mutable_array';
 import {
   PROCESSOR_EVENT,
   SERVICE_ENVIRONMENT,
@@ -69,7 +74,7 @@ export function registerErrorCountAlertType({
           apmActionVariables.interval,
         ],
       },
-      producer: 'apm',
+      producer: APM_SERVER_FEATURE_ID,
       minimumLicenseRequired: 'basic',
       executor: async ({ services, params }) => {
         const config = await config$.pipe(take(1)).toPromise();
