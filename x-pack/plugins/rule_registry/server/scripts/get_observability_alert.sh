@@ -20,4 +20,4 @@ cd ..
 # Example: ./find_rules.sh
 curl -v -k \
  -u $USER:changeme \
- -X GET "${KIBANA_URL}${SPACE_URL}/api/rac/alerts?id=NoxgpHkBqbdrfX07MqXV&indexName=.alerts-observability-apm" | jq .
+ -X GET "${KIBANA_URL}${SPACE_URL}/api/rac/alerts?id=myF9MHoBlVnqk9vSwvml&index=.alerts-observability-apm" | jq .

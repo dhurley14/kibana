@@ -12,17 +12,10 @@ import { getUpdateRequest } from './__mocks__/request_responses';
 import { requestMock, serverMock } from './__mocks__/server';
 
 const getMockAlert = () => ({
-  type: 'doc',
-  value: {
-    index: '.alerts-observability-apm',
-    id: 'alert-id',
-    source: {
-      'rule.id': 'apm.error_rate',
-      message: 'hello world 1',
-      'kibana.rac.alert.owner': 'apm',
-      'kibana.rac.alert.status': 'open',
-    },
-  },
+  '@timestamp': '2021-06-21T21:33:05.713Z',
+  'rule.id': 'apm.error_rate',
+  'kibana.rac.alert.owner': 'apm',
+  'kibana.rac.alert.status': 'open',
 });
 
 describe('updateAlertByIdRoute', () => {
@@ -34,7 +27,7 @@ describe('updateAlertByIdRoute', () => {
     ({ clients, context } = requestContextMock.createTools());
 
     clients.rac.update.mockResolvedValue({
-      ...getMockAlert().value.source,
+      ...getMockAlert(),
       'kibana.rac.alert.status': 'closed',
     });
 
@@ -47,7 +40,7 @@ describe('updateAlertByIdRoute', () => {
     expect(response.status).toEqual(200);
     expect(response.body).toEqual({
       alerts: {
-        ...getMockAlert().value.source,
+        ...getMockAlert(),
         'kibana.rac.alert.status': 'closed',
       },
       success: true,

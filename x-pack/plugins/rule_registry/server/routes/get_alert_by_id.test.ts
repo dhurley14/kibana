@@ -6,23 +6,17 @@
  */
 
 import { BASE_RAC_ALERTS_API_PATH } from '../../common/constants';
+import { ParsedTechnicalFields } from '../../common/parse_technical_fields';
 import { getAlertByIdRoute } from './get_alert_by_id';
 import { requestContextMock } from './__mocks__/request_context';
 import { getReadRequest } from './__mocks__/request_responses';
 import { requestMock, serverMock } from './__mocks__/server';
 
-const getMockAlert = () => ({
-  type: 'doc',
-  value: {
-    index: '.alerts-observability-apm',
-    id: 'alert-id',
-    source: {
-      'rule.id': 'apm.error_rate',
-      message: 'hello world 1',
-      'kibana.rac.alert.owner': 'apm',
-      'kibana.rac.alert.status': 'open',
-    },
-  },
+const getMockAlert = (): ParsedTechnicalFields => ({
+  '@timestamp': '2021-06-21T21:33:05.713Z',
+  'rule.id': 'apm.error_rate',
+  'kibana.rac.alert.owner': 'apm',
+  'kibana.rac.alert.status': 'open',
 });
 
 describe('getAlertByIdRoute', () => {
