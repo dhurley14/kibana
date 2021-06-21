@@ -43,6 +43,7 @@ export interface UpdateOptions<Params extends AlertTypeParams> {
 
 interface GetAlertParams {
   id: string;
+  index?: string;
 }
 
 /**
@@ -69,10 +70,13 @@ export class AlertsClient {
     );
   }
 
-  private async fetchAlert({ id }: GetAlertParams): Promise<AlertType> {
+  private async fetchAlert({ id, index }: GetAlertParams): Promise<AlertType> {
     try {
       const result = await this.esClient.search<ParsedTechnicalFields>({
-        index: '.alerts-*',
+        // Context: Originally thought of always just searching `.alerts-*` but that could
+        // result in a big performance hit. If the client already knows which index the alert
+        // belongs to, passing in the index will speed things up
+        index: index ?? '.alerts-*',
         body: { query: { term: { _id: id } } },
       });
 

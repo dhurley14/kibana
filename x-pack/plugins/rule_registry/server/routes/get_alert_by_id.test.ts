@@ -45,6 +45,20 @@ describe('getAlertByIdRoute', () => {
     expect(response.body).toEqual(getMockAlert());
   });
 
+  test('returns 200 when finding a single alert with index param', async () => {
+    const response = await server.inject(
+      requestMock.create({
+        method: 'get',
+        path: BASE_RAC_ALERTS_API_PATH,
+        query: { id: 'alert-1', index: '.alerts-me' },
+      }),
+      context
+    );
+
+    expect(response.status).toEqual(200);
+    expect(response.body).toEqual(getMockAlert());
+  });
+
   describe('request validation', () => {
     test('rejects invalid query params', async () => {
       await expect(
