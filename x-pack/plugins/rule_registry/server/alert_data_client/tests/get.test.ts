@@ -48,7 +48,7 @@ describe('get()', () => {
         },
       })
     );
-    const result = await alertsClient.get({ id: '1', indexName: '.alerts-observability-apm' });
+    const result = await alertsClient.get({ id: '1', index: '.alerts-observability-apm' });
     expect(result).toMatchInlineSnapshot(`
       Object {
         "kibana.rac.alert.owner": "apm",
@@ -86,7 +86,7 @@ describe('get()', () => {
         },
       })
     );
-    await alertsClient.get({ id: '1', indexName: '.alerts-observability-apm' });
+    await alertsClient.get({ id: '1', index: '.alerts-observability-apm' });
 
     expect(auditLogger.log).toHaveBeenCalledWith({
       error: undefined,
@@ -101,7 +101,7 @@ describe('get()', () => {
     esClientMock.get.mockRejectedValue(error);
 
     await expect(
-      alertsClient.get({ id: '1', indexName: '.alerts-observability-apm' })
+      alertsClient.get({ id: '1', index: '.alerts-observability-apm' })
     ).rejects.toThrowErrorMatchingInlineSnapshot(`"something went wrong"`);
     expect(auditLogger.log).toHaveBeenCalledWith({
       error: { code: 'Error', message: 'something went wrong' },
@@ -132,7 +132,7 @@ describe('get()', () => {
 
     test('returns alert if user is authorized to read alert under the consumer', async () => {
       const alertsClient = new AlertsClient(alertsClientParams);
-      const result = await alertsClient.get({ id: '1', indexName: '.alerts-observability-apm' });
+      const result = await alertsClient.get({ id: '1', index: '.alerts-observability-apm' });
 
       expect(alertingAuthMock.ensureAuthorized).toHaveBeenCalledWith({
         entity: 'alert',
@@ -157,7 +157,7 @@ describe('get()', () => {
       );
 
       await expect(
-        alertsClient.get({ id: '1', indexName: '.alerts-observability-apm' })
+        alertsClient.get({ id: '1', index: '.alerts-observability-apm' })
       ).rejects.toMatchInlineSnapshot(
         `[Error: Unauthorized to get a "apm.error_rate" alert for "apm"]`
       );
