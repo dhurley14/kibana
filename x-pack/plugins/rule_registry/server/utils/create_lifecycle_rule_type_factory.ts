@@ -25,6 +25,7 @@ import {
   ALERT_UUID,
   EVENT_ACTION,
   EVENT_KIND,
+  OWNER,
   RULE_UUID,
   TIMESTAMP,
 } from '../../common/technical_rule_data_field_names';
@@ -69,6 +70,7 @@ export const createLifecycleRuleTypeFactory: CreateLifecycleRuleTypeFactory = ({
       const {
         services: { alertInstanceFactory },
         state: previousState,
+        rule,
       } = options;
 
       const ruleExecutorData = getRuleExecutorData(type, options);
@@ -179,7 +181,12 @@ export const createLifecycleRuleTypeFactory: CreateLifecycleRuleTypeFactory = ({
           ...alertData,
           ...ruleExecutorData,
           [TIMESTAMP]: timestamp,
+<<<<<<< HEAD
           [EVENT_KIND]: 'event',
+=======
+          [EVENT_KIND]: 'state',
+          [OWNER]: rule.consumer,
+>>>>>>> squashed commit
           [ALERT_ID]: alertId,
         };
 
@@ -221,6 +228,7 @@ export const createLifecycleRuleTypeFactory: CreateLifecycleRuleTypeFactory = ({
       });
 
       if (eventsToIndex.length) {
+<<<<<<< HEAD
         const alertEvents: Map<string, ParsedTechnicalFields> = new Map();
 
         for (const event of eventsToIndex) {
@@ -234,6 +242,9 @@ export const createLifecycleRuleTypeFactory: CreateLifecycleRuleTypeFactory = ({
             [EVENT_KIND]: 'signal',
           });
         }
+=======
+        logger.debug(`Preparing to index ${eventsToIndex.length} alerts.`);
+>>>>>>> squashed commit
 
         await ruleDataClient.getWriter().bulk({
           body: eventsToIndex
