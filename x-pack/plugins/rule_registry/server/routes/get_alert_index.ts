@@ -26,7 +26,10 @@ export const getAlertsIndexRoute = (router: IRouter<RacRequestHandlerContext>) =
       const SERVER_APP_ID = 'siem';
       try {
         const alertsClient = await context.rac.getAlertsClient();
-        const indexName = await alertsClient.getAlertsIndex([APM_SERVER_FEATURE_ID, SERVER_APP_ID]);
+        const indexName = await alertsClient.getAuthorizedAlertsIndices([
+          APM_SERVER_FEATURE_ID,
+          SERVER_APP_ID,
+        ]);
         return response.ok({
           body: { index_name: indexName },
         });

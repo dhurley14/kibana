@@ -15,9 +15,7 @@ cd ./hunter && sh ./post_detections_role.sh && sh ./post_detections_user.sh
 cd ../observer && sh ./post_detections_role.sh && sh ./post_detections_user.sh
 cd ..
 
-# curl get_index script
-
-# Example: ./find_rules.sh
+# Example: ./get_observability_alert.sh hunter
 curl -v -k \
  -u $USER:changeme \
- -X GET "${KIBANA_URL}${SPACE_URL}/api/rac/alerts?id=myF9MHoBlVnqk9vSwvml&index=.alerts-observability-apm" | jq .
+ -X GET "${KIBANA_URL}${SPACE_URL}/api/rac/alerts?id=DUgwMHoB4rQQN4aqv7Co&index=.alerts-observability-apm" | jq .

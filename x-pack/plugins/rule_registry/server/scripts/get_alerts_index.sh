@@ -10,7 +10,6 @@
 set -e
 
 USER=${1:-'observer'}
-ASSET_NAME=${2:-'observability-apm'}
 
 cd ./hunter && sh ./post_detections_role.sh && sh ./post_detections_user.sh
 cd ../observer && sh ./post_detections_role.sh && sh ./post_detections_user.sh
@@ -19,6 +18,6 @@ cd ..
 # Example: ./find_rules.sh
 curl -v -k \
  -u $USER:changeme \
- -X GET "${KIBANA_URL}${SPACE_URL}/api/rac/alerts/index?assetName=siem" | jq .
+ -X GET "${KIBANA_URL}${SPACE_URL}/api/rac/alerts/index" | jq .
 
 # -X GET "${KIBANA_URL}${SPACE_URL}/api/apm/settings/apm-alerts-as-data-indices" | jq .
