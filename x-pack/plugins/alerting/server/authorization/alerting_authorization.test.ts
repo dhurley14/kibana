@@ -1992,8 +1992,13 @@ describe('AlertingAuthorization', () => {
       });
       alertTypeRegistry.list.mockReturnValue(setOfAlertTypes);
 
-      await expect(alertAuthorization.getAugmentRuleTypesWithAuthorization(['myApp'])).resolves
-        .toMatchInlineSnapshot(`
+      await expect(
+        alertAuthorization.getAugmentRuleTypesWithAuthorization(
+          ['myApp'],
+          [ReadOperations.Find, ReadOperations.Get, WriteOperations.Update],
+          AlertingAuthorizationEntity.Alert
+        )
+      ).resolves.toMatchInlineSnapshot(`
               Object {
                 "authorizedRuleTypes": Set {
                   Object {
@@ -2060,8 +2065,13 @@ describe('AlertingAuthorization', () => {
       });
       alertTypeRegistry.list.mockReturnValue(setOfAlertTypes);
 
-      await expect(alertAuthorization.getAugmentRuleTypesWithAuthorization(['myApp'])).resolves
-        .toMatchInlineSnapshot(`
+      await expect(
+        alertAuthorization.getAugmentRuleTypesWithAuthorization(
+          ['myApp'],
+          [ReadOperations.Find, ReadOperations.Get, WriteOperations.Update],
+          AlertingAuthorizationEntity.Alert
+        )
+      ).resolves.toMatchInlineSnapshot(`
               Object {
                 "authorizedRuleTypes": Set {
                   Object {
