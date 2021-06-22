@@ -158,11 +158,4 @@ export class RuleDataPluginService {
   getFullAssetName(assetName?: string) {
     return [this.fullAssetName, assetName].filter(Boolean).join('-');
   }
-
-  async assertFullAssetNameExists(assetName?: string) {
-    const fullAssetName = this.getFullAssetName(assetName);
-    const clusterClient = await this.getClusterClient();
-    const { body } = await clusterClient.indices.exists({ index: fullAssetName });
-    return body;
-  }
 }
