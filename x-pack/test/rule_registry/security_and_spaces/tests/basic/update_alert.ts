@@ -93,7 +93,7 @@ export default ({ getService }: FtrProviderContext) => {
           .auth(obsOnlySpacesAll.username, obsOnlySpacesAll.password)
           .set('kbn-xsrf', 'true')
           .send({ ids: ['NoxgpHkBqbdrfX07MqXV'], status: 'closed', indexName: apmIndex })
-          .expect(200);
+          .expect(409);
       });
       it(`${obsOnlyReadSpacesAll.username} should NOT be able to update the APM alert in ${SPACE1}`, async () => {
         const apmIndex = await getAPMIndexName(superUser);
