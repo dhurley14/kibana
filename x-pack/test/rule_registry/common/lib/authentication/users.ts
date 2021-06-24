@@ -23,6 +23,12 @@ import {
   observabilityMinimalReadSpacesAll,
   observabilityOnlyAlertsRead,
   observabilityOnlyAlertsReadSpacesAll,
+  observabilityMinReadAlertsAll,
+  observabilityMinReadAlertsAllSpacesAll,
+  observabilityMinimalAll,
+  observabilityMinimalAllSpacesAll,
+  observabilityOnlyAlertsAll,
+  observabilityOnlyAlertsAllSpacesAll,
 } from './roles';
 import { User } from './types';
 
@@ -197,5 +203,54 @@ export const obsAlertsRead: User = {
 export const obsAlertsReadSpacesAll: User = {
   username: 'obs_alerts_read_all_spaces',
   password: 'obs_alerts_read_all_spaces',
+  roles: [observabilityOnlyAlertsReadSpacesAll.name],
+};
+
+// FOR UPDATES
+// apm: ['minimal_read', 'alerts_all']
+// spaces: ['space1']
+export const obsMinReadAlertsAll: User = {
+  username: 'obs_minimal_read_alerts_all_single_space',
+  password: 'obs_minimal_read_alerts_all_single_space',
+  roles: [observabilityMinReadAlertsRead.name],
+};
+
+// apm: ['minimal_read', 'alerts_all']
+// spaces: ['*']
+export const obsMinReadAlertsAllSpacesAll: User = {
+  username: 'obs_minimal_read_alerts_all_all_spaces',
+  password: 'obs_minimal_read_alerts_all_all_spaces',
+  roles: [observabilityMinReadAlertsReadSpacesAll.name],
+};
+
+// apm: ['minimal_all']
+// spaces: ['space1']
+export const obsMinAll: User = {
+  username: 'obs_minimal_all_single_space',
+  password: 'obs_minimal_all_single_space',
+  roles: [observabilityMinimalRead.name],
+};
+
+// apm: ['minimal_all']
+// spaces: ['*']
+export const obsMinAllSpacesAll: User = {
+  username: 'obs_minimal_all_all_space',
+  password: 'obs_minimal_read_all_space',
+  roles: [observabilityMinimalReadSpacesAll.name],
+};
+
+// apm: ['alerts_all']
+// spaces: ['space1]
+export const obsAlertsAll: User = {
+  username: 'obs_alerts_all_single_space',
+  password: 'obs_alerts_all_single_space',
+  roles: [observabilityOnlyAlertsRead.name],
+};
+
+// apm: ['alerts_all']
+// spaces: ['*']
+export const obsAlertsAllSpacesAll: User = {
+  username: 'obs_alerts_all_all_spaces',
+  password: 'obs_alerts_all_all_spaces',
   roles: [observabilityOnlyAlertsReadSpacesAll.name],
 };

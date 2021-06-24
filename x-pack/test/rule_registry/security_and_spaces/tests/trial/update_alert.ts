@@ -7,12 +7,13 @@
 import expect from '@kbn/expect';
 
 import {
-  secOnly,
-  secOnlyRead,
-  obsOnlySpacesAll,
-  obsOnlyReadSpacesAll,
   superUser,
-  noKibanaPrivileges,
+  obsMinReadAlertsAll,
+  obsMinReadAlertsAllSpacesAll,
+  obsMinAll,
+  obsMinAllSpacesAll,
+  obsAlertsAll,
+  obsAlertsAllSpacesAll,
 } from '../../../common/lib/authentication/users';
 import type { User } from '../../../common/lib/authentication/types';
 import { FtrProviderContext } from '../../../common/ftr_provider_context';
@@ -60,50 +61,64 @@ export default ({ getService }: FtrProviderContext) => {
           .expect(200);
       });
 
-      it(`${obsOnlySpacesAll.username} should be able to update the APM alert in ${SPACE1}`, async () => {
+      it(`${obsMinReadAlertsAllSpacesAll.username} should be able to update the APM alert in ${SPACE1}`, async () => {
         const apmIndex = await getAPMIndexName(superUser);
         await supertestWithoutAuth
           .post(`${getSpaceUrlPrefix(SPACE1)}${TEST_URL}`)
-          .auth(obsOnlySpacesAll.username, obsOnlySpacesAll.password)
+          .auth(obsMinReadAlertsAllSpacesAll.username, obsMinReadAlertsAllSpacesAll.password)
           .set('kbn-xsrf', 'true')
           .send({ ids: ['NoxgpHkBqbdrfX07MqXV'], status: 'closed', index: apmIndex })
           .expect(200);
       });
-      it(`${obsOnlyReadSpacesAll.username} should NOT be able to update the APM alert in ${SPACE1}`, async () => {
+
+      it(`${obsMinReadAlertsAll.username} should be able to update the APM alert in ${SPACE1}`, async () => {
         const apmIndex = await getAPMIndexName(superUser);
         await supertestWithoutAuth
           .post(`${getSpaceUrlPrefix(SPACE1)}${TEST_URL}`)
-          .auth(obsOnlyReadSpacesAll.username, obsOnlyReadSpacesAll.password)
+          .auth(obsMinReadAlertsAll.username, obsMinReadAlertsAll.password)
+          .set('kbn-xsrf', 'true')
+          .send({ ids: ['NoxgpHkBqbdrfX07MqXV'], status: 'closed', index: apmIndex })
+          .expect(200);
+      });
+      it(`${obsMinAll.username} should NOT be able to update the APM alert in ${SPACE1}`, async () => {
+        const apmIndex = await getAPMIndexName(superUser);
+        await supertestWithoutAuth
+          .post(`${getSpaceUrlPrefix(SPACE1)}${TEST_URL}`)
+          .auth(obsMinAll.username, obsMinAll.password)
           .set('kbn-xsrf', 'true')
           .send({ ids: ['NoxgpHkBqbdrfX07MqXV'], status: 'closed', index: apmIndex })
           .expect(403);
       });
 
-      for (const scenario of [
-        {
-          user: noKibanaPrivileges,
-        },
-        {
-          user: secOnly,
-        },
-        {
-          user: secOnlyRead,
-        },
-      ]) {
-        it(`${scenario.user.username} should NOT be able to update the APM alert in ${SPACE1}`, async () => {
-          const apmIndex = await getAPMIndexName(superUser);
-          await supertestWithoutAuth
-            .post(`${getSpaceUrlPrefix(SPACE1)}${TEST_URL}`)
-            .auth(scenario.user.username, scenario.user.password)
-            .set('kbn-xsrf', 'true')
-            .send({
-              ids: ['NoxgpHkBqbdrfX07MqXV'],
-              status: 'closed',
-              index: apmIndex,
-            })
-            .expect(403);
-        });
-      }
+      it(`${obsMinAllSpacesAll.username} should NOT be able to update the APM alert in ${SPACE1}`, async () => {
+        const apmIndex = await getAPMIndexName(superUser);
+        await supertestWithoutAuth
+          .post(`${getSpaceUrlPrefix(SPACE1)}${TEST_URL}`)
+          .auth(obsMinAllSpacesAll.username, obsMinAllSpacesAll.password)
+          .set('kbn-xsrf', 'true')
+          .send({ ids: ['NoxgpHkBqbdrfX07MqXV'], status: 'closed', index: apmIndex })
+          .expect(403);
+      });
+
+      it(`${obsAlertsAll.username} should NOT be able to update the APM alert in ${SPACE1}`, async () => {
+        const apmIndex = await getAPMIndexName(superUser);
+        await supertestWithoutAuth
+          .post(`${getSpaceUrlPrefix(SPACE1)}${TEST_URL}`)
+          .auth(obsAlertsAll.username, obsAlertsAll.password)
+          .set('kbn-xsrf', 'true')
+          .send({ ids: ['NoxgpHkBqbdrfX07MqXV'], status: 'closed', index: apmIndex })
+          .expect(403);
+      });
+
+      it(`${obsAlertsAllSpacesAll.username} should NOT be able to update the APM alert in ${SPACE1}`, async () => {
+        const apmIndex = await getAPMIndexName(superUser);
+        await supertestWithoutAuth
+          .post(`${getSpaceUrlPrefix(SPACE1)}${TEST_URL}`)
+          .auth(obsAlertsAllSpacesAll.username, obsAlertsAllSpacesAll.password)
+          .set('kbn-xsrf', 'true')
+          .send({ ids: ['NoxgpHkBqbdrfX07MqXV'], status: 'closed', index: apmIndex })
+          .expect(403);
+      });
     });
   });
 };

@@ -20,6 +20,12 @@ import {
   observabilityMinimalReadSpacesAll,
   observabilityOnlyAlertsRead,
   observabilityOnlyAlertsReadSpacesAll,
+  observabilityMinReadAlertsAll,
+  observabilityMinReadAlertsAllSpacesAll,
+  observabilityMinimalAll,
+  observabilityMinimalAllSpacesAll,
+  observabilityOnlyAlertsAll,
+  observabilityOnlyAlertsAllSpacesAll,
 } from '../../../common/lib/authentication/roles';
 import {
   obsMinReadAlertsRead,
@@ -29,6 +35,12 @@ import {
   obsAlertsRead,
   obsAlertsReadSpacesAll,
   superUser,
+  obsMinReadAlertsAll,
+  obsMinReadAlertsAllSpacesAll,
+  obsMinAll,
+  obsMinAllSpacesAll,
+  obsAlertsAll,
+  obsAlertsAllSpacesAll,
 } from '../../../common/lib/authentication/users';
 
 // eslint-disable-next-line import/no-default-export
@@ -49,6 +61,12 @@ export default ({ loadTestFile, getService }: FtrProviderContext): void => {
           obsAlertsRead,
           obsAlertsReadSpacesAll,
           superUser,
+          obsMinReadAlertsAll,
+          obsMinReadAlertsAllSpacesAll,
+          obsMinAll,
+          obsMinAllSpacesAll,
+          obsAlertsAll,
+          obsAlertsAllSpacesAll,
         ],
         [
           observabilityMinReadAlertsRead,
@@ -57,6 +75,12 @@ export default ({ loadTestFile, getService }: FtrProviderContext): void => {
           observabilityMinimalReadSpacesAll,
           observabilityOnlyAlertsRead,
           observabilityOnlyAlertsReadSpacesAll,
+          observabilityMinReadAlertsAll,
+          observabilityMinReadAlertsAllSpacesAll,
+          observabilityMinimalAll,
+          observabilityMinimalAllSpacesAll,
+          observabilityOnlyAlertsAll,
+          observabilityOnlyAlertsAllSpacesAll,
         ]
       );
     });
@@ -73,6 +97,12 @@ export default ({ loadTestFile, getService }: FtrProviderContext): void => {
           obsAlertsRead,
           obsAlertsReadSpacesAll,
           superUser,
+          obsMinReadAlertsAll,
+          obsMinReadAlertsAllSpacesAll,
+          obsMinAll,
+          obsMinAllSpacesAll,
+          obsAlertsAll,
+          obsAlertsAllSpacesAll,
         ],
         [
           observabilityMinReadAlertsRead,
@@ -81,12 +111,18 @@ export default ({ loadTestFile, getService }: FtrProviderContext): void => {
           observabilityMinimalReadSpacesAll,
           observabilityOnlyAlertsRead,
           observabilityOnlyAlertsReadSpacesAll,
+          observabilityMinReadAlertsAll,
+          observabilityMinReadAlertsAllSpacesAll,
+          observabilityMinimalAll,
+          observabilityMinimalAllSpacesAll,
+          observabilityOnlyAlertsAll,
+          observabilityOnlyAlertsAllSpacesAll,
         ]
       );
     });
 
     // Basic
     loadTestFile(require.resolve('./get_alerts'));
-    // loadTestFile(require.resolve('./update_alert'));
+    loadTestFile(require.resolve('./update_alert'));
   });
 };

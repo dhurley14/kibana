@@ -270,7 +270,7 @@ export const rolesDefaultSpace = [
 /**
  * These roles are only to be used in the 'trial' tests
  * since they rely on subfeature privileges which are a gold licencse feature
- * maybe put these roles into a separate roles file like "tril_roles"?
+ * maybe put these roles into a separate roles file like "trial_roles"?
  */
 export const observabilityMinReadAlertsRead: Role = {
   name: 'obs_only_alerts_read',
@@ -417,6 +417,175 @@ export const observabilityOnlyAlertsReadSpacesAll: Role = {
       {
         feature: {
           apm: ['alerts_read'],
+          ruleRegistry: ['all'],
+          actions: ['read'],
+          builtInAlerts: ['all'],
+          alerting: ['all'],
+        },
+        spaces: ['*'],
+      },
+    ],
+  },
+};
+
+/**
+ * ****************************************
+ * These are used for testing update alerts privileges
+ * ****************************************
+ * ****************************************
+ * ****************************************
+ * ****************************************
+ * ****************************************
+ * ****************************************
+ * ****************************************
+ * ****************************************
+ */
+
+export const observabilityMinReadAlertsAll: Role = {
+  name: 'obs_only_alerts_read',
+  privileges: {
+    elasticsearch: {
+      indices: [
+        {
+          names: ['*'],
+          privileges: ['all'],
+        },
+      ],
+    },
+    kibana: [
+      {
+        feature: {
+          apm: ['minimal_read', 'alerts_all'],
+          ruleRegistry: ['all'],
+          actions: ['read'],
+          builtInAlerts: ['all'],
+          alerting: ['all'],
+        },
+        spaces: ['space1'],
+      },
+    ],
+  },
+};
+
+export const observabilityMinReadAlertsAllSpacesAll: Role = {
+  name: 'obs_minimal_read_alerts_read_spaces_all',
+  privileges: {
+    elasticsearch: {
+      indices: [
+        {
+          names: ['*'],
+          privileges: ['all'],
+        },
+      ],
+    },
+    kibana: [
+      {
+        feature: {
+          apm: ['minimal_read', 'alerts_all'],
+          ruleRegistry: ['all'],
+          actions: ['read'],
+          builtInAlerts: ['all'],
+          alerting: ['all'],
+        },
+        spaces: ['*'],
+      },
+    ],
+  },
+};
+
+export const observabilityMinimalAll: Role = {
+  name: 'obs_minimal_read_spaces_all',
+  privileges: {
+    elasticsearch: {
+      indices: [
+        {
+          names: ['*'],
+          privileges: ['all'],
+        },
+      ],
+    },
+    kibana: [
+      {
+        feature: {
+          apm: ['minimal_all'],
+          ruleRegistry: ['all'],
+          actions: ['read'],
+          builtInAlerts: ['all'],
+          alerting: ['all'],
+        },
+        spaces: ['space1'],
+      },
+    ],
+  },
+};
+
+export const observabilityMinimalAllSpacesAll: Role = {
+  name: 'obs_minimal_read_spaces_all',
+  privileges: {
+    elasticsearch: {
+      indices: [
+        {
+          names: ['*'],
+          privileges: ['all'],
+        },
+      ],
+    },
+    kibana: [
+      {
+        feature: {
+          apm: ['minimal_all'],
+          ruleRegistry: ['all'],
+          actions: ['read'],
+          builtInAlerts: ['all'],
+          alerting: ['all'],
+        },
+        spaces: ['*'],
+      },
+    ],
+  },
+};
+
+export const observabilityOnlyAlertsAll: Role = {
+  name: 'obs_alerts_read_spaces_all',
+  privileges: {
+    elasticsearch: {
+      indices: [
+        {
+          names: ['*'],
+          privileges: ['all'],
+        },
+      ],
+    },
+    kibana: [
+      {
+        feature: {
+          apm: ['alerts_all'],
+          ruleRegistry: ['all'],
+          actions: ['read'],
+          builtInAlerts: ['all'],
+          alerting: ['all'],
+        },
+        spaces: ['space1'],
+      },
+    ],
+  },
+};
+
+export const observabilityOnlyAlertsAllSpacesAll: Role = {
+  name: 'obs_alerts_read_spaces_all',
+  privileges: {
+    elasticsearch: {
+      indices: [
+        {
+          names: ['*'],
+          privileges: ['all'],
+        },
+      ],
+    },
+    kibana: [
+      {
+        feature: {
+          apm: ['alerts_all'],
           ruleRegistry: ['all'],
           actions: ['read'],
           builtInAlerts: ['all'],
