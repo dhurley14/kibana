@@ -95,6 +95,9 @@ describe('updateAlertByIdRoute', () => {
     const response = await server.inject(getUpdateRequest(), context);
 
     expect(response.status).toEqual(500);
-    expect(response.body).toEqual({ message: 'Unable to update alert', status_code: 500 });
+    expect(response.body).toEqual({
+      attributes: { success: false },
+      message: 'Unable to update alert',
+    });
   });
 });

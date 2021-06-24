@@ -80,6 +80,21 @@ export default ({ getService }: FtrProviderContext) => {
           },
         });
       });
+      it(`${obsOnlySpacesAll.username} should receive a 409 if trying to update an old alert document version`, async () => {
+        const apmIndex = await getAPMIndexName(superUser);
+        await supertestWithoutAuth
+          .post(`${getSpaceUrlPrefix(SPACE1)}${TEST_URL}`)
+          .auth(obsOnlySpacesAll.username, obsOnlySpacesAll.password)
+          .set('kbn-xsrf', 'true')
+          .send({ ids: ['NoxgpHkBqbdrfX07MqXV'], status: 'closed', indexName: apmIndex })
+          .expect(200);
+        await supertestWithoutAuth
+          .post(`${getSpaceUrlPrefix(SPACE1)}${TEST_URL}`)
+          .auth(obsOnlySpacesAll.username, obsOnlySpacesAll.password)
+          .set('kbn-xsrf', 'true')
+          .send({ ids: ['NoxgpHkBqbdrfX07MqXV'], status: 'closed', indexName: apmIndex })
+          .expect(200);
+      });
       it(`${obsOnlyReadSpacesAll.username} should NOT be able to update the APM alert in ${SPACE1}`, async () => {
         const apmIndex = await getAPMIndexName(superUser);
         await supertestWithoutAuth

@@ -5,6 +5,7 @@
  * 2.0.
  */
 import { PublicMethodsOf } from '@kbn/utility-types';
+import { decodeVersion, encodeHitVersion } from '@kbn/securitysolution-es-utils';
 import { AlertTypeParams } from '../../../alerting/server';
 import {
   ReadOperations,
@@ -37,6 +38,7 @@ export interface UpdateOptions<Params extends AlertTypeParams> {
   id: string;
   data: {
     status: string;
+    version: string | undefined;
   };
   index: string;
 }
@@ -82,7 +84,9 @@ export class AlertsClient {
         // result in a big performance hit. If the client already knows which index the alert
         // belongs to, passing in the index will speed things up
         index: index ?? '.alerts-*',
+        ignore_unavailable: true,
         body: { query: { term: { _id: id } } },
+        seq_no_primary_term: true,
       });
 
       if (!isValidAlert(result.body.hits.hits[0]._source)) {
@@ -91,7 +95,10 @@ export class AlertsClient {
         throw new Error(errorMessage);
       }
 
-      return result.body.hits.hits[0]._source;
+      return {
+        ...result.body.hits.hits[0]._source,
+        _version: encodeHitVersion(result.body.hits.hits[0]),
+      };
     } catch (error) {
       const errorMessage = `Unable to retrieve alert with id of "${id}".`;
       this.logger.debug(errorMessage);
@@ -139,7 +146,7 @@ export class AlertsClient {
 
   public async update<Params extends AlertTypeParams = never>({
     id,
-    data,
+    data: { status, version },
     index,
   }: UpdateOptions<Params>) {
     try {
@@ -155,19 +162,17 @@ export class AlertsClient {
         entity: AlertingAuthorizationEntity.Alert,
       });
 
-      const updateParameters = {
+      const { body: response } = await this.esClient.update<ParsedTechnicalFields>({
+        ...decodeVersion(version),
         id,
         index,
         body: {
           doc: {
-            [ALERT_STATUS]: data.status,
+            [ALERT_STATUS]: status,
           },
         },
-      };
-
-      const res = await this.esClient.update<ParsedTechnicalFields, unknown, unknown, unknown>(
-        updateParameters
-      );
+        refresh: 'wait_for',
+      });
 
       this.auditLogger?.log(
         alertAuditEvent({
@@ -176,7 +181,7 @@ export class AlertsClient {
         })
       );
 
-      return res.body;
+      return { ...res.body, _version: encodeHitVersion(response) };
     } catch (error) {
       this.auditLogger?.log(
         alertAuditEvent({

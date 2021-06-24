@@ -84,7 +84,9 @@ describe('get()', () => {
               },
             },
           },
+          "ignore_unavailable": true,
           "index": ".alerts-observability-apm",
+          "seq_no_primary_term": true,
         },
       ]
     `);

@@ -3,6 +3,7 @@
   "value": {
     "index": ".alerts-observability-apm",
     "id": "NoxgpHkBqbdrfX07MqXV",
+    "_version": 1,
     "source": {
       "@timestamp": "2020-12-16T15:16:18.570Z",
       "rule.id": "apm.error_rate",
@@ -15,6 +16,7 @@
 
 {
   "type": "doc",
+  "_version": 1,
   "value": {
     "index": ".alerts-security-solution",
     "id": "020202",

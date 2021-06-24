@@ -245,7 +245,7 @@ describe('update()', () => {
         data: { status: 'closed' },
         index: '.alerts-observability-apm',
       })
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`"something went wrong on update"`);
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`"data is not defined"`);
     expect(auditLogger.log).toHaveBeenCalledWith({
       error: { code: 'Error', message: 'something went wrong on update' },
       event: {
