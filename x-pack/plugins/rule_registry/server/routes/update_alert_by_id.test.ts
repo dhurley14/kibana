@@ -60,11 +60,7 @@ describe('updateAlertByIdRoute', () => {
             body: {
               status: 'closed',
               ids: 'alert-1',
-<<<<<<< HEAD
               index: '.alerts-observability-apm*',
-=======
-              indexName: '.alerts-observability-apm*',
->>>>>>> squashed commit
             },
           }),
           context
@@ -83,11 +79,7 @@ describe('updateAlertByIdRoute', () => {
             body: {
               notStatus: 'closed',
               ids: ['alert-1'],
-<<<<<<< HEAD
               index: '.alerts-observability-apm*',
-=======
-              indexName: '.alerts-observability-apm*',
->>>>>>> squashed commit
             },
           }),
           context
