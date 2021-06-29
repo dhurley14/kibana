@@ -20,13 +20,20 @@ export const updateAlertByIdRoute = (router: IRouter<RacRequestHandlerContext>) 
       path: BASE_RAC_ALERTS_API_PATH,
       validate: {
         body: buildRouteValidation(
-          t.exact(
-            t.type({
-              status: t.string,
-              ids: t.array(t.string),
-              index: t.string,
-            })
-          )
+          t.intersection([
+            t.exact(
+              t.type({
+                status: t.string,
+                ids: t.array(t.string),
+                index: t.string,
+              })
+            ),
+            t.exact(
+              t.partial({
+                _version: t.string,
+              })
+            ),
+          ])
         ),
       },
       options: {
@@ -36,11 +43,12 @@ export const updateAlertByIdRoute = (router: IRouter<RacRequestHandlerContext>) 
     async (context, req, response) => {
       try {
         const alertsClient = await context.rac.getAlertsClient();
-        const { status, ids, index } = req.body;
+        const { status, ids, index, _version } = req.body;
 
         const updatedAlert = await alertsClient.update({
           id: ids[0],
-          data: { status },
+          status,
+          _version,
           index,
         });
         return response.ok({ body: { success: true, alerts: updatedAlert } });

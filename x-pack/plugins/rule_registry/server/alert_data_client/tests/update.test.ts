@@ -74,12 +74,28 @@ describe('update()', () => {
           _shards: { total: 2, successful: 1, failed: 0 },
           _seq_no: 1,
           _primary_term: 1,
+          get: {
+            found: true,
+            _type: 'alert',
+            _index: '.alerts-observability-apm',
+            _id: 'NoxgpHkBqbdrfX07MqXV',
+            _version: 2,
+            _seq_no: 362,
+            _primary_term: 2,
+            _source: {
+              'rule.id': 'apm.error_rate',
+              message: 'hello world 1',
+              'kibana.rac.alert.owner': 'apm',
+              'kibana.rac.alert.status': 'open',
+            },
+          },
         },
       })
     );
     const result = await alertsClient.update({
       id: '1',
-      data: { status: 'closed' },
+      status: 'closed',
+      _version: undefined,
       index: '.alerts-observability-apm',
     });
     expect(result).toMatchInlineSnapshot(`
@@ -93,7 +109,22 @@ describe('update()', () => {
           "successful": 1,
           "total": 2,
         },
-        "_version": 2,
+        "_version": undefined,
+        "get": Object {
+          "_id": "NoxgpHkBqbdrfX07MqXV",
+          "_index": ".alerts-observability-apm",
+          "_primary_term": 2,
+          "_seq_no": 362,
+          "_source": Object {
+            "kibana.rac.alert.owner": "apm",
+            "kibana.rac.alert.status": "open",
+            "message": "hello world 1",
+            "rule.id": "apm.error_rate",
+          },
+          "_type": "alert",
+          "_version": 2,
+          "found": true,
+        },
         "result": "updated",
       }
     `);
@@ -108,6 +139,7 @@ describe('update()', () => {
           },
           "id": "1",
           "index": ".alerts-observability-apm",
+          "refresh": "wait_for",
         },
       ]
     `);
@@ -157,12 +189,28 @@ describe('update()', () => {
           _shards: { total: 2, successful: 1, failed: 0 },
           _seq_no: 1,
           _primary_term: 1,
+          get: {
+            found: true,
+            _type: 'alert',
+            _index: '.alerts-observability-apm',
+            _id: 'NoxgpHkBqbdrfX07MqXV',
+            _version: 2,
+            _seq_no: 362,
+            _primary_term: 2,
+            _source: {
+              'rule.id': 'apm.error_rate',
+              message: 'hello world 1',
+              'kibana.rac.alert.owner': 'apm',
+              'kibana.rac.alert.status': 'open',
+            },
+          },
         },
       })
     );
     await alertsClient.update({
       id: '1',
-      data: { status: 'closed' },
+      status: 'closed',
+      _version: undefined,
       index: '.alerts-observability-apm',
     });
 
@@ -186,7 +234,8 @@ describe('update()', () => {
     await expect(
       alertsClient.update({
         id: '1',
-        data: { status: 'closed' },
+        status: 'closed',
+        _version: undefined,
         index: '.alerts-observability-apm',
       })
     ).rejects.toThrowErrorMatchingInlineSnapshot(`"something went wrong on get"`);
@@ -242,10 +291,11 @@ describe('update()', () => {
     await expect(
       alertsClient.update({
         id: '1',
-        data: { status: 'closed' },
+        status: 'closed',
+        _version: undefined,
         index: '.alerts-observability-apm',
       })
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`"data is not defined"`);
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`"something went wrong on update"`);
     expect(auditLogger.log).toHaveBeenCalledWith({
       error: { code: 'Error', message: 'something went wrong on update' },
       event: {
@@ -280,6 +330,9 @@ describe('update()', () => {
                   _type: 'alert',
                   _index: '.alerts-observability-apm',
                   _id: 'NoxgpHkBqbdrfX07MqXV',
+                  _version: 2,
+                  _seq_no: 362,
+                  _primary_term: 2,
                   _source: {
                     'rule.id': 'apm.error_rate',
                     message: 'hello world 1',
@@ -303,6 +356,21 @@ describe('update()', () => {
             _shards: { total: 2, successful: 1, failed: 0 },
             _seq_no: 1,
             _primary_term: 1,
+            get: {
+              found: true,
+              _type: 'alert',
+              _index: '.alerts-observability-apm',
+              _id: 'NoxgpHkBqbdrfX07MqXV',
+              _version: 2,
+              _seq_no: 362,
+              _primary_term: 2,
+              _source: {
+                'rule.id': 'apm.error_rate',
+                message: 'hello world 1',
+                'kibana.rac.alert.owner': 'apm',
+                'kibana.rac.alert.status': 'open',
+              },
+            },
           },
         })
       );
@@ -312,7 +380,8 @@ describe('update()', () => {
       const alertsClient = new AlertsClient(alertsClientParams);
       const result = await alertsClient.update({
         id: '1',
-        data: { status: 'closed' },
+        status: 'closed',
+        _version: undefined,
         index: '.alerts-observability-apm',
       });
 
@@ -333,7 +402,22 @@ describe('update()', () => {
             "successful": 1,
             "total": 2,
           },
-          "_version": 2,
+          "_version": undefined,
+          "get": Object {
+            "_id": "NoxgpHkBqbdrfX07MqXV",
+            "_index": ".alerts-observability-apm",
+            "_primary_term": 2,
+            "_seq_no": 362,
+            "_source": Object {
+              "kibana.rac.alert.owner": "apm",
+              "kibana.rac.alert.status": "open",
+              "message": "hello world 1",
+              "rule.id": "apm.error_rate",
+            },
+            "_type": "alert",
+            "_version": 2,
+            "found": true,
+          },
           "result": "updated",
         }
       `);
@@ -348,7 +432,8 @@ describe('update()', () => {
       await expect(
         alertsClient.update({
           id: '1',
-          data: { status: 'closed' },
+          status: 'closed',
+          _version: undefined,
           index: '.alerts-observability-apm',
         })
       ).rejects.toMatchInlineSnapshot(

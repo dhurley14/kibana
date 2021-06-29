@@ -16,9 +16,6 @@
         "kibana.rac.alert.owner": {
           "type": "keyword",
           "ignore_above": 256
-        },
-        "_version": {
-          "type": "integer"
         }
       }
     }
@@ -43,9 +40,6 @@
         "kibana.rac.alert.owner": {
           "type": "keyword",
           "ignore_above": 256
-        },
-        "_version": {
-          "type": "integer"
         }
       }
     }

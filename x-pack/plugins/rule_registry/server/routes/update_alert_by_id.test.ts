@@ -22,7 +22,7 @@ describe('updateAlertByIdRoute', () => {
     clients.rac.update.mockResolvedValue({
       _index: '.alerts-observability-apm',
       _id: 'NoxgpHkBqbdrfX07MqXV',
-      _version: 2,
+      _version: 'WzM2MiwyXQ==',
       result: 'updated',
       _shards: { total: 2, successful: 1, failed: 0 },
       _seq_no: 1,

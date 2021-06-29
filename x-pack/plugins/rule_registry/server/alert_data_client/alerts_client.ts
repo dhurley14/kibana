@@ -36,10 +36,8 @@ export interface ConstructorOptions {
 
 export interface UpdateOptions<Params extends AlertTypeParams> {
   id: string;
-  data: {
-    status: string;
-    version: string | undefined;
-  };
+  status: string;
+  _version: string | undefined;
   index: string;
 }
 
@@ -146,7 +144,8 @@ export class AlertsClient {
 
   public async update<Params extends AlertTypeParams = never>({
     id,
-    data: { status, version },
+    status,
+    _version,
     index,
   }: UpdateOptions<Params>) {
     try {
@@ -163,7 +162,7 @@ export class AlertsClient {
       });
 
       const { body: response } = await this.esClient.update<ParsedTechnicalFields>({
-        ...decodeVersion(version),
+        ...decodeVersion(_version),
         id,
         index,
         body: {
@@ -181,7 +180,10 @@ export class AlertsClient {
         })
       );
 
-      return { ...res.body, _version: encodeHitVersion(response) };
+      return {
+        ...response,
+        _version: encodeHitVersion({ ...response.get?._source, _version: response._version }),
+      };
     } catch (error) {
       this.auditLogger?.log(
         alertAuditEvent({

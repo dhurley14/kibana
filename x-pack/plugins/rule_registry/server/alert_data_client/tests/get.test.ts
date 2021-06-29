@@ -52,6 +52,9 @@ describe('get()', () => {
                 _type: 'alert',
                 _index: '.alerts-observability-apm',
                 _id: 'NoxgpHkBqbdrfX07MqXV',
+                _version: 1,
+                _seq_no: 362,
+                _primary_term: 2,
                 _source: {
                   'rule.id': 'apm.error_rate',
                   message: 'hello world 1',
@@ -67,6 +70,7 @@ describe('get()', () => {
     const result = await alertsClient.get({ id: '1', index: '.alerts-observability-apm' });
     expect(result).toMatchInlineSnapshot(`
       Object {
+        "_version": "WzM2MiwyXQ==",
         "kibana.rac.alert.owner": "apm",
         "kibana.rac.alert.status": "open",
         "message": "hello world 1",
@@ -114,6 +118,9 @@ describe('get()', () => {
                 _type: 'alert',
                 _index: '.alerts-observability-apm',
                 _id: 'NoxgpHkBqbdrfX07MqXV',
+                _version: 1,
+                _seq_no: 362,
+                _primary_term: 2,
                 _source: {
                   'rule.id': 'apm.error_rate',
                   message: 'hello world 1',
@@ -172,6 +179,9 @@ describe('get()', () => {
                   _type: 'alert',
                   _index: '.alerts-observability-apm',
                   _id: 'NoxgpHkBqbdrfX07MqXV',
+                  _version: 1,
+                  _seq_no: 362,
+                  _primary_term: 2,
                   _source: {
                     'rule.id': 'apm.error_rate',
                     message: 'hello world 1',
@@ -198,6 +208,7 @@ describe('get()', () => {
       });
       expect(result).toMatchInlineSnapshot(`
         Object {
+          "_version": "WzM2MiwyXQ==",
           "kibana.rac.alert.owner": "apm",
           "kibana.rac.alert.status": "open",
           "message": "hello world 1",
