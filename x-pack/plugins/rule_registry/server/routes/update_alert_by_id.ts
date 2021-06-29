@@ -51,7 +51,7 @@ export const updateAlertByIdRoute = (router: IRouter<RacRequestHandlerContext>) 
           _version,
           index,
         });
-        return response.ok({ body: { success: true, alerts: updatedAlert } });
+        return response.ok({ body: { success: true, ...updatedAlert } });
       } catch (exc) {
         const err = transformError(exc);
 

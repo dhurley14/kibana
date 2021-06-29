@@ -74,21 +74,6 @@ describe('update()', () => {
           _shards: { total: 2, successful: 1, failed: 0 },
           _seq_no: 1,
           _primary_term: 1,
-          get: {
-            found: true,
-            _type: 'alert',
-            _index: '.alerts-observability-apm',
-            _id: 'NoxgpHkBqbdrfX07MqXV',
-            _version: 2,
-            _seq_no: 362,
-            _primary_term: 2,
-            _source: {
-              'rule.id': 'apm.error_rate',
-              message: 'hello world 1',
-              'kibana.rac.alert.owner': 'apm',
-              'kibana.rac.alert.status': 'open',
-            },
-          },
         },
       })
     );
@@ -109,22 +94,7 @@ describe('update()', () => {
           "successful": 1,
           "total": 2,
         },
-        "_version": undefined,
-        "get": Object {
-          "_id": "NoxgpHkBqbdrfX07MqXV",
-          "_index": ".alerts-observability-apm",
-          "_primary_term": 2,
-          "_seq_no": 362,
-          "_source": Object {
-            "kibana.rac.alert.owner": "apm",
-            "kibana.rac.alert.status": "open",
-            "message": "hello world 1",
-            "rule.id": "apm.error_rate",
-          },
-          "_type": "alert",
-          "_version": 2,
-          "found": true,
-        },
+        "_version": "WzEsMV0=",
         "result": "updated",
       }
     `);
@@ -189,21 +159,6 @@ describe('update()', () => {
           _shards: { total: 2, successful: 1, failed: 0 },
           _seq_no: 1,
           _primary_term: 1,
-          get: {
-            found: true,
-            _type: 'alert',
-            _index: '.alerts-observability-apm',
-            _id: 'NoxgpHkBqbdrfX07MqXV',
-            _version: 2,
-            _seq_no: 362,
-            _primary_term: 2,
-            _source: {
-              'rule.id': 'apm.error_rate',
-              message: 'hello world 1',
-              'kibana.rac.alert.owner': 'apm',
-              'kibana.rac.alert.status': 'open',
-            },
-          },
         },
       })
     );
@@ -356,21 +311,6 @@ describe('update()', () => {
             _shards: { total: 2, successful: 1, failed: 0 },
             _seq_no: 1,
             _primary_term: 1,
-            get: {
-              found: true,
-              _type: 'alert',
-              _index: '.alerts-observability-apm',
-              _id: 'NoxgpHkBqbdrfX07MqXV',
-              _version: 2,
-              _seq_no: 362,
-              _primary_term: 2,
-              _source: {
-                'rule.id': 'apm.error_rate',
-                message: 'hello world 1',
-                'kibana.rac.alert.owner': 'apm',
-                'kibana.rac.alert.status': 'open',
-              },
-            },
           },
         })
       );
@@ -402,22 +342,7 @@ describe('update()', () => {
             "successful": 1,
             "total": 2,
           },
-          "_version": undefined,
-          "get": Object {
-            "_id": "NoxgpHkBqbdrfX07MqXV",
-            "_index": ".alerts-observability-apm",
-            "_primary_term": 2,
-            "_seq_no": 362,
-            "_source": Object {
-              "kibana.rac.alert.owner": "apm",
-              "kibana.rac.alert.status": "open",
-              "message": "hello world 1",
-              "rule.id": "apm.error_rate",
-            },
-            "_type": "alert",
-            "_version": 2,
-            "found": true,
-          },
+          "_version": "WzEsMV0=",
           "result": "updated",
         }
       `);

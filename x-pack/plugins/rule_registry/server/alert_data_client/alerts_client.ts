@@ -182,7 +182,7 @@ export class AlertsClient {
 
       return {
         ...response,
-        _version: encodeHitVersion({ ...response.get?._source, _version: response._version }),
+        _version: encodeHitVersion(response),
       };
     } catch (error) {
       this.auditLogger?.log(

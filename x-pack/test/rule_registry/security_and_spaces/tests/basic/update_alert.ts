@@ -23,7 +23,7 @@ export default ({ getService }: FtrProviderContext) => {
   const supertestWithoutAuth = getService('supertestWithoutAuth');
   const esArchiver = getService('esArchiver');
 
-  const TEST_URL = '/api/rac/alerts';
+  const TEST_URL = '/internal/rac/alerts';
   const ALERTS_INDEX_URL = `${TEST_URL}/index`;
   const SPACE1 = 'space1';
 
@@ -104,14 +104,13 @@ export default ({ getService }: FtrProviderContext) => {
           });
         expect(res.body).to.eql({
           success: true,
-          alerts: {
-            _index: '.alerts-observability-apm',
-            _id: 'NoxgpHkBqbdrfX07MqXV',
-            result: 'updated',
-            _shards: { total: 2, successful: 1, failed: 0 },
-            _seq_no: 1,
-            _primary_term: 1,
-          },
+          _index: '.alerts-observability-apm',
+          _id: 'NoxgpHkBqbdrfX07MqXV',
+          result: 'updated',
+          _shards: { total: 2, successful: 1, failed: 0 },
+          _version: 'WzEsMV0=',
+          _seq_no: 1,
+          _primary_term: 1,
         });
       });
       it(`${obsOnlySpacesAll.username} should receive a 409 if trying to update an old alert document version`, async () => {
