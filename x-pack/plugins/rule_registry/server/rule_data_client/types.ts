@@ -11,7 +11,7 @@ import { ElasticsearchClient } from 'kibana/server';
 import { FieldDescriptor } from 'src/plugins/data/server';
 import { ESSearchRequest, ESSearchResponse } from 'src/core/types/elasticsearch';
 import { TechnicalRuleDataFieldName } from '../../common/technical_rule_data_field_names';
-import { mapConsumerToIndexName } from '../alert_data_client/alerts_client';
+import { ValidFeatureIds } from '../alert_data_client/alerts_client';
 
 export interface RuleDataReader {
   search<TSearchRequest extends ESSearchRequest>(
@@ -37,8 +37,6 @@ export interface IRuleDataClient {
   getWriter(options?: { namespace?: string }): RuleDataWriter;
   createOrUpdateWriteTarget(options: { namespace?: string }): Promise<void>;
 }
-
-type ValidFeatureIds = keyof typeof mapConsumerToIndexName;
 
 export interface RuleDataClientConstructorOptions {
   getClusterClient: () => Promise<ElasticsearchClient>;

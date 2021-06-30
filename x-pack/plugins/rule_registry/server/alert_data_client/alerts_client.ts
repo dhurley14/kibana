@@ -46,9 +46,12 @@ interface GetAlertParams {
   index?: string;
 }
 
-export const mapConsumerToIndexName = {
-  observability: '.alerts-observability',
+export const validFeatureIds = ['apm', 'observability', 'siem'] as const;
+export type ValidFeatureIds = typeof validFeatureIds[number];
+
+export const mapConsumerToIndexName: { [featureId in ValidFeatureIds]: string | string[] } = {
   apm: '.alerts-observability-apm',
+  observability: '.alerts-observability',
   siem: ['.alerts-security-solution', '.siem-signals'],
 };
 
@@ -75,7 +78,7 @@ export class AlertsClient {
     operations: Array<ReadOperations | WriteOperations>
   ) {
     return this.authorization.getAugmentRuleTypesWithAuthorization(
-      featureIds.length !== 0 ? featureIds : Object.keys(mapConsumerToIndexName),
+      featureIds.length !== 0 ? featureIds : validFeatureIds,
       operations,
       AlertingAuthorizationEntity.Alert
     );
@@ -203,10 +206,10 @@ export class AlertsClient {
   }
 
   public async getAuthorizedAlertsIndices(
-    featureIds: Array<keyof typeof mapConsumerToIndexName>
+    featureIds: readonly ValidFeatureIds[]
   ): Promise<string[] | undefined> {
     const augmentedRuleTypes = await this.authorization.getAugmentRuleTypesWithAuthorization(
-      featureIds,
+      featureIds as string[],
       [ReadOperations.Find, ReadOperations.Get, WriteOperations.Update],
       AlertingAuthorizationEntity.Alert
     );
@@ -219,11 +222,14 @@ export class AlertsClient {
       authorizedFeatures.add(ruleType.producer);
     }
 
-    const typeguard = (a: string): a is keyof typeof mapConsumerToIndexName =>
-      a in Object.keys(mapConsumerToIndexName);
+    const isValidFeatureId = (a: string): a is ValidFeatureIds =>
+      // @ts-expect-error Argument of type 'string' is not assignable to parameter of type '"apm" | "observability" | "siem"'
+      validFeatureIds.includes(a);
 
     const toReturn = Array.from(authorizedFeatures).flatMap((feature) => {
-      if (typeguard(feature)) return mapConsumerToIndexName[feature];
+      if (isValidFeatureId(feature)) {
+        return mapConsumerToIndexName[feature];
+      }
       return [];
     });
 
