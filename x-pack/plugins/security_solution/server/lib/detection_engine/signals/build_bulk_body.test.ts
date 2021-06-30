@@ -50,7 +50,6 @@ describe('buildBulkBody', () => {
         _meta: {
           version: SIGNALS_TEMPLATE_VERSION,
         },
-        owner: 'siem',
         parent: {
           id: sampleIdGuid,
           type: 'event',
@@ -115,7 +114,6 @@ describe('buildBulkBody', () => {
         _meta: {
           version: SIGNALS_TEMPLATE_VERSION,
         },
-        owner: 'siem',
         parent: {
           id: sampleIdGuid,
           type: 'event',
@@ -203,7 +201,6 @@ describe('buildBulkBody', () => {
           kind: 'event',
           module: 'system',
         },
-        owner: 'siem',
         parent: {
           id: sampleIdGuid,
           type: 'event',
@@ -267,7 +264,6 @@ describe('buildBulkBody', () => {
           dataset: 'socket',
           module: 'system',
         },
-        owner: 'siem',
         parent: {
           id: sampleIdGuid,
           type: 'event',
@@ -324,7 +320,6 @@ describe('buildBulkBody', () => {
         original_event: {
           kind: 'event',
         },
-        owner: 'siem',
         parent: {
           id: sampleIdGuid,
           type: 'event',
@@ -381,7 +376,6 @@ describe('buildBulkBody', () => {
           version: SIGNALS_TEMPLATE_VERSION,
         },
         original_signal: 123,
-        owner: 'siem',
         parent: {
           id: sampleIdGuid,
           type: 'event',
@@ -438,7 +432,6 @@ describe('buildBulkBody', () => {
           version: SIGNALS_TEMPLATE_VERSION,
         },
         original_signal: { child_1: { child_2: 'nested data' } },
-        owner: 'siem',
         parent: {
           id: sampleIdGuid,
           type: 'event',
@@ -495,7 +488,6 @@ describe('buildSignalFromSequence', () => {
         _meta: {
           version: SIGNALS_TEMPLATE_VERSION,
         },
-        owner: 'siem',
         parents: [
           {
             id: sampleIdGuid,
@@ -580,7 +572,6 @@ describe('buildSignalFromSequence', () => {
         _meta: {
           version: SIGNALS_TEMPLATE_VERSION,
         },
-        owner: 'siem',
         parents: [
           {
             id: sampleIdGuid,
@@ -668,7 +659,6 @@ describe('buildSignalFromEvent', () => {
           version: SIGNALS_TEMPLATE_VERSION,
         },
         original_time: '2020-04-20T21:27:45.000Z',
-        owner: 'siem',
         parent: {
           id: sampleIdGuid,
           rule: '04128c15-0d1b-4716-a4c5-46997ac7f3bd',

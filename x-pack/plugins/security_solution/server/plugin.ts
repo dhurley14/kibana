@@ -341,7 +341,7 @@ export class Plugin implements IPlugin<PluginSetup, PluginStart, SetupPlugins, S
         all: {
           app: [APP_ID, 'kibana'],
           catalogue: ['securitySolution'],
-          api: ['securitySolution', 'lists-all', 'lists-read', 'rac'],
+          api: ['securitySolution', 'lists-all', 'lists-read'],
           savedObject: {
             all: ['alert', 'exception-list', 'exception-list-agnostic', ...savedObjectTypes],
             read: [],
@@ -362,7 +362,7 @@ export class Plugin implements IPlugin<PluginSetup, PluginStart, SetupPlugins, S
         read: {
           app: [APP_ID, 'kibana'],
           catalogue: ['securitySolution'],
-          api: ['securitySolution', 'lists-read', 'rac'],
+          api: ['securitySolution', 'lists-read'],
           savedObject: {
             all: [],
             read: ['exception-list', 'exception-list-agnostic', ...savedObjectTypes],
