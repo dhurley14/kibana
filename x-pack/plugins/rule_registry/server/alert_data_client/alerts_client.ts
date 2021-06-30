@@ -46,6 +46,12 @@ interface GetAlertParams {
   index?: string;
 }
 
+export const mapConsumerToIndexName = {
+  observability: '.alerts-observability',
+  apm: '.alerts-observability-apm',
+  siem: ['.alerts-security-solution', '.siem-signals'],
+};
+
 /**
  * Provides apis to interact with alerts as data
  * ensures the request is authorized to perform read / write actions
@@ -69,7 +75,7 @@ export class AlertsClient {
     operations: Array<ReadOperations | WriteOperations>
   ) {
     return this.authorization.getAugmentRuleTypesWithAuthorization(
-      featureIds.length !== 0 ? featureIds : ['apm', 'siem'],
+      featureIds.length !== 0 ? featureIds : Object.keys(mapConsumerToIndexName),
       operations,
       AlertingAuthorizationEntity.Alert
     );
@@ -196,7 +202,9 @@ export class AlertsClient {
     }
   }
 
-  public async getAuthorizedAlertsIndices(featureIds: string[]): Promise<string[] | undefined> {
+  public async getAuthorizedAlertsIndices(
+    featureIds: Array<keyof typeof mapConsumerToIndexName>
+  ): Promise<string[] | undefined> {
     const augmentedRuleTypes = await this.authorization.getAugmentRuleTypesWithAuthorization(
       featureIds,
       [ReadOperations.Find, ReadOperations.Get, WriteOperations.Update],
@@ -206,20 +214,17 @@ export class AlertsClient {
     // As long as the user can read a minimum of one type of rule type produced by the provided feature,
     // the user should be provided that features' alerts index.
     // Limiting which alerts that user can read on that index will be done via the findAuthorizationFilter
-    const authorizedFeatures = new Set();
+    const authorizedFeatures = new Set<string>();
     for (const ruleType of augmentedRuleTypes.authorizedRuleTypes) {
       authorizedFeatures.add(ruleType.producer);
     }
 
+    const typeguard = (a: string): a is keyof typeof mapConsumerToIndexName =>
+      a in Object.keys(mapConsumerToIndexName);
+
     const toReturn = Array.from(authorizedFeatures).flatMap((feature) => {
-      switch (feature) {
-        case 'apm':
-          return '.alerts-observability-apm';
-        case 'siem':
-          return ['.alerts-security-solution', '.siem-signals'];
-        default:
-          return [];
-      }
+      if (typeguard(feature)) return mapConsumerToIndexName[feature];
+      return [];
     });
 
     return toReturn;
