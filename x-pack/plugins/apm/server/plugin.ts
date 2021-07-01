@@ -181,7 +181,7 @@ export class APMPlugin
     });
 
     const ruleDataClient = new RuleDataClient({
-      feature: APM_SERVER_FEATURE_ID,
+      feature: 'devin',
       alias: ruleDataService.getFullAssetName('observability-apm'),
       getClusterClient: async () => {
         const coreStart = await getCoreStart();

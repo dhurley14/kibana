@@ -11,7 +11,7 @@ import { ElasticsearchClient } from 'kibana/server';
 import { FieldDescriptor } from 'src/plugins/data/server';
 import { ESSearchRequest, ESSearchResponse } from 'src/core/types/elasticsearch';
 import { TechnicalRuleDataFieldName } from '../../common/technical_rule_data_field_names';
-import { ValidFeatureIds } from '../alert_data_client/alerts_client';
+import { ValidFeatureId } from '../alert_data_client/alerts_client';
 
 export interface RuleDataReader {
   search<TSearchRequest extends ESSearchRequest>(
@@ -42,5 +42,5 @@ export interface RuleDataClientConstructorOptions {
   getClusterClient: () => Promise<ElasticsearchClient>;
   ready: () => Promise<void>;
   alias: string;
-  feature: ValidFeatureIds;
+  feature: ValidFeatureId;
 }

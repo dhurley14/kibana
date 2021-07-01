@@ -46,14 +46,20 @@ interface GetAlertParams {
   index?: string;
 }
 
-export const validFeatureIds = ['apm', 'observability', 'siem'] as const;
-export type ValidFeatureIds = typeof validFeatureIds[number];
-
-export const mapConsumerToIndexName: { [featureId in ValidFeatureIds]: string | string[] } = {
+/**
+ * registering a new instance of the rule data client
+ * in a new plugin will require updating the below data structure
+ * to include the index name where the alerts as data will be written to.
+ */
+export const mapConsumerToIndexName = {
   apm: '.alerts-observability-apm',
   observability: '.alerts-observability',
   siem: ['.alerts-security-solution', '.siem-signals'],
 };
+export type ValidFeatureId = keyof typeof mapConsumerToIndexName;
+
+export const validFeatureIds = Object.keys(mapConsumerToIndexName);
+export const isValidFeatureId = (a: string): a is ValidFeatureId => validFeatureIds.includes(a);
 
 /**
  * Provides apis to interact with alerts as data
@@ -205,9 +211,7 @@ export class AlertsClient {
     }
   }
 
-  public async getAuthorizedAlertsIndices(
-    featureIds: readonly ValidFeatureIds[]
-  ): Promise<string[] | undefined> {
+  public async getAuthorizedAlertsIndices(featureIds: string[]): Promise<string[] | undefined> {
     const augmentedRuleTypes = await this.authorization.getAugmentRuleTypesWithAuthorization(
       featureIds as string[],
       [ReadOperations.Find, ReadOperations.Get, WriteOperations.Update],
@@ -221,10 +225,6 @@ export class AlertsClient {
     for (const ruleType of augmentedRuleTypes.authorizedRuleTypes) {
       authorizedFeatures.add(ruleType.producer);
     }
-
-    const isValidFeatureId = (a: string): a is ValidFeatureIds =>
-      // @ts-expect-error Argument of type 'string' is not assignable to parameter of type '"apm" | "observability" | "siem"'
-      validFeatureIds.includes(a);
 
     const toReturn = Array.from(authorizedFeatures).flatMap((feature) => {
       if (isValidFeatureId(feature)) {

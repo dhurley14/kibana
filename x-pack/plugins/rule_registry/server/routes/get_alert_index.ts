@@ -48,7 +48,6 @@ export const getAlertsIndexRoute = (router: IRouter<RacRequestHandlerContext>) =
             })
           ),
         });
-        // return response.custom;
       }
     }
   );
