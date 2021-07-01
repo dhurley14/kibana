@@ -199,7 +199,7 @@ export class AlertsClient {
 
   public async getAuthorizedAlertsIndices(featureIds: string[]): Promise<string[] | undefined> {
     const augmentedRuleTypes = await this.authorization.getAugmentRuleTypesWithAuthorization(
-      featureIds as string[],
+      featureIds,
       [ReadOperations.Find, ReadOperations.Get, WriteOperations.Update],
       AlertingAuthorizationEntity.Alert
     );

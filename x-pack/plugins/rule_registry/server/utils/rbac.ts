@@ -18,4 +18,5 @@ export const mapConsumerToIndexName = {
 export type ValidFeatureId = keyof typeof mapConsumerToIndexName;
 
 export const validFeatureIds = Object.keys(mapConsumerToIndexName);
-export const isValidFeatureId = (a: string): a is ValidFeatureId => validFeatureIds.includes(a);
+export const isValidFeatureId = (a: unknown): a is ValidFeatureId =>
+  typeof a === 'string' && validFeatureIds.includes(a);
