@@ -18,6 +18,7 @@ import { alertAuditEvent, AlertAuditAction } from './audit_events';
 import { AuditLogger } from '../../../security/server';
 import { ALERT_STATUS, OWNER, RULE_ID } from '../../common/technical_rule_data_field_names';
 import { ParsedTechnicalFields } from '../../common/parse_technical_fields';
+import { mapConsumerToIndexName, validFeatureIds, isValidFeatureId } from '../utils/rbac';
 
 // TODO: Fix typings https://github.com/elastic/kibana/issues/101776
 type NonNullableProps<Obj extends {}, Props extends keyof Obj> = Omit<Obj, Props> &
@@ -45,21 +46,6 @@ interface GetAlertParams {
   id: string;
   index?: string;
 }
-
-/**
- * registering a new instance of the rule data client
- * in a new plugin will require updating the below data structure
- * to include the index name where the alerts as data will be written to.
- */
-export const mapConsumerToIndexName = {
-  apm: '.alerts-observability-apm',
-  observability: '.alerts-observability',
-  siem: ['.alerts-security-solution', '.siem-signals'],
-};
-export type ValidFeatureId = keyof typeof mapConsumerToIndexName;
-
-export const validFeatureIds = Object.keys(mapConsumerToIndexName);
-export const isValidFeatureId = (a: string): a is ValidFeatureId => validFeatureIds.includes(a);
 
 /**
  * Provides apis to interact with alerts as data

@@ -11,7 +11,7 @@ import { transformError } from '@kbn/securitysolution-es-utils';
 
 import { RacRequestHandlerContext } from '../types';
 import { BASE_RAC_ALERTS_API_PATH } from '../../common/constants';
-import { validFeatureIds } from '../alert_data_client/alerts_client';
+import { validFeatureIds } from '../utils/rbac';
 
 export const getAlertsIndexRoute = (router: IRouter<RacRequestHandlerContext>) => {
   router.get(
