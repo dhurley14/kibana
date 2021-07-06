@@ -18,6 +18,8 @@ import {
   noKibanaPrivileges,
   secOnlySpacesAll,
   secOnlyReadSpacesAll,
+  obsOnlyReadSpacesAll,
+  obsOnly,
 } from '../../../../common/lib/authentication/users';
 import type { User } from '../../../../common/lib/authentication/types';
 import { FtrProviderContext } from '../../../../common/ftr_provider_context';
@@ -71,13 +73,13 @@ export default ({ getService }: FtrProviderContext) => {
     return securitySolution;
   };
 
-  describe('Get alert - RBAC - auth', () => {
+  describe.only('Get alert - RBAC - auth', () => {
     let securitySolutionIndex: string | undefined;
     let apmIndex: string | undefined;
 
     beforeEach(async () => {
-      securitySolutionIndex = await getSecuritySolutionIndexName(superUser);
-      apmIndex = await getAPMIndexName(superUser);
+      // securitySolutionIndex = await getSecuritySolutionIndexName(superUser);
+      // apmIndex = await getAPMIndexName(superUser);
 
       await esArchiver.load('x-pack/test/functional/es_archives/rule_registry/alerts');
     });
@@ -87,92 +89,142 @@ export default ({ getService }: FtrProviderContext) => {
     });
 
     describe('Users:', () => {
-      it('should return alert when user has "read" privileges', async () => {
+      xit('should return alert', async () => {
         const res = await supertestWithoutAuth
-          .get(`${getSpaceUrlPrefix()}${TEST_URL}?id=${APM_ALERT_ID}=${apmIndex}`)
+          .get(`${getSpaceUrlPrefix()}${TEST_URL}?id=${APM_ALERT_ID}&index=${apmIndex}`)
           .auth(superUser.username, superUser.password)
           .set('kbn-xsrf', 'true')
           .expect(200);
-        expect(res.body).to.eql({});
+        expect(res.body).to.eql({
+          '@timestamp': '2020-12-16T15:16:18.570Z',
+          'rule.id': 'apm.error_rate',
+          message: 'hello world 1',
+          'kibana.rac.alert.owner': 'apm',
+          'kibana.rac.alert.status': 'open',
+          _version: 'WzAsMV0=',
+        });
       });
 
-      it('should return a 403 when trying to access a solutions alerts for which access has not been granted', async () => {
+      xit('should return a 403 when security only user tries to access an apm alert', async () => {
         await supertestWithoutAuth
-          .get(`${getSpaceUrlPrefix()}${TEST_URL}?id=${APM_ALERT_ID}=${apmIndex}`)
+          .get(`${getSpaceUrlPrefix()}${TEST_URL}?id=${APM_ALERT_ID}&index=${apmIndex}`)
           .auth(secOnlySpacesAll.username, secOnlySpacesAll.password)
           .set('kbn-xsrf', 'true')
           .expect(403);
       });
 
-      xdescribe('Security Solution', () => {
-        [
-          superUser,
-          secOnlySpacesAll,
-          secOnlyReadSpacesAll,
-          obsSecSpacesAll,
-          obsSecReadSpacesAll,
-          globalRead,
-        ]
-          .map((role) => ({
-            user: role,
-          }))
-          .forEach(({ user }) => {
-            it(`${user.username} with "read" privileges should be able to access alerts`, async () => {
-              await supertestWithoutAuth
-                .get(
-                  `${getSpaceUrlPrefix()}${TEST_URL}?id=${SECURITY_SOLUTION_ALERT_ID}=${securitySolutionIndex}`
-                )
-                .auth(user.username, user.password)
-                .set('kbn-xsrf', 'true')
-                .expect(200);
+      describe('Security Solution', () => {
+        describe('"read"', () => {
+          [secOnlyReadSpacesAll]
+            .map((role) => ({
+              user: role,
+            }))
+            .forEach(({ user }) => {
+              it(`${user.username} should be able to access alerts`, async () => {
+                await supertestWithoutAuth
+                  .get(
+                    `${getSpaceUrlPrefix()}${TEST_URL}?id=${SECURITY_SOLUTION_ALERT_ID}&index=${'.alerts-security-solution'}`
+                  )
+                  .auth(user.username, user.password)
+                  .set('kbn-xsrf', 'true')
+                  .expect(200);
+              });
             });
-          });
+        });
 
-        [noKibanaPrivileges, obsOnlySpacesAll]
-          .map((role) => ({
-            user: role,
-          }))
-          .forEach(({ user }) => {
-            it(`${user.username} without "read" privileges should NOT be able to access alerts`, async () => {
-              await supertestWithoutAuth
-                .get(
-                  `${getSpaceUrlPrefix()}${TEST_URL}?id=${SECURITY_SOLUTION_ALERT_ID}=${securitySolutionIndex}`
-                )
-                .auth(user.username, user.password)
-                .set('kbn-xsrf', 'true')
-                .expect(403);
+        describe('"all"', () => {
+          [secOnlySpacesAll]
+            .map((role) => ({
+              user: role,
+            }))
+            .forEach(({ user }) => {
+              it(`${user.username} should be able to access alerts`, async () => {
+                await supertestWithoutAuth
+                  .get(
+                    `${getSpaceUrlPrefix()}${TEST_URL}?id=${SECURITY_SOLUTION_ALERT_ID}&index=${'.alerts-security-solution'}`
+                  )
+                  .auth(user.username, user.password)
+                  .set('kbn-xsrf', 'true')
+                  .expect(200);
+              });
             });
-          });
+        });
+
+        xdescribe('none', () => {
+          [noKibanaPrivileges]
+            .map((role) => ({
+              user: role,
+            }))
+            .forEach(({ user }) => {
+              it(`${user.username} should NOT be able to access alerts`, async () => {
+                await supertestWithoutAuth
+                  .get(
+                    `${getSpaceUrlPrefix()}${TEST_URL}?id=${SECURITY_SOLUTION_ALERT_ID}&index=${securitySolutionIndex}`
+                  )
+                  .auth(user.username, user.password)
+                  .set('kbn-xsrf', 'true')
+                  .expect(403);
+              });
+            });
+        });
       });
 
-      describe('APM', () => {
-        [superUser, obsOnlySpacesAll, obsSecSpacesAll, obsSecReadSpacesAll]
-          .map((role) => ({
-            user: role,
-          }))
-          .forEach(({ user }) => {
-            it(`${user.username} with "read" privileges should be able to access alerts`, async () => {
-              await supertestWithoutAuth
-                .get(`${getSpaceUrlPrefix()}${TEST_URL}?id=${APM_ALERT_ID}=${apmIndex}`)
-                .auth(user.username, user.password)
-                .set('kbn-xsrf', 'true')
-                .expect(200);
-            });
+      xdescribe('APM', () => {
+        describe('read', () => {
+          it(`${obsOnly.username} should be able to access alerts`, async () => {
+            await supertestWithoutAuth
+              .get(`${getSpaceUrlPrefix('space1')}${TEST_URL}?id=${APM_ALERT_ID}&index=${apmIndex}`)
+              .auth(obsOnly.username, obsOnly.password)
+              .set('kbn-xsrf', 'true')
+              .expect(200);
           });
 
-        [secOnly, secOnlyRead, noKibanaPrivileges, secOnlySpacesAll, secOnlyReadSpacesAll]
-          .map((role) => ({
-            user: role,
-          }))
-          .forEach(({ user }) => {
-            it(`${user.username} without "read" privileges should NOT be able to access alerts`, async () => {
-              await supertestWithoutAuth
-                .get(`${getSpaceUrlPrefix()}${TEST_URL}?id=${APM_ALERT_ID}=${apmIndex}`)
-                .auth(user.username, user.password)
-                .set('kbn-xsrf', 'true')
-                .expect(403);
+          // [obsOnlyReadSpacesAll, obsSecReadSpacesAll]
+          //   .map((role) => ({
+          //     user: role,
+          //   }))
+          //   .forEach(({ user }) => {
+          //     it(`${user.username} should be able to access alerts`, async () => {
+          //       await supertestWithoutAuth
+          //         .get(`${getSpaceUrlPrefix()}${TEST_URL}?id=${APM_ALERT_ID}&index=${apmIndex}`)
+          //         .auth(user.username, user.password)
+          //         .set('kbn-xsrf', 'true')
+          //         .expect(200);
+          //     });
+          //   });
+        });
+
+        describe('all', () => {
+          [superUser, obsOnlySpacesAll, obsSecSpacesAll]
+            .map((role) => ({
+              user: role,
+            }))
+            .forEach(({ user }) => {
+              it(`${user.username} with "read" privileges should be able to access alerts`, async () => {
+                await supertestWithoutAuth
+                  .get(`${getSpaceUrlPrefix()}${TEST_URL}?id=${APM_ALERT_ID}&index=${apmIndex}`)
+                  .auth(user.username, user.password)
+                  .set('kbn-xsrf', 'true')
+                  .expect(200);
+              });
             });
-          });
+        });
+
+        describe('none', () => {
+          [secOnly, secOnlyRead, noKibanaPrivileges, secOnlySpacesAll, secOnlyReadSpacesAll]
+            .map((role) => ({
+              user: role,
+            }))
+            .forEach(({ user }) => {
+              it(`${user.username} without "read" privileges should NOT be able to access alerts`, async () => {
+                await supertestWithoutAuth
+                  .get(`${getSpaceUrlPrefix()}${TEST_URL}?id=${APM_ALERT_ID}&index=${apmIndex}`)
+                  .auth(user.username, user.password)
+                  .set('kbn-xsrf', 'true')
+                  .expect(403);
+              });
+            });
+        });
       });
     });
 

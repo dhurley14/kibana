@@ -35,7 +35,7 @@ export default ({ getService }: FtrProviderContext) => {
   const ALERTS_INDEX_URL = `${TEST_URL}/index`;
   const SPACE1 = 'space1';
   const SPACE2 = 'space2';
-  const APM_ALERT_ID = '${APM_ALERT_ID}';
+  const APM_ALERT_ID = 'NoxgpHkBqbdrfX07MqXV';
   const SECURITY_SOLUTION_ALERT_ID = '020202';
 
   const getAPMIndexName = async (user: User) => {

@@ -35,38 +35,38 @@ export const superUser: User = {
 // These users have access to spaces: ['space1']
 
 export const secOnly: User = {
-  username: 'sec_only',
-  password: 'sec_only',
+  username: 'sec_only_all_spaces_space1',
+  password: 'sec_only_all_spaces_space1',
   roles: [securitySolutionOnlyAll.name],
 };
 
 export const secOnlyRead: User = {
-  username: 'sec_only_read',
-  password: 'sec_only_read',
+  username: 'sec_only_read_spaces_space1',
+  password: 'sec_only_read_spaces_space1',
   roles: [securitySolutionOnlyRead.name],
 };
 
 export const obsOnly: User = {
-  username: 'obs_only',
-  password: 'obs_only',
+  username: 'obs_only_all_spaces_space1',
+  password: 'obs_only_all_spaces_space1',
   roles: [observabilityOnlyAll.name],
 };
 
 export const obsOnlyRead: User = {
-  username: 'obs_only_read',
-  password: 'obs_only_read',
+  username: 'obs_only_read_spaces_space1',
+  password: 'obs_only_read_spaces_space1',
   roles: [observabilityOnlyRead.name],
 };
 
 export const obsSec: User = {
-  username: 'obs_sec',
-  password: 'obs_sec',
+  username: 'sec_only_all_spaces_space1_and_obs_only_all_spaces_space1',
+  password: 'sec_only_all_spaces_space1_and_obs_only_all_spaces_space1',
   roles: [securitySolutionOnlyAll.name, observabilityOnlyAll.name],
 };
 
 export const obsSecRead: User = {
-  username: 'obs_sec_read',
-  password: 'obs_sec_read',
+  username: 'sec_only_read_spaces_space1_and_obs_only_read_spaces_space1',
+  password: 'sec_only_read_spaces_space1_and_obs_only_read_spaces_space1',
   roles: [securitySolutionOnlyRead.name, observabilityOnlyRead.name],
 };
 
@@ -83,8 +83,8 @@ export const noKibanaPrivileges: User = {
 };
 
 export const obsOnlyReadSpacesAll: User = {
-  username: 'obs_only_read_all_spaces',
-  password: 'obs_only_read_all_spaces',
+  username: 'obs_only_read_all_spaces_all',
+  password: 'obs_only_read_all_spaces_all',
   roles: [observabilityOnlyReadSpacesAll.name],
 };
 
@@ -106,32 +106,32 @@ export const users = [
  */
 
 export const secOnlySpacesAll: User = {
-  username: 'sec_only_all',
-  password: 'sec_only_all',
+  username: 'sec_only_all_spaces_all',
+  password: 'sec_only_all_spaces_all',
   roles: [securitySolutionOnlyAllSpacesAll.name],
 };
 
 export const secOnlyReadSpacesAll: User = {
-  username: 'sec_only_read_all',
-  password: 'sec_only_read_all',
+  username: 'sec_only_read_spaces_all',
+  password: 'sec_only_read_spaces_all',
   roles: [securitySolutionOnlyReadSpacesAll.name],
 };
 
 export const obsOnlySpacesAll: User = {
-  username: 'obs_only_all',
-  password: 'obs_only_all',
+  username: 'obs_only_all_spaces_all',
+  password: 'obs_only_all_spaces_all',
   roles: [observabilityOnlyAllSpacesAll.name],
 };
 
 export const obsSecSpacesAll: User = {
-  username: 'obs_sec_all',
-  password: 'obs_sec_all',
+  username: 'sec_only_all_spaces_all_and_obs_only_all_spaces_all',
+  password: 'sec_only_all_spaces_all_and_obs_only_all_spaces_all',
   roles: [securitySolutionOnlyAllSpacesAll.name, observabilityOnlyAllSpacesAll.name],
 };
 
 export const obsSecReadSpacesAll: User = {
-  username: 'obs_sec_read_all',
-  password: 'obs_sec_read_all',
+  username: 'sec_only_read_all_spaces_all_and_obs_only_read_all_spaces_all',
+  password: 'sec_only_read_all_spaces_all_and_obs_only_read_all_spaces_all',
   roles: [securitySolutionOnlyReadSpacesAll.name, observabilityOnlyReadSpacesAll.name],
 };
 
@@ -266,4 +266,32 @@ export const trialUsers = [
   obsAlertsAllSpacesAll,
 ];
 
-export const allUsers = [...users, ...usersDefaultSpace, ...trialUsers];
+export const allUsers = [
+  superUser,
+  secOnly,
+  secOnlyRead,
+  obsOnly,
+  obsOnlyRead,
+  obsSec,
+  obsSecRead,
+  globalRead,
+  noKibanaPrivileges,
+  obsOnlyReadSpacesAll,
+  secOnlySpacesAll,
+  secOnlyReadSpacesAll,
+  obsOnlySpacesAll,
+  obsSecSpacesAll,
+  obsSecReadSpacesAll,
+  obsMinReadAlertsRead,
+  obsMinReadAlertsReadSpacesAll,
+  obsMinRead,
+  obsMinReadSpacesAll,
+  obsAlertsRead,
+  obsAlertsReadSpacesAll,
+  obsMinReadAlertsAll,
+  obsMinReadAlertsAllSpacesAll,
+  obsMinAll,
+  obsMinAllSpacesAll,
+  obsAlertsAll,
+  obsAlertsAllSpacesAll,
+];

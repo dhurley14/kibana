@@ -8,7 +8,7 @@
 import { FtrProviderContext as CommonFtrProviderContext } from '../../../common/ftr_provider_context';
 import { Role, User, UserInfo } from './types';
 import { allUsers } from './users';
-import { roles } from './roles';
+import { allRoles } from './roles';
 import { spaces } from './spaces';
 
 export const getUserInfo = (user: User): UserInfo => ({
@@ -31,7 +31,7 @@ export const createSpaces = async (getService: CommonFtrProviderContext['getServ
 export const createUsersAndRoles = async (
   getService: CommonFtrProviderContext['getService'],
   usersToCreate: User[] = allUsers,
-  rolesToCreate: Role[] = roles
+  rolesToCreate: Role[] = allRoles
 ) => {
   const security = getService('security');
 
@@ -73,7 +73,7 @@ export const deleteSpaces = async (getService: CommonFtrProviderContext['getServ
 export const deleteUsersAndRoles = async (
   getService: CommonFtrProviderContext['getService'],
   usersToDelete: User[] = allUsers,
-  rolesToDelete: Role[] = roles
+  rolesToDelete: Role[] = allRoles
 ) => {
   const security = getService('security');
 

@@ -83,7 +83,7 @@ export default ({ getService }: FtrProviderContext) => {
         await esArchiver.unload('x-pack/test/functional/es_archives/rule_registry/alerts');
       });
 
-      it('should return a 403 when trying to update a solutions alerts for which access has not been granted', async () => {
+      it('should return a 403 when security only user is trying to update an apm alert', async () => {
         await supertestWithoutAuth
           .post(`${getSpaceUrlPrefix()}${TEST_URL}`)
           .auth(secOnlySpacesAll.username, secOnlySpacesAll.password)
@@ -120,7 +120,7 @@ export default ({ getService }: FtrProviderContext) => {
         });
       });
 
-      xdescribe('Security Solution', () => {
+      describe('Security Solution', () => {
         [superUser, secOnlySpacesAll, obsSecSpacesAll]
           .map((role) => ({
             user: role,
@@ -141,7 +141,7 @@ export default ({ getService }: FtrProviderContext) => {
             });
           });
 
-        [superUser, obsOnlySpacesAll, obsSecSpacesAll]
+        [superUser, secOnlySpacesAll, obsSecSpacesAll]
           .map((role) => ({
             user: role,
           }))
@@ -152,9 +152,9 @@ export default ({ getService }: FtrProviderContext) => {
                 .auth(user.username, user.password)
                 .set('kbn-xsrf', 'true')
                 .send({
-                  ids: [APM_ALERT_ID],
+                  ids: [SECURITY_SOLUTION_ALERT_ID],
                   status: 'closed',
-                  index: apmIndex,
+                  index: securitySolutionIndex,
                   _version: Buffer.from(JSON.stringify([0, 1]), 'utf8').toString('base64'),
                 })
                 .expect(200);
@@ -164,9 +164,9 @@ export default ({ getService }: FtrProviderContext) => {
                 .auth(superUser.username, superUser.password)
                 .set('kbn-xsrf', 'true')
                 .send({
-                  ids: [APM_ALERT_ID],
+                  ids: [SECURITY_SOLUTION_ALERT_ID],
                   status: 'closed',
-                  index: apmIndex,
+                  index: securitySolutionIndex,
                   _version: Buffer.from(JSON.stringify([999, 999]), 'utf8').toString('base64'),
                 })
                 .expect(409);
@@ -215,7 +215,7 @@ export default ({ getService }: FtrProviderContext) => {
             });
           });
 
-        [superUser, secOnlySpacesAll, obsSecSpacesAll]
+        [superUser, obsOnlySpacesAll, obsSecSpacesAll]
           .map((role) => ({
             user: role,
           }))
@@ -226,9 +226,9 @@ export default ({ getService }: FtrProviderContext) => {
                 .auth(user.username, user.password)
                 .set('kbn-xsrf', 'true')
                 .send({
-                  ids: [SECURITY_SOLUTION_ALERT_ID],
+                  ids: [APM_ALERT_ID],
                   status: 'closed',
-                  index: securitySolutionIndex,
+                  index: apmIndex,
                   _version: Buffer.from(JSON.stringify([0, 1]), 'utf8').toString('base64'),
                 })
                 .expect(200);
@@ -238,16 +238,16 @@ export default ({ getService }: FtrProviderContext) => {
                 .auth(superUser.username, superUser.password)
                 .set('kbn-xsrf', 'true')
                 .send({
-                  ids: [SECURITY_SOLUTION_ALERT_ID],
+                  ids: [APM_ALERT_ID],
                   status: 'closed',
-                  index: securitySolutionIndex,
+                  index: apmIndex,
                   _version: Buffer.from(JSON.stringify([999, 999]), 'utf8').toString('base64'),
                 })
                 .expect(409);
             });
           });
 
-        [noKibanaPrivileges, secOnlyReadSpacesAll, obsSecReadSpacesAll]
+        [noKibanaPrivileges, obsOnlyReadSpacesAll, obsSecReadSpacesAll]
           .map((role) => ({
             user: role,
           }))
@@ -258,9 +258,9 @@ export default ({ getService }: FtrProviderContext) => {
                 .auth(user.username, user.password)
                 .set('kbn-xsrf', 'true')
                 .send({
-                  ids: [SECURITY_SOLUTION_ALERT_ID],
+                  ids: [APM_ALERT_ID],
                   status: 'closed',
-                  index: securitySolutionIndex,
+                  index: apmIndex,
                   _version: Buffer.from(JSON.stringify([0, 1]), 'utf8').toString('base64'),
                 })
                 .expect(403);
