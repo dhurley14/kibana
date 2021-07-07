@@ -12,7 +12,6 @@ import {
   obsMinReadAlertsAllSpacesAll,
   obsMinAll,
   obsMinAllSpacesAll,
-  obsAlertsAll,
 } from '../../../common/lib/authentication/users';
 import type { User } from '../../../common/lib/authentication/types';
 import { FtrProviderContext } from '../../../common/ftr_provider_context';
@@ -176,21 +175,6 @@ export default ({ getService }: FtrProviderContext) => {
         await supertestWithoutAuth
           .post(`${getSpaceUrlPrefix(SPACE1)}${TEST_URL}`)
           .auth(obsMinAllSpacesAll.username, obsMinAllSpacesAll.password)
-          .set('kbn-xsrf', 'true')
-          .send({
-            ids: ['NoxgpHkBqbdrfX07MqXV'],
-            status: 'closed',
-            index: apmIndex,
-            _version: Buffer.from(JSON.stringify([0, 1]), 'utf8').toString('base64'),
-          })
-          .expect(403);
-      });
-
-      it(`${obsAlertsAll.username} should NOT be able to update the APM alert in ${SPACE1}`, async () => {
-        const apmIndex = await getAPMIndexName(superUser);
-        await supertestWithoutAuth
-          .post(`${getSpaceUrlPrefix(SPACE1)}${TEST_URL}`)
-          .auth(obsAlertsAll.username, obsAlertsAll.password)
           .set('kbn-xsrf', 'true')
           .send({
             ids: ['NoxgpHkBqbdrfX07MqXV'],

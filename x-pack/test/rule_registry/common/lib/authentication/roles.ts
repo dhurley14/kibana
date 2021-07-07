@@ -328,23 +328,6 @@ export const observabilityMinimalReadSpacesAll: Role = {
   },
 };
 
-export const observabilityOnlyAlertsRead: Role = {
-  name: 'obs_alerts_read',
-  privileges: {
-    elasticsearch: {
-      indices: [],
-    },
-    kibana: [
-      {
-        feature: {
-          apm: ['read'],
-        },
-        spaces: ['space1'],
-      },
-    ],
-  },
-};
-
 /**
  * ****************************************
  * These are used for testing update alerts privileges
@@ -441,7 +424,6 @@ export const allRoles = [
   observabilityMinReadAlertsReadSpacesAll,
   observabilityMinimalRead,
   observabilityMinimalReadSpacesAll,
-  observabilityOnlyAlertsRead,
   observabilityMinReadAlertsAll,
   observabilityMinReadAlertsAllSpacesAll,
   observabilityMinimalAll,

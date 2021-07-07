@@ -17,15 +17,16 @@ import {
   observabilityOnlyAllSpacesAll,
   observabilityOnlyReadSpacesAll,
   // trial license roles
+  observabilityMinReadAlertsAll,
   observabilityMinReadAlertsRead,
   observabilityMinReadAlertsReadSpacesAll,
   observabilityMinimalRead,
   observabilityMinimalReadSpacesAll,
-  observabilityOnlyAlertsRead,
   securitySolutionOnlyAllSpace2,
   securitySolutionOnlyReadSpace2,
   observabilityOnlyAllSpace2,
   observabilityOnlyReadSpace2,
+  observabilityMinReadAlertsAllSpacesAll,
 } from './roles';
 import { User } from './types';
 
@@ -223,21 +224,13 @@ export const obsMinReadSpacesAll: User = {
   roles: [observabilityMinimalReadSpacesAll.name],
 };
 
-// apm: ['alerts_read']
-// spaces: ['space1]
-export const obsAlertsRead: User = {
-  username: 'obs_alerts_read_single_space',
-  password: 'obs_alerts_read_single_space',
-  roles: [observabilityOnlyAlertsRead.name],
-};
-
 // FOR UPDATES
 // apm: ['minimal_read', 'alerts_all']
 // spaces: ['space1']
 export const obsMinReadAlertsAll: User = {
   username: 'obs_minimal_read_alerts_all_single_space',
   password: 'obs_minimal_read_alerts_all_single_space',
-  roles: [observabilityMinReadAlertsRead.name],
+  roles: [observabilityMinReadAlertsAll.name],
 };
 
 // apm: ['minimal_read', 'alerts_all']
@@ -245,7 +238,7 @@ export const obsMinReadAlertsAll: User = {
 export const obsMinReadAlertsAllSpacesAll: User = {
   username: 'obs_minimal_read_alerts_all_all_spaces',
   password: 'obs_minimal_read_alerts_all_all_spaces',
-  roles: [observabilityMinReadAlertsReadSpacesAll.name],
+  roles: [observabilityMinReadAlertsAllSpacesAll.name],
 };
 
 // apm: ['minimal_all']
@@ -264,25 +257,15 @@ export const obsMinAllSpacesAll: User = {
   roles: [observabilityMinimalReadSpacesAll.name],
 };
 
-// apm: ['alerts_all']
-// spaces: ['space1]
-export const obsAlertsAll: User = {
-  username: 'obs_alerts_all_single_space',
-  password: 'obs_alerts_all_single_space',
-  roles: [observabilityOnlyAlertsRead.name],
-};
-
 export const trialUsers = [
   obsMinReadAlertsRead,
   obsMinReadAlertsReadSpacesAll,
   obsMinRead,
   obsMinReadSpacesAll,
-  obsAlertsRead,
   obsMinReadAlertsAll,
   obsMinReadAlertsAllSpacesAll,
   obsMinAll,
   obsMinAllSpacesAll,
-  obsAlertsAll,
 ];
 
 export const allUsers = [
@@ -305,12 +288,10 @@ export const allUsers = [
   obsMinReadAlertsReadSpacesAll,
   obsMinRead,
   obsMinReadSpacesAll,
-  obsAlertsRead,
   obsMinReadAlertsAll,
   obsMinReadAlertsAllSpacesAll,
   obsMinAll,
   obsMinAllSpacesAll,
-  obsAlertsAll,
   secOnlySpace2,
   secOnlyReadSpace2,
   obsOnlySpace2,
