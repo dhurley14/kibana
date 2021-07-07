@@ -162,6 +162,13 @@ export class AlertsClient {
         entity: AlertingAuthorizationEntity.Alert,
       });
 
+      this.auditLogger?.log(
+        alertAuditEvent({
+          action: AlertAuditAction.UPDATE,
+          id,
+        })
+      );
+
       const { body: response } = await this.esClient.update<ParsedTechnicalFields>({
         ...decodeVersion(_version),
         id,
@@ -173,13 +180,6 @@ export class AlertsClient {
         },
         refresh: 'wait_for',
       });
-
-      this.auditLogger?.log(
-        alertAuditEvent({
-          action: AlertAuditAction.UPDATE,
-          id,
-        })
-      );
 
       return {
         ...response,
