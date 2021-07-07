@@ -26,7 +26,7 @@ import { EventLogService, IEventLogService } from './event_log';
 import { AlertsClient } from './alert_data_client/alerts_client';
 
 export interface RuleRegistryPluginSetupDependencies {
-  security: SecurityPluginSetup;
+  security?: SecurityPluginSetup;
 }
 
 export interface RuleRegistryPluginStartDependencies {
