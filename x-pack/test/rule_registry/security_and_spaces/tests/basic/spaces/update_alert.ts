@@ -170,7 +170,7 @@ export default ({ getService }: FtrProviderContext) => {
               });
             });
 
-          [noKibanaPrivileges, secOnly, obsSec, secOnlySpacesAll, obsSecSpacesAll]
+          [noKibanaPrivileges, secOnly, obsSec]
             .map((role) => ({
               user: role,
             }))

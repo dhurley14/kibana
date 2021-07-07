@@ -75,14 +75,14 @@ export default ({ getService }: FtrProviderContext) => {
     let securitySolutionIndex: string | undefined;
     let apmIndex: string | undefined;
 
-    beforeEach(async () => {
+    before(async () => {
       securitySolutionIndex = await getSecuritySolutionIndexName(superUser);
       apmIndex = await getAPMIndexName(superUser);
 
       await esArchiver.load('x-pack/test/functional/es_archives/rule_registry/alerts');
     });
 
-    afterEach(async () => {
+    after(async () => {
       await esArchiver.unload('x-pack/test/functional/es_archives/rule_registry/alerts');
     });
 
@@ -185,7 +185,7 @@ export default ({ getService }: FtrProviderContext) => {
         });
 
         describe('all', () => {
-          [superUser, obsOnly, obsOnlySpacesAll, obsSecSpacesAll]
+          [superUser, obsOnlySpacesAll, obsSecSpacesAll]
             .map((role) => ({
               user: role,
             }))

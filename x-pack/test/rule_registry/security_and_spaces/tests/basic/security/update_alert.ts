@@ -145,7 +145,7 @@ export default ({ getService }: FtrProviderContext) => {
         });
 
         describe('read', () => {
-          [globalRead, secOnlySpacesAll, secOnlyReadSpacesAll]
+          [globalRead, secOnlyReadSpacesAll]
             .map((role) => ({
               user: role,
             }))
