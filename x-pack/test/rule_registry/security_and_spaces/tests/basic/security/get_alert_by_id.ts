@@ -13,8 +13,6 @@ import {
   obsOnlySpacesAll,
   obsSecSpacesAll,
   obsSecReadSpacesAll,
-  secOnly,
-  secOnlyRead,
   noKibanaPrivileges,
   secOnlySpacesAll,
   secOnlyReadSpacesAll,
@@ -73,13 +71,13 @@ export default ({ getService }: FtrProviderContext) => {
     return securitySolution;
   };
 
-  describe.only('Get alert - RBAC - auth', () => {
+  describe('Alerts - GET - RBAC - read/all checks', () => {
     let securitySolutionIndex: string | undefined;
     let apmIndex: string | undefined;
 
     beforeEach(async () => {
-      // securitySolutionIndex = await getSecuritySolutionIndexName(superUser);
-      // apmIndex = await getAPMIndexName(superUser);
+      securitySolutionIndex = await getSecuritySolutionIndexName(superUser);
+      apmIndex = await getAPMIndexName(superUser);
 
       await esArchiver.load('x-pack/test/functional/es_archives/rule_registry/alerts');
     });
@@ -89,7 +87,7 @@ export default ({ getService }: FtrProviderContext) => {
     });
 
     describe('Users:', () => {
-      xit('should return alert', async () => {
+      it('should return alert', async () => {
         const res = await supertestWithoutAuth
           .get(`${getSpaceUrlPrefix()}${TEST_URL}?id=${APM_ALERT_ID}&index=${apmIndex}`)
           .auth(superUser.username, superUser.password)
@@ -105,7 +103,7 @@ export default ({ getService }: FtrProviderContext) => {
         });
       });
 
-      xit('should return a 403 when security only user tries to access an apm alert', async () => {
+      it('should return a 403 when security only user tries to access an apm alert', async () => {
         await supertestWithoutAuth
           .get(`${getSpaceUrlPrefix()}${TEST_URL}?id=${APM_ALERT_ID}&index=${apmIndex}`)
           .auth(secOnlySpacesAll.username, secOnlySpacesAll.password)
@@ -150,7 +148,7 @@ export default ({ getService }: FtrProviderContext) => {
             });
         });
 
-        xdescribe('none', () => {
+        describe('none', () => {
           [noKibanaPrivileges]
             .map((role) => ({
               user: role,
@@ -169,33 +167,25 @@ export default ({ getService }: FtrProviderContext) => {
         });
       });
 
-      xdescribe('APM', () => {
+      describe('APM', () => {
         describe('read', () => {
-          it(`${obsOnly.username} should be able to access alerts`, async () => {
-            await supertestWithoutAuth
-              .get(`${getSpaceUrlPrefix('space1')}${TEST_URL}?id=${APM_ALERT_ID}&index=${apmIndex}`)
-              .auth(obsOnly.username, obsOnly.password)
-              .set('kbn-xsrf', 'true')
-              .expect(200);
-          });
-
-          // [obsOnlyReadSpacesAll, obsSecReadSpacesAll]
-          //   .map((role) => ({
-          //     user: role,
-          //   }))
-          //   .forEach(({ user }) => {
-          //     it(`${user.username} should be able to access alerts`, async () => {
-          //       await supertestWithoutAuth
-          //         .get(`${getSpaceUrlPrefix()}${TEST_URL}?id=${APM_ALERT_ID}&index=${apmIndex}`)
-          //         .auth(user.username, user.password)
-          //         .set('kbn-xsrf', 'true')
-          //         .expect(200);
-          //     });
-          //   });
+          [globalRead, obsOnlyReadSpacesAll, obsSecReadSpacesAll]
+            .map((role) => ({
+              user: role,
+            }))
+            .forEach(({ user }) => {
+              it(`${user.username} should be able to access alerts`, async () => {
+                await supertestWithoutAuth
+                  .get(`${getSpaceUrlPrefix()}${TEST_URL}?id=${APM_ALERT_ID}&index=${apmIndex}`)
+                  .auth(user.username, user.password)
+                  .set('kbn-xsrf', 'true')
+                  .expect(200);
+              });
+            });
         });
 
         describe('all', () => {
-          [superUser, obsOnlySpacesAll, obsSecSpacesAll]
+          [superUser, obsOnly, obsOnlySpacesAll, obsSecSpacesAll]
             .map((role) => ({
               user: role,
             }))
@@ -211,7 +201,7 @@ export default ({ getService }: FtrProviderContext) => {
         });
 
         describe('none', () => {
-          [secOnly, secOnlyRead, noKibanaPrivileges, secOnlySpacesAll, secOnlyReadSpacesAll]
+          [noKibanaPrivileges]
             .map((role) => ({
               user: role,
             }))

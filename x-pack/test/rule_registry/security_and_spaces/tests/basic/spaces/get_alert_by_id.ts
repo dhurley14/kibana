@@ -16,6 +16,12 @@ import {
   obsSecRead,
   secOnly,
   secOnlyRead,
+  secOnlySpace2,
+  secOnlyReadSpace2,
+  obsSecAllSpace2,
+  obsSecReadSpace2,
+  obsOnlySpace2,
+  obsOnlyReadSpace2,
 } from '../../../../common/lib/authentication/users';
 import type { User } from '../../../../common/lib/authentication/types';
 import { FtrProviderContext } from '../../../../common/ftr_provider_context';
@@ -69,167 +75,160 @@ export default ({ getService }: FtrProviderContext) => {
     return securitySolution;
   };
 
-  describe('Get alert - RBAC - spaces', () => {
-    before(async () => {
+  describe('Alerts - GET - RBAC - spaces', () => {
+    let securitySolutionIndex: string | undefined;
+    let apmIndex: string | undefined;
+
+    beforeEach(async () => {
+      securitySolutionIndex = await getSecuritySolutionIndexName(superUser);
+      apmIndex = await getAPMIndexName(superUser);
+
       await esArchiver.load('x-pack/test/functional/es_archives/rule_registry/alerts');
     });
 
-    xdescribe('Security Solution', () => {
-      let securitySolutionIndex: string | undefined;
+    afterEach(async () => {
+      await esArchiver.unload('x-pack/test/functional/es_archives/rule_registry/alerts');
+    });
 
-      before(async () => {
-        securitySolutionIndex = await getSecuritySolutionIndexName(superUser);
+    describe('Security Solution', () => {
+      describe('all spaces', () => {
+        [superUser, globalRead]
+          .map((role) => ({
+            user: role,
+          }))
+          .forEach(({ user }) => {
+            it(`${user.username} should be able to access alerts in ${SPACE1}`, async () => {
+              await supertestWithoutAuth
+                .get(
+                  `${getSpaceUrlPrefix(
+                    SPACE1
+                  )}${TEST_URL}?id=${SECURITY_SOLUTION_ALERT_ID}&index=${securitySolutionIndex}`
+                )
+                .auth(user.username, user.password)
+                .set('kbn-xsrf', 'true')
+                .expect(200);
+            });
+
+            it(`${user.username} should be able to access alerts in ${SPACE2}`, async () => {
+              await supertestWithoutAuth
+                .get(
+                  `${getSpaceUrlPrefix(
+                    SPACE2
+                  )}${TEST_URL}?id=${SECURITY_SOLUTION_ALERT_ID}&index=${securitySolutionIndex}`
+                )
+                .auth(user.username, user.password)
+                .set('kbn-xsrf', 'true')
+                .expect(200);
+            });
+          });
       });
 
-      // these users have access to spaces: ['*']
-      [superUser, globalRead]
-        .map((role) => ({
-          user: role,
-        }))
-        .forEach(({ user }) => {
-          it(`${user.username} should be able to access alerts in ${SPACE1}`, async () => {
-            await supertestWithoutAuth
-              .get(
-                `${getSpaceUrlPrefix(
-                  SPACE1
-                )}${TEST_URL}?id=${SECURITY_SOLUTION_ALERT_ID}&index=${securitySolutionIndex}`
-              )
-              .auth(user.username, user.password)
-              .set('kbn-xsrf', 'true')
-              .expect(200);
+      describe('single space', () => {
+        // these users have access to Security Solution alerts spaces: ['space1']
+        [secOnly, secOnlyRead, obsSec, obsSecRead]
+          .map((role) => ({
+            user: role,
+          }))
+          .forEach(({ user }) => {
+            it(`${user.username} with access to ${SPACE1}, should be able to access the alert in ${SPACE1}`, async () => {
+              await supertestWithoutAuth
+                .get(
+                  `${getSpaceUrlPrefix(
+                    SPACE1
+                  )}${TEST_URL}?id=${SECURITY_SOLUTION_ALERT_ID}&index=${securitySolutionIndex}`
+                )
+                .auth(user.username, user.password)
+                .set('kbn-xsrf', 'true')
+                .expect(200);
+            });
           });
-        });
 
-      // these users have access to spaces: ['*']
-      [superUser, globalRead]
-        .map((role) => ({
-          user: role,
-        }))
-        .forEach(({ user }) => {
-          it(`${user.username} should be able to access alerts in ${SPACE2}`, async () => {
-            await supertestWithoutAuth
-              .get(
-                `${getSpaceUrlPrefix(
-                  SPACE2
-                )}${TEST_URL}?id=${SECURITY_SOLUTION_ALERT_ID}&index=${securitySolutionIndex}`
-              )
-              .auth(user.username, user.password)
-              .set('kbn-xsrf', 'true')
-              .expect(200);
+        // these users have access to Security Solution alerts spaces: ['space2']
+        [secOnlySpace2, secOnlyReadSpace2, obsSecAllSpace2, obsSecReadSpace2]
+          .map((role) => ({
+            user: role,
+          }))
+          .forEach(({ user }) => {
+            it(`${user.username} WITHOUT access to ${SPACE1} alerts, should NOT be able to access the alert in ${SPACE1}`, async () => {
+              await supertestWithoutAuth
+                .get(
+                  `${getSpaceUrlPrefix(
+                    SPACE1
+                  )}${TEST_URL}?id=${SECURITY_SOLUTION_ALERT_ID}&index=${securitySolutionIndex}`
+                )
+                .auth(user.username, user.password)
+                .set('kbn-xsrf', 'true')
+                .expect(403);
+            });
           });
-        });
-
-      // these users have access to Security Solution alerts spaces: ['space1']
-      [secOnly, secOnlyRead, obsSec, obsSecRead]
-        .map((role) => ({
-          user: role,
-        }))
-        .forEach(({ user }) => {
-          it(`${user.username} with right to access space1 APM alerts, should be able to access the APM alert in ${SPACE1}`, async () => {
-            await supertestWithoutAuth
-              .get(
-                `${getSpaceUrlPrefix(
-                  SPACE1
-                )}${TEST_URL}?id=${SECURITY_SOLUTION_ALERT_ID}&index=${securitySolutionIndex}`
-              )
-              .auth(user.username, user.password)
-              .set('kbn-xsrf', 'true')
-              .expect(200);
-          });
-        });
-
-      // these users have access to Security Solution alerts spaces: ['space1']
-      [secOnly, secOnlyRead, obsSec, obsSecRead]
-        .map((role) => ({
-          user: role,
-        }))
-        .forEach(({ user }) => {
-          it(`${user.username} with right to access space1 APM alerts, should NOT be able to access the APM alert in ${SPACE2}`, async () => {
-            await supertestWithoutAuth
-              .get(
-                `${getSpaceUrlPrefix(
-                  SPACE2
-                )}${TEST_URL}?id=${SECURITY_SOLUTION_ALERT_ID}&index=${securitySolutionIndex}`
-              )
-              .auth(user.username, user.password)
-              .set('kbn-xsrf', 'true')
-              .expect(403);
-          });
-        });
+      });
     });
 
     describe('APM', () => {
-      let apmIndex: string | undefined;
+      describe('all spaces', () => {
+        [
+          // these users have access to spaces: ['*']
+          superUser,
+          globalRead,
+        ]
+          .map((role) => ({
+            user: role,
+          }))
+          .forEach(({ user }) => {
+            it(`${user.username} should be able to access alerts in ${SPACE1}`, async () => {
+              await supertestWithoutAuth
+                .get(`${getSpaceUrlPrefix(SPACE1)}${TEST_URL}?id=${APM_ALERT_ID}&index=${apmIndex}`)
+                .auth(user.username, user.password)
+                .set('kbn-xsrf', 'true')
+                .expect(200);
+            });
 
-      before(async () => {
-        apmIndex = await getAPMIndexName(superUser);
+            it(`${user.username} should be able to access alerts in ${SPACE2}`, async () => {
+              await supertestWithoutAuth
+                .get(`${getSpaceUrlPrefix(SPACE2)}${TEST_URL}?id=${APM_ALERT_ID}&index=${apmIndex}`)
+                .auth(user.username, user.password)
+                .set('kbn-xsrf', 'true')
+                .expect(200);
+            });
+          });
       });
 
-      [
-        // these users have access to spaces: ['*']
-        superUser,
-        globalRead,
-      ]
-        .map((role) => ({
-          user: role,
-        }))
-        .forEach(({ user }) => {
-          it(`${user.username} should be able to access alerts in ${SPACE1}`, async () => {
-            await supertestWithoutAuth
-              .get(`${getSpaceUrlPrefix(SPACE1)}${TEST_URL}?id=${APM_ALERT_ID}&index=${apmIndex}`)
-              .auth(user.username, user.password)
-              .set('kbn-xsrf', 'true')
-              .expect(200);
+      describe('single space', () => {
+        // these users have access to APM alerts spaces: ['space1']
+        [obsOnly, obsOnlyRead, obsSec, obsSecRead]
+          .map((role) => ({
+            user: role,
+          }))
+          .forEach(({ user }) => {
+            it(`${user.username} with access to ${SPACE1}, should be able to access the alert in ${SPACE1}`, async () => {
+              await supertestWithoutAuth
+                .get(`${getSpaceUrlPrefix(SPACE1)}${TEST_URL}?id=${APM_ALERT_ID}&index=${apmIndex}`)
+                .auth(user.username, user.password)
+                .set('kbn-xsrf', 'true')
+                .expect(200);
+            });
           });
-        });
 
-      [
-        // these users have access to spaces: ['*']
-        superUser,
-        globalRead,
-      ]
-        .map((role) => ({
-          user: role,
-        }))
-        .forEach(({ user }) => {
-          it(`${user.username} should be able to access alerts in ${SPACE2}`, async () => {
-            await supertestWithoutAuth
-              .get(`${getSpaceUrlPrefix(SPACE2)}${TEST_URL}?id=${APM_ALERT_ID}&index=${apmIndex}`)
-              .auth(user.username, user.password)
-              .set('kbn-xsrf', 'true')
-              .expect(200);
+        [
+          // these users have access to APM alerts spaces: ['space2']
+          obsOnlySpace2,
+          obsOnlyReadSpace2,
+          obsSecAllSpace2,
+          obsSecReadSpace2,
+        ]
+          .map((role) => ({
+            user: role,
+          }))
+          .forEach(({ user }) => {
+            it(`${user.username} with access to ${SPACE2} alerts, should NOT be able to access the alert in ${SPACE1}`, async () => {
+              await supertestWithoutAuth
+                .get(`${getSpaceUrlPrefix(SPACE1)}${TEST_URL}?id=${APM_ALERT_ID}&index=${apmIndex}`)
+                .auth(user.username, user.password)
+                .set('kbn-xsrf', 'true')
+                .expect(403);
+            });
           });
-        });
-
-      // these users have access to APM alerts spaces: ['space1']
-      [obsOnly, obsOnlyRead, obsSec, obsSecRead]
-        .map((role) => ({
-          user: role,
-        }))
-        .forEach(({ user }) => {
-          it(`${user.username} with right to access space1 APM alerts, should be able to access the APM alert in ${SPACE1}`, async () => {
-            await supertestWithoutAuth
-              .get(`${getSpaceUrlPrefix(SPACE1)}${TEST_URL}?id=${APM_ALERT_ID}&index=${apmIndex}`)
-              .auth(user.username, user.password)
-              .set('kbn-xsrf', 'true')
-              .expect(200);
-          });
-        });
-
-      // these users have access to APM alerts spaces: ['space1']
-      [obsOnly, obsOnlyRead, obsSec, obsSecRead]
-        .map((role) => ({
-          user: role,
-        }))
-        .forEach(({ user }) => {
-          it(`${user.username} with right to access space1 APM alerts, should NOT be able to access the APM alert in ${SPACE2}`, async () => {
-            await supertestWithoutAuth
-              .get(`${getSpaceUrlPrefix(SPACE2)}${TEST_URL}?id=${APM_ALERT_ID}&index=${apmIndex}`)
-              .auth(user.username, user.password)
-              .set('kbn-xsrf', 'true')
-              .expect(403);
-          });
-        });
+      });
     });
   });
 };

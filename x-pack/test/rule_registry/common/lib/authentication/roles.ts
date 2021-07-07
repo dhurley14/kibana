@@ -55,6 +55,25 @@ export const securitySolutionOnlyAll: Role = {
   },
 };
 
+export const securitySolutionOnlyAllSpace2: Role = {
+  name: 'sec_only_all_spaces_space2',
+  privileges: {
+    elasticsearch: {
+      indices: [],
+    },
+    kibana: [
+      {
+        feature: {
+          siem: ['all'],
+          actions: ['all'],
+          actionsSimulators: ['all'],
+        },
+        spaces: ['space2'],
+      },
+    ],
+  },
+};
+
 export const securitySolutionOnlyRead: Role = {
   name: 'sec_only_read_spaces_space1',
   privileges: {
@@ -69,6 +88,25 @@ export const securitySolutionOnlyRead: Role = {
           actionsSimulators: ['read'],
         },
         spaces: ['space1'],
+      },
+    ],
+  },
+};
+
+export const securitySolutionOnlyReadSpace2: Role = {
+  name: 'sec_only_read_spaces_space2',
+  privileges: {
+    elasticsearch: {
+      indices: [],
+    },
+    kibana: [
+      {
+        feature: {
+          siem: ['read'],
+          actions: ['read'],
+          actionsSimulators: ['read'],
+        },
+        spaces: ['space2'],
       },
     ],
   },
@@ -93,6 +131,25 @@ export const observabilityOnlyAll: Role = {
   },
 };
 
+export const observabilityOnlyAllSpace2: Role = {
+  name: 'obs_only_all_spaces_space2',
+  privileges: {
+    elasticsearch: {
+      indices: [],
+    },
+    kibana: [
+      {
+        feature: {
+          apm: ['all'],
+          actions: ['all'],
+          actionsSimulators: ['all'],
+        },
+        spaces: ['space2'],
+      },
+    ],
+  },
+};
+
 export const observabilityOnlyRead: Role = {
   name: 'obs_only_read_spaces_space1',
   privileges: {
@@ -107,6 +164,25 @@ export const observabilityOnlyRead: Role = {
           actionsSimulators: ['read'],
         },
         spaces: ['space1'],
+      },
+    ],
+  },
+};
+
+export const observabilityOnlyReadSpace2: Role = {
+  name: 'obs_only_read_spaces_space2',
+  privileges: {
+    elasticsearch: {
+      indices: [],
+    },
+    kibana: [
+      {
+        feature: {
+          apm: ['read'],
+          actions: ['read'],
+          actionsSimulators: ['read'],
+        },
+        spaces: ['space2'],
       },
     ],
   },
@@ -514,4 +590,8 @@ export const allRoles = [
   observabilityMinimalAllSpacesAll,
   observabilityOnlyAlertsAll,
   observabilityOnlyAlertsAllSpacesAll,
+  securitySolutionOnlyAllSpace2,
+  securitySolutionOnlyReadSpace2,
+  observabilityOnlyAllSpace2,
+  observabilityOnlyReadSpace2,
 ];
