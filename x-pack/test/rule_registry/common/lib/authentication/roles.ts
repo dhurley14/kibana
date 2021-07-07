@@ -27,8 +27,6 @@ export const globalRead: Role = {
         feature: {
           siem: ['read'],
           apm: ['read'],
-          actions: ['read'],
-          actionsSimulators: ['read'],
         },
         spaces: ['*'],
       },
@@ -46,8 +44,6 @@ export const securitySolutionOnlyAll: Role = {
       {
         feature: {
           siem: ['all'],
-          actions: ['all'],
-          actionsSimulators: ['all'],
         },
         spaces: ['space1'],
       },
@@ -65,8 +61,6 @@ export const securitySolutionOnlyAllSpace2: Role = {
       {
         feature: {
           siem: ['all'],
-          actions: ['all'],
-          actionsSimulators: ['all'],
         },
         spaces: ['space2'],
       },
@@ -84,8 +78,6 @@ export const securitySolutionOnlyRead: Role = {
       {
         feature: {
           siem: ['read'],
-          actions: ['read'],
-          actionsSimulators: ['read'],
         },
         spaces: ['space1'],
       },
@@ -103,8 +95,6 @@ export const securitySolutionOnlyReadSpace2: Role = {
       {
         feature: {
           siem: ['read'],
-          actions: ['read'],
-          actionsSimulators: ['read'],
         },
         spaces: ['space2'],
       },
@@ -122,8 +112,6 @@ export const observabilityOnlyAll: Role = {
       {
         feature: {
           apm: ['all'],
-          actions: ['all'],
-          actionsSimulators: ['all'],
         },
         spaces: ['space1'],
       },
@@ -141,8 +129,6 @@ export const observabilityOnlyAllSpace2: Role = {
       {
         feature: {
           apm: ['all'],
-          actions: ['all'],
-          actionsSimulators: ['all'],
         },
         spaces: ['space2'],
       },
@@ -160,8 +146,6 @@ export const observabilityOnlyRead: Role = {
       {
         feature: {
           apm: ['read'],
-          actions: ['read'],
-          actionsSimulators: ['read'],
         },
         spaces: ['space1'],
       },
@@ -179,8 +163,6 @@ export const observabilityOnlyReadSpace2: Role = {
       {
         feature: {
           apm: ['read'],
-          actions: ['read'],
-          actionsSimulators: ['read'],
         },
         spaces: ['space2'],
       },
@@ -201,10 +183,6 @@ export const securitySolutionOnlyAllSpacesAll: Role = {
       {
         feature: {
           siem: ['all'],
-          actions: ['all'],
-          actionsSimulators: ['all'],
-          alerting: ['all'],
-          ruleRegistry: ['all'],
         },
         spaces: ['*'],
       },
@@ -222,10 +200,6 @@ export const securitySolutionOnlyReadSpacesAll: Role = {
       {
         feature: {
           siem: ['read'],
-          actions: ['read'],
-          actionsSimulators: ['read'],
-          alerting: ['read'],
-          ruleRegistry: ['all'],
         },
         spaces: ['*'],
       },
@@ -243,8 +217,6 @@ export const observabilityOnlyAllSpacesAll: Role = {
       {
         feature: {
           apm: ['all'],
-          actions: ['all'],
-          actionsSimulators: ['all'],
         },
         spaces: ['*'],
       },
@@ -262,10 +234,6 @@ export const observabilityOnlyReadSpacesAll: Role = {
       {
         feature: {
           apm: ['read'],
-          ruleRegistry: ['all'],
-          actions: ['read'],
-          builtInAlerts: ['all'],
-          alerting: ['all'],
         },
         spaces: ['*'],
       },
@@ -280,20 +248,6 @@ export const roles = [
   securitySolutionOnlyRead,
   observabilityOnlyAll,
   observabilityOnlyRead,
-  observabilityOnlyReadSpacesAll,
-];
-
-/**
- * These roles are specifically for the security_only tests where the spaces plugin is disabled. Most of the roles (except
- * for noKibanaPrivileges) have spaces: ['*'] effectively giving it access to the space1 space since no other spaces
- * will exist when the spaces plugin is disabled.
- */
-export const rolesDefaultSpace = [
-  noKibanaPrivileges,
-  globalRead,
-  securitySolutionOnlyAllSpacesAll,
-  securitySolutionOnlyReadSpacesAll,
-  observabilityOnlyAllSpacesAll,
   observabilityOnlyReadSpacesAll,
 ];
 
@@ -333,10 +287,6 @@ export const observabilityMinReadAlertsReadSpacesAll: Role = {
       {
         feature: {
           apm: ['minimal_read', 'alerts_read'],
-          ruleRegistry: ['all'],
-          actions: ['read'],
-          builtInAlerts: ['all'],
-          alerting: ['all'],
         },
         spaces: ['*'],
       },
@@ -354,10 +304,6 @@ export const observabilityMinimalRead: Role = {
       {
         feature: {
           apm: ['minimal_read'],
-          ruleRegistry: ['all'],
-          actions: ['read'],
-          builtInAlerts: ['all'],
-          alerting: ['all'],
         },
         spaces: ['space1'],
       },
@@ -375,10 +321,6 @@ export const observabilityMinimalReadSpacesAll: Role = {
       {
         feature: {
           apm: ['minimal_read'],
-          ruleRegistry: ['all'],
-          actions: ['read'],
-          builtInAlerts: ['all'],
-          alerting: ['all'],
         },
         spaces: ['*'],
       },
@@ -396,33 +338,8 @@ export const observabilityOnlyAlertsRead: Role = {
       {
         feature: {
           apm: ['read'],
-          ruleRegistry: ['all'],
-          actions: ['read'],
-          builtInAlerts: ['all'],
-          alerting: ['all'],
         },
         spaces: ['space1'],
-      },
-    ],
-  },
-};
-
-export const observabilityOnlyAlertsReadSpacesAll: Role = {
-  name: 'obs_alerts_read_spaces_all',
-  privileges: {
-    elasticsearch: {
-      indices: [],
-    },
-    kibana: [
-      {
-        feature: {
-          apm: ['alerts_read'],
-          ruleRegistry: ['all'],
-          actions: ['read'],
-          builtInAlerts: ['all'],
-          alerting: ['all'],
-        },
-        spaces: ['*'],
       },
     ],
   },
@@ -451,10 +368,6 @@ export const observabilityMinReadAlertsAll: Role = {
       {
         feature: {
           apm: ['minimal_read', 'alerts_all'],
-          ruleRegistry: ['all'],
-          actions: ['read'],
-          builtInAlerts: ['all'],
-          alerting: ['all'],
         },
         spaces: ['space1'],
       },
@@ -472,10 +385,6 @@ export const observabilityMinReadAlertsAllSpacesAll: Role = {
       {
         feature: {
           apm: ['minimal_read', 'alerts_all'],
-          ruleRegistry: ['all'],
-          actions: ['read'],
-          builtInAlerts: ['all'],
-          alerting: ['all'],
         },
         spaces: ['*'],
       },
@@ -493,10 +402,6 @@ export const observabilityMinimalAll: Role = {
       {
         feature: {
           apm: ['minimal_all'],
-          ruleRegistry: ['all'],
-          actions: ['read'],
-          builtInAlerts: ['all'],
-          alerting: ['all'],
         },
         spaces: ['space1'],
       },
@@ -514,52 +419,6 @@ export const observabilityMinimalAllSpacesAll: Role = {
       {
         feature: {
           apm: ['minimal_all'],
-          ruleRegistry: ['all'],
-          actions: ['read'],
-          builtInAlerts: ['all'],
-          alerting: ['all'],
-        },
-        spaces: ['*'],
-      },
-    ],
-  },
-};
-
-export const observabilityOnlyAlertsAll: Role = {
-  name: 'obs_alerts_all',
-  privileges: {
-    elasticsearch: {
-      indices: [],
-    },
-    kibana: [
-      {
-        feature: {
-          apm: ['alerts_all'],
-          ruleRegistry: ['all'],
-          actions: ['read'],
-          builtInAlerts: ['all'],
-          alerting: ['all'],
-        },
-        spaces: ['space1'],
-      },
-    ],
-  },
-};
-
-export const observabilityOnlyAlertsAllSpacesAll: Role = {
-  name: 'obs_alerts_all_spaces_all',
-  privileges: {
-    elasticsearch: {
-      indices: [],
-    },
-    kibana: [
-      {
-        feature: {
-          apm: ['alerts_all'],
-          ruleRegistry: ['all'],
-          actions: ['read'],
-          builtInAlerts: ['all'],
-          alerting: ['all'],
         },
         spaces: ['*'],
       },
@@ -583,13 +442,10 @@ export const allRoles = [
   observabilityMinimalRead,
   observabilityMinimalReadSpacesAll,
   observabilityOnlyAlertsRead,
-  observabilityOnlyAlertsReadSpacesAll,
   observabilityMinReadAlertsAll,
   observabilityMinReadAlertsAllSpacesAll,
   observabilityMinimalAll,
   observabilityMinimalAllSpacesAll,
-  observabilityOnlyAlertsAll,
-  observabilityOnlyAlertsAllSpacesAll,
   securitySolutionOnlyAllSpace2,
   securitySolutionOnlyReadSpace2,
   observabilityOnlyAllSpace2,

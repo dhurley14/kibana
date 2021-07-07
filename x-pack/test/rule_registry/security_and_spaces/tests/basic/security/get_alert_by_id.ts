@@ -17,7 +17,6 @@ import {
   secOnlySpacesAll,
   secOnlyReadSpacesAll,
   obsOnlyReadSpacesAll,
-  obsOnly,
 } from '../../../../common/lib/authentication/users';
 import type { User } from '../../../../common/lib/authentication/types';
 import { FtrProviderContext } from '../../../../common/ftr_provider_context';
