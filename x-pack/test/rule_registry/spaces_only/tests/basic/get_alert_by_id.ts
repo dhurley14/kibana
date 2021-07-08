@@ -30,7 +30,6 @@ export default ({ getService }: FtrProviderContext) => {
       body: indexNames,
     }: { body: { index_name: string[] | undefined } } = await supertestWithoutAuth
       .get(`${getSpaceUrlPrefix(SPACE1)}${ALERTS_INDEX_URL}`)
-      .auth(user.username, user.password)
       .set('kbn-xsrf', 'true')
       .expect(200);
     const observabilityIndex = indexNames?.index_name?.find(
@@ -44,7 +43,6 @@ export default ({ getService }: FtrProviderContext) => {
       body: indexNames,
     }: { body: { index_name: string[] | undefined } } = await supertestWithoutAuth
       .get(`${getSpaceUrlPrefix(SPACE1)}${ALERTS_INDEX_URL}`)
-      .auth(user.username, user.password)
       .set('kbn-xsrf', 'true')
       .expect(200);
     const securitySolution = indexNames?.index_name?.find(
@@ -68,7 +66,6 @@ export default ({ getService }: FtrProviderContext) => {
     it('should return a 404 when superuser accesses not-existent alert', async () => {
       await supertestWithoutAuth
         .get(`${getSpaceUrlPrefix()}${TEST_URL}?id=myfakeid&index=${APM_ALERT_INDEX}`)
-        .auth(superUser.username, superUser.password)
         .set('kbn-xsrf', 'true')
         .expect(404);
     });
@@ -76,7 +73,6 @@ export default ({ getService }: FtrProviderContext) => {
     it('should return a 404 when superuser accesses not-existent alerts as data index', async () => {
       await supertestWithoutAuth
         .get(`${getSpaceUrlPrefix()}${TEST_URL}?id=${APM_ALERT_ID}&index=myfakeindex`)
-        .auth(superUser.username, superUser.password)
         .set('kbn-xsrf', 'true')
         .expect(404);
     });
@@ -84,7 +80,6 @@ export default ({ getService }: FtrProviderContext) => {
     it(`${superUser.username} should be able to access alert ${APM_ALERT_ID} in ${SPACE2}/${APM_ALERT_INDEX}`, async () => {
       await supertestWithoutAuth
         .get(`${getSpaceUrlPrefix(SPACE2)}${TEST_URL}?id=${APM_ALERT_ID}&index=${APM_ALERT_INDEX}`)
-        .auth(superUser.username, superUser.password)
         .set('kbn-xsrf', 'true')
         .expect(200);
     });

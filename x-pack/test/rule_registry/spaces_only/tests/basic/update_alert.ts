@@ -30,7 +30,6 @@ export default ({ getService }: FtrProviderContext) => {
       body: indexNames,
     }: { body: { index_name: string[] | undefined } } = await supertestWithoutAuth
       .get(`${getSpaceUrlPrefix(SPACE1)}${ALERTS_INDEX_URL}`)
-      .auth(user.username, user.password)
       .set('kbn-xsrf', 'true')
       .expect(200);
     const observabilityIndex = indexNames?.index_name?.find(
@@ -44,7 +43,6 @@ export default ({ getService }: FtrProviderContext) => {
       body: indexNames,
     }: { body: { index_name: string[] | undefined } } = await supertestWithoutAuth
       .get(`${getSpaceUrlPrefix(SPACE1)}${ALERTS_INDEX_URL}`)
-      .auth(user.username, user.password)
       .set('kbn-xsrf', 'true')
       .expect(200);
     const securitySolution = indexNames?.index_name?.find(
@@ -70,7 +68,6 @@ export default ({ getService }: FtrProviderContext) => {
     it('should return a 404 when superuser accesses not-existent alert', async () => {
       await supertestWithoutAuth
         .post(`${getSpaceUrlPrefix()}${TEST_URL}`)
-        .auth(superUser.username, superUser.password)
         .set('kbn-xsrf', 'true')
         .send({
           ids: ['this id does not exist'],
@@ -84,7 +81,6 @@ export default ({ getService }: FtrProviderContext) => {
     it('should return a 404 when superuser accesses not-existent alerts as data index', async () => {
       await supertestWithoutAuth
         .post(`${getSpaceUrlPrefix()}${TEST_URL}`)
-        .auth(superUser.username, superUser.password)
         .set('kbn-xsrf', 'true')
         .send({
           ids: [APM_ALERT_ID],
@@ -99,7 +95,6 @@ export default ({ getService }: FtrProviderContext) => {
       await esArchiver.load('x-pack/test/functional/es_archives/rule_registry/alerts'); // since this is a success case, reload the test data immediately beforehand
       await supertestWithoutAuth
         .post(`${getSpaceUrlPrefix(SPACE2)}${TEST_URL}`)
-        .auth(superUser.username, superUser.password)
         .set('kbn-xsrf', 'true')
         .send({
           ids: [APM_ALERT_ID],
