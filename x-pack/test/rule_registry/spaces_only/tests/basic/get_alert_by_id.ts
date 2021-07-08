@@ -7,42 +7,10 @@
 
 import expect from '@kbn/expect';
 
-import {
-  superUser,
-  globalRead,
-  obsOnly,
-  obsOnlyRead,
-  obsSec,
-  obsSecRead,
-  secOnly,
-  secOnlyRead,
-  secOnlySpace2,
-  secOnlyReadSpace2,
-  obsSecAllSpace2,
-  obsSecReadSpace2,
-  obsOnlySpace2,
-  obsOnlyReadSpace2,
-  obsOnlySpacesAll,
-  obsSecSpacesAll,
-  secOnlySpacesAll,
-  noKibanaPrivileges,
-} from '../../../common/lib/authentication/users';
+import { superUser } from '../../../common/lib/authentication/users';
 import type { User } from '../../../common/lib/authentication/types';
 import { FtrProviderContext } from '../../../common/ftr_provider_context';
 import { getSpaceUrlPrefix } from '../../../common/lib/authentication/spaces';
-
-interface TestCase {
-  /** The space where the alert exists */
-  space: string;
-  /** The ID of the alert */
-  alertId: string;
-  /** The index of the alert */
-  index: string;
-  /** Authorized users */
-  authorizedUsers: User[];
-  /** Unauthorized users */
-  unauthorizedUsers: User[];
-}
 
 // eslint-disable-next-line import/no-default-export
 export default ({ getService }: FtrProviderContext) => {
@@ -55,7 +23,6 @@ export default ({ getService }: FtrProviderContext) => {
   const SPACE2 = 'space2';
   const APM_ALERT_ID = 'NoxgpHkBqbdrfX07MqXV';
   const APM_ALERT_INDEX = '.alerts-observability-apm';
-  const SECURITY_SOLUTION_ALERT_ID = '020202';
   const SECURITY_SOLUTION_ALERT_INDEX = '.alerts-security-solution';
 
   const getAPMIndexName = async (user: User) => {
