@@ -12,5 +12,5 @@ export default createTestConfig('spaces_only', {
   license: 'trial',
   disabledPlugins: ['security'],
   ssl: false,
-  testFiles: [require.resolve('./tests/basic')],
+  testFiles: [require.resolve('./tests/trial')],
 });
