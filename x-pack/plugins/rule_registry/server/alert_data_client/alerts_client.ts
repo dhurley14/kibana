@@ -66,7 +66,7 @@ export interface BulkUpdateOptions<Params extends AlertTypeParams> {
 }
 
 interface GetAlertParams {
-  id?: string;
+  id: string;
   index?: string;
   query?: object;
 }
@@ -120,7 +120,11 @@ export class AlertsClient {
         index: index ?? '.alerts-*',
         ignore_unavailable: true,
         body: {
-          query: { term: { _id: id! } },
+          query: {
+            bool: {
+              filter: [{ term: { _id: id } }, { term: { [SPACE_IDS]: alertSpaceId } }],
+            },
+          },
         },
         seq_no_primary_term: true,
       });
