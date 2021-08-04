@@ -5,7 +5,7 @@
  * 2.0.
  */
 
-import { ALERT_OWNER, ALERT_STATUS, SPACE_IDS } from '@kbn/rule-data-utils';
+import { ALERT_OWNER, ALERT_STATUS, SPACE_IDS, RULE_ID } from '@kbn/rule-data-utils';
 import { AlertsClient, ConstructorOptions } from '../alerts_client';
 import { loggingSystemMock } from '../../../../../../src/core/server/mocks';
 // eslint-disable-next-line @kbn/eslint/no-restricted-paths
@@ -26,9 +26,11 @@ const alertsClientParams: jest.Mocked<ConstructorOptions> = {
   auditLogger,
 };
 
+const DEFAULT_SPACE = 'test_default_space_id';
+
 beforeEach(() => {
   jest.resetAllMocks();
-  alertingAuthMock.getSpaceId.mockImplementation(() => 'test_default_space_id');
+  alertingAuthMock.getSpaceId.mockImplementation(() => DEFAULT_SPACE);
   // @ts-expect-error
   alertingAuthMock.getAuthorizationFilter.mockImplementation(async () =>
     Promise.resolve({ filter: [] })
@@ -59,11 +61,11 @@ describe('update()', () => {
                 _index: '.alerts-observability-apm',
                 _id: 'NoxgpHkBqbdrfX07MqXV',
                 _source: {
-                  'rule.id': 'apm.error_rate',
+                  [RULE_ID]: 'apm.error_rate',
                   message: 'hello world 1',
                   [ALERT_OWNER]: 'apm',
                   [ALERT_STATUS]: 'open',
-                  [SPACE_IDS]: ['test_default_space_id'],
+                  [SPACE_IDS]: [DEFAULT_SPACE],
                 },
               },
             ],
@@ -149,7 +151,7 @@ describe('update()', () => {
                   message: 'hello world 1',
                   [ALERT_OWNER]: 'apm',
                   [ALERT_STATUS]: 'open',
-                  [SPACE_IDS]: ['test_default_space_id'],
+                  [SPACE_IDS]: [DEFAULT_SPACE],
                 },
               },
             ],
@@ -205,20 +207,6 @@ describe('update()', () => {
             "Unable to retrieve alert details for alert with id of \\"NoxgpHkBqbdrfX07MqXV\\" or with query \\"null\\" and operation update 
             Error: Error: something went wrong on update"
           `);
-    expect(auditLogger.log).toHaveBeenCalledWith({
-      error: {
-        code: 'Error',
-        message:
-          'Unable to retrieve alert details for alert with id of "NoxgpHkBqbdrfX07MqXV" or with query "null" and operation update \nError: Error: something went wrong on update',
-      },
-      event: {
-        action: 'alert_update',
-        category: ['database'],
-        outcome: 'failure',
-        type: ['change'],
-      },
-      message: 'Failed attempt to update alert [id=NoxgpHkBqbdrfX07MqXV]',
-    });
   });
 
   test(`throws an error if ES client update fails`, async () => {
@@ -249,7 +237,7 @@ describe('update()', () => {
                   message: 'hello world 1',
                   [ALERT_OWNER]: 'apm',
                   [ALERT_STATUS]: 'open',
-                  [SPACE_IDS]: ['test_default_space_id'],
+                  [SPACE_IDS]: [DEFAULT_SPACE],
                 },
               },
             ],
@@ -268,14 +256,14 @@ describe('update()', () => {
       })
     ).rejects.toThrowErrorMatchingInlineSnapshot(`"something went wrong on update"`);
     expect(auditLogger.log).toHaveBeenCalledWith({
-      error: { code: 'Error', message: 'something went wrong on update' },
+      error: undefined,
       event: {
         action: 'alert_update',
         category: ['database'],
-        outcome: 'failure',
+        outcome: 'unknown',
         type: ['change'],
       },
-      message: 'Failed attempt to update alert [id=NoxgpHkBqbdrfX07MqXV]',
+      message: 'User is updating alert [id=NoxgpHkBqbdrfX07MqXV]',
     });
   });
 
@@ -309,7 +297,7 @@ describe('update()', () => {
                     message: 'hello world 1',
                     [ALERT_OWNER]: 'apm',
                     [ALERT_STATUS]: 'open',
-                    [SPACE_IDS]: ['test_default_space_id'],
+                    [SPACE_IDS]: [DEFAULT_SPACE],
                   },
                 },
               ],

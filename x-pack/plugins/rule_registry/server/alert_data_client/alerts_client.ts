@@ -25,7 +25,7 @@ import {
   AlertingAuthorizationEntity,
 } from '../../../alerting/server';
 import { Logger, ElasticsearchClient } from '../../../../../src/core/server';
-import { alertAuditEvent, AlertAuditAction, operationAlertAuditActionMap } from './audit_events';
+import { alertAuditEvent, operationAlertAuditActionMap } from './audit_events';
 import { AuditLogger } from '../../../security/server';
 import {
   ALERT_STATUS,
@@ -146,9 +146,6 @@ export class AlertsClient {
       }
 
       const result = await this.esClient.search<ParsedTechnicalFields>({
-        // Context: Originally thought of always just searching `.alerts-*` but that could
-        // result in a big performance hit. If the client already knows which index the alert
-        // belongs to, passing in the index will speed things up
         index: index ?? '.alerts-*',
         ignore_unavailable: true,
         // @ts-expect-error
@@ -194,7 +191,7 @@ export class AlertsClient {
     ids: string[];
     status: STATUS_VALUES;
     indexName: string;
-    operation: ReadOperations | WriteOperations;
+    operation: ReadOperations.Find | ReadOperations.Get | WriteOperations.Update;
   }) {
     try {
       const mgetRes = await this.esClient.mget<ParsedTechnicalFields>({
@@ -218,7 +215,27 @@ export class AlertsClient {
             });
           }
         })
-      );
+      ).catch((error) => {
+        for (const id of ids) {
+          this.auditLogger?.log(
+            alertAuditEvent({
+              action: operationAlertAuditActionMap[operation],
+              id,
+              error,
+            })
+          );
+        }
+        throw error;
+      });
+      for (const id of ids) {
+        this.auditLogger?.log(
+          alertAuditEvent({
+            action: operationAlertAuditActionMap[operation],
+            id,
+            ...(operation === WriteOperations.Update ? { outcome: 'unknown' } : { operation }),
+          })
+        );
+      }
 
       const bulkUpdateRequest = mgetRes.body.docs.flatMap((item) => [
         {
@@ -291,7 +308,7 @@ export class AlertsClient {
   }) {
     let lastSortIds;
     let hasSortIds = true;
-    const alertSpaceId = await this.spaceId;
+    const alertSpaceId = this.spaceId;
     if (alertSpaceId == null) {
       this.logger.error('Failed to acquire spaceId from authorization client');
       return;
@@ -364,13 +381,7 @@ export class AlertsClient {
       // move away from pulling data from _source in the future
       return alert.hits.hits[0]._source;
     } catch (error) {
-      this.auditLogger?.log(
-        alertAuditEvent({
-          action: AlertAuditAction.GET,
-          id,
-          error,
-        })
-      );
+      this.logger.error(`get threw an error: ${error}`);
       throw error;
     }
   }
@@ -413,13 +424,7 @@ export class AlertsClient {
         _version: encodeHitVersion(response),
       };
     } catch (error) {
-      this.auditLogger?.log(
-        alertAuditEvent({
-          action: AlertAuditAction.UPDATE,
-          id,
-          error,
-        })
-      );
+      this.logger.error(`update threw an error: ${error}`);
       throw error;
     }
   }
@@ -430,8 +435,8 @@ export class AlertsClient {
     index,
     status,
   }: BulkUpdateOptions<Params>) {
+    // rejects at the route level if more than 1000 id's are passed in
     if (ids != null) {
-      // blow up
       return this.fetchAlertAuditOperate({
         ids,
         status,
@@ -440,8 +445,7 @@ export class AlertsClient {
       });
     } else if (query != null) {
       try {
-        // execute either a query with ids or
-        // query to be executed in updateByQuery
+        // execute search after with query + authorization filter
         // audit results of that query
         const fetchAndAuditResponse = await this.queryAndAuditAllAlerts({
           query,
@@ -453,6 +457,8 @@ export class AlertsClient {
           throw Boom.unauthorized('Failed to audit alerts');
         }
 
+        // executes updateByQuery with query + authorization filter
+        // used in the queryAndAuditAllAlerts function
         const result = await this.esClient.updateByQuery({
           index,
           conflicts: 'proceed',
@@ -473,7 +479,7 @@ export class AlertsClient {
         });
         return result;
       } catch (err) {
-        this.logger.error(`UPDATE ERROR: ${err}`);
+        this.logger.error(`bulkUpdate threw an error: ${err}`);
         throw err;
       }
     } else {

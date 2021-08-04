@@ -193,15 +193,6 @@ describe('get()', () => {
             "Unable to retrieve alert details for alert with id of \\"NoxgpHkBqbdrfX07MqXV\\" or with query \\"null\\" and operation get 
             Error: Error: something went wrong"
           `);
-    expect(auditLogger.log).toHaveBeenCalledWith({
-      error: {
-        code: 'Error',
-        message:
-          'Unable to retrieve alert details for alert with id of "NoxgpHkBqbdrfX07MqXV" or with query "null" and operation get \nError: Error: something went wrong',
-      },
-      event: { action: 'alert_get', category: ['database'], outcome: 'failure', type: ['access'] },
-      message: 'Failed attempt to access alert [id=NoxgpHkBqbdrfX07MqXV]',
-    });
   });
 
   describe('authorization', () => {
