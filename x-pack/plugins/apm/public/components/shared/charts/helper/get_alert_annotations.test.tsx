@@ -16,6 +16,7 @@ import {
   ALERT_START,
   ALERT_STATUS,
   ALERT_UUID,
+  SPACE_IDS,
 } from '@kbn/rule-data-utils';
 import { ValuesType } from 'utility-types';
 import { EuiTheme } from '../../../../../../../../src/plugins/kibana_react/common';
@@ -39,6 +40,7 @@ const alert: Alert = {
   'rule.name': ['Latency threshold | frontend-rum'],
   [ALERT_DURATION]: [62879000],
   [ALERT_STATUS]: ['open'],
+  [SPACE_IDS]: ['myfakespaceid'],
   tags: ['apm', 'service.name:frontend-rum'],
   'transaction.type': ['page-load'],
   [ALERT_PRODUCER]: ['apm'],
