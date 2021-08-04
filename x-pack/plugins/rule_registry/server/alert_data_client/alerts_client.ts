@@ -102,6 +102,65 @@ export class AlertsClient {
     this.spaceId = this.authorization.getSpaceId();
   }
 
+  private async ensureAllAuthorized(
+    items: Array<{
+      _id: string;
+      // this is typed kind of crazy to fit the output of es api response to this
+      _source?:
+        | { [RULE_ID]?: string | null | undefined; [ALERT_OWNER]?: string | null | undefined }
+        | null
+        | undefined;
+    }>,
+    operation: ReadOperations.Find | ReadOperations.Get | WriteOperations.Update
+  ) {
+    const { hitIds, ownersAndRuleTypeIds } = items.reduce(
+      (acc, hit) => ({
+        hitIds: [hit._id, ...acc.hitIds],
+        ownersAndRuleTypeIds: [
+          {
+            [RULE_ID]: hit?._source?.[RULE_ID],
+            [ALERT_OWNER]: hit?._source?.[ALERT_OWNER],
+          },
+        ],
+      }),
+      { hitIds: [], ownersAndRuleTypeIds: [] } as {
+        hitIds: string[];
+        ownersAndRuleTypeIds: Array<{
+          [RULE_ID]: string | null | undefined;
+          [ALERT_OWNER]: string | null | undefined;
+        }>;
+      }
+    );
+
+    const assertString = (hit: unknown): hit is string => hit !== null && hit !== undefined;
+
+    return Promise.all(
+      ownersAndRuleTypeIds.map((hit) => {
+        const alertOwner = hit?.[ALERT_OWNER];
+        const ruleId = hit?.[RULE_ID];
+        if (hit != null && assertString(alertOwner) && assertString(ruleId)) {
+          return this.authorization.ensureAuthorized({
+            ruleTypeId: ruleId,
+            consumer: alertOwner,
+            operation,
+            entity: AlertingAuthorizationEntity.Alert,
+          });
+        }
+      })
+    ).catch((error) => {
+      for (const hitId of hitIds) {
+        this.auditLogger?.log(
+          alertAuditEvent({
+            action: operationAlertAuditActionMap[operation],
+            id: hitId,
+            error,
+          })
+        );
+      }
+      throw error;
+    });
+  }
+
   /**
    * This will be used as a part of the "find" api
    * In the future we will add an "aggs" param
@@ -159,6 +218,8 @@ export class AlertsClient {
         throw Boom.badData(errorMessage);
       }
 
+      await this.ensureAllAuthorized(result.body.hits.hits, operation);
+
       result?.body.hits.hits.map((item) =>
         this.auditLogger?.log(
           alertAuditEvent({
@@ -200,33 +261,9 @@ export class AlertsClient {
           ids,
         },
       });
-      await Promise.all(
-        mgetRes.body.docs.map((item) => {
-          if (
-            item._source != null &&
-            item._source[RULE_ID] != null &&
-            item._source[ALERT_OWNER] != null
-          ) {
-            return this.authorization.ensureAuthorized({
-              ruleTypeId: item._source[RULE_ID],
-              consumer: item._source[ALERT_OWNER],
-              operation,
-              entity: AlertingAuthorizationEntity.Alert,
-            });
-          }
-        })
-      ).catch((error) => {
-        for (const id of ids) {
-          this.auditLogger?.log(
-            alertAuditEvent({
-              action: operationAlertAuditActionMap[operation],
-              id,
-              error,
-            })
-          );
-        }
-        throw error;
-      });
+
+      await this.ensureAllAuthorized(mgetRes.body.docs, operation);
+
       for (const id of ids) {
         this.auditLogger?.log(
           alertAuditEvent({

@@ -96,6 +96,55 @@ describe('bulkUpdate()', () => {
         error: undefined,
       });
     });
+
+    test('audit error access if user is unauthorized for given alert', async () => {
+      const fakeAlertId = 'myfakeid1';
+      const indexName = '.alerts-observability-apm.alerts';
+      const alertsClient = new AlertsClient(alertsClientParams);
+      esClientMock.mget.mockResolvedValueOnce(
+        elasticsearchClientMock.createApiResponse({
+          body: {
+            docs: [
+              {
+                _id: fakeAlertId,
+                _index: indexName,
+                _source: {
+                  [RULE_ID]: 'apm.error_rate',
+                  [ALERT_OWNER]: 'apm',
+                  [ALERT_STATUS]: 'open',
+                  [SPACE_IDS]: [DEFAULT_SPACE],
+                },
+              },
+            ],
+          },
+        })
+      );
+      alertingAuthMock.ensureAuthorized.mockRejectedValueOnce(
+        new Error('bulk update by ids test error')
+      );
+      await expect(
+        alertsClient.bulkUpdate({
+          ids: [fakeAlertId],
+          query: undefined,
+          index: indexName,
+          status: 'closed',
+        })
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`"bulk update by ids test error"`);
+
+      expect(auditLogger.log).toHaveBeenLastCalledWith({
+        message: `Failed attempt to update alert [id=${fakeAlertId}]`,
+        event: {
+          action: 'alert_update',
+          category: ['database'],
+          outcome: 'failure',
+          type: ['change'],
+        },
+        error: {
+          code: 'Error',
+          message: 'bulk update by ids test error',
+        },
+      });
+    });
     // test('throws an error if ES client fetch fails', async () => {});
     // test('throws an error if ES client bulk update fails', async () => {});
     // test('throws an error if ES client updateByQuery fails', async () => {});
@@ -159,6 +208,71 @@ describe('bulkUpdate()', () => {
           type: ['change'],
         },
         error: undefined,
+      });
+    });
+
+    test('audit error access if user is unauthorized for given alert', async () => {
+      const fakeAlertId = 'myfakeid1';
+      const indexName = '.alerts-observability-apm.alerts';
+      const alertsClient = new AlertsClient(alertsClientParams);
+      esClientMock.search.mockResolvedValueOnce(
+        elasticsearchClientMock.createApiResponse({
+          body: {
+            took: 5,
+            timed_out: false,
+            _shards: {
+              total: 1,
+              successful: 1,
+              failed: 0,
+              skipped: 0,
+            },
+            hits: {
+              total: 1,
+              max_score: 999,
+              hits: [
+                {
+                  _id: fakeAlertId,
+                  _index: '.alerts-observability-apm.alerts',
+                  _source: {
+                    [RULE_ID]: 'apm.error_rate',
+                    [ALERT_OWNER]: 'apm',
+                    [ALERT_STATUS]: 'open',
+                    [SPACE_IDS]: [DEFAULT_SPACE],
+                  },
+                },
+              ],
+            },
+          },
+        })
+      );
+      alertingAuthMock.ensureAuthorized.mockRejectedValueOnce(
+        new Error('bulk update by query test error')
+      );
+      await expect(
+        alertsClient.bulkUpdate({
+          ids: undefined,
+          query: `${ALERT_STATUS}: open`,
+          index: indexName,
+          status: 'closed',
+        })
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+              "queryAndAuditAllAlerts threw an error: Unable to retrieve alerts with query \\"kibana.alert.status: open\\" and operation update 
+               Error: Unable to retrieve alert details for alert with id of \\"null\\" or with query \\"kibana.alert.status: open\\" and operation update 
+              Error: Error: bulk update by query test error"
+            `);
+
+      expect(auditLogger.log).toHaveBeenLastCalledWith({
+        message: `Failed attempt to update alert [id=${fakeAlertId}]`,
+        event: {
+          action: 'alert_update',
+          category: ['database'],
+          outcome: 'failure',
+          type: ['change'],
+        },
+        error: {
+          code: 'Error',
+          message: 'bulk update by query test error',
+        },
       });
     });
     // test('throws an error if ES client fetch fails', async () => {});
