@@ -23,6 +23,7 @@ import type { Filter } from '@kbn/es-query';
 import { ActionVariables } from '@kbn/triggers-actions-ui-plugin/public';
 import { normalizeThresholdField } from '../../../../../common/detection_engine/utils';
 import { RuleAlertAction } from '../../../../../common/detection_engine/types';
+import { assertUnreachable } from '../../../../../common/utility_types';
 import { transformRuleToAlertAction } from '../../../../../common/detection_engine/transform_actions';
 import { Rule } from '../../../containers/detection_engine/rules';
 import {
@@ -349,6 +350,7 @@ const getRuleSpecificRuleParamKeys = (ruleType: Type) => {
     case 'eql':
       return queryRuleParams;
   }
+  assertUnreachable(ruleType);
 };
 
 export const getActionMessageRuleParams = (ruleType: Type): string[] => {

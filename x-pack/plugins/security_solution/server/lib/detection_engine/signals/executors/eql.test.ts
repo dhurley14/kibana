@@ -49,6 +49,7 @@ describe('eql_executor', () => {
       const exceptionItems = [getExceptionListItemSchemaMock({ entries: [getEntryListMock()] })];
       const response = await eqlExecutor({
         inputIndex: DEFAULT_INDEX_PATTERN,
+        runtimeMappings: {},
         completeRule: eqlCompleteRule,
         tuple,
         exceptionItems,

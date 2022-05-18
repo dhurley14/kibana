@@ -6,11 +6,15 @@
  */
 
 import { alertsMock, RuleExecutorServicesMock } from '@kbn/alerting-plugin/server/mocks';
+import type { MockedLogger } from '@kbn/logging-mocks';
+import { loggerMock } from '@kbn/logging-mocks';
+
 import { DEFAULT_INDEX_KEY, DEFAULT_INDEX_PATTERN } from '../../../../common/constants';
 import { getInputIndex, GetInputIndex } from './get_input_output_index';
 
 describe('get_input_output_index', () => {
   let servicesMock: RuleExecutorServicesMock;
+  const logger: MockedLogger = loggerMock.create();
 
   beforeAll(() => {
     jest.resetAllMocks();
@@ -32,6 +36,8 @@ describe('get_input_output_index', () => {
       services: servicesMock,
       version: '8.0.0',
       index: ['test-input-index-1'],
+      ruleId: 'rule_1',
+      logger,
     };
   });
 
@@ -160,7 +166,9 @@ describe('get_input_output_index', () => {
       const inputIndex = await getInputIndex({
         services: servicesMock,
         version: '8.0.0',
-        index: [],
+        index: ['test-*'],
+        ruleId: 'rule_1',
+        logger,
         dataViewId: '12345',
       });
       expect(inputIndex).toEqual({
@@ -179,6 +187,8 @@ describe('get_input_output_index', () => {
           version: '8.0.0',
           index: [],
           dataViewId: '12345',
+          ruleId: 'rule_1',
+          logger,
         })
       ).rejects.toThrowErrorMatchingInlineSnapshot(
         `"Saved object [index-pattern/12345] not found"`

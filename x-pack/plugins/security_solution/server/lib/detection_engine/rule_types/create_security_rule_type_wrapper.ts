@@ -154,6 +154,8 @@ export const createSecurityRuleTypeWrapper: CreateSecurityRuleTypeWrapper =
                 index: params.index,
                 services,
                 version,
+                logger,
+                ruleId: params.ruleId,
                 dataViewId: params.dataViewId,
               });
 
