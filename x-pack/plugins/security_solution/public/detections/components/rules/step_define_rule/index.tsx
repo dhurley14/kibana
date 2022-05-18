@@ -7,21 +7,25 @@
 
 import {
   EuiButtonEmpty,
-  EuiAccordion,
   EuiFlexGroup,
   EuiFlexItem,
   EuiFormRow,
   EuiSpacer,
-  EuiRadioGroup,
+  EuiButtonGroup,
+  EuiButtonGroupOptionProps,
+  EuiText,
 } from '@elastic/eui';
 import React, { FC, memo, useCallback, useState, useEffect, useMemo } from 'react';
 
 import styled from 'styled-components';
 import { isEqual } from 'lodash';
+import { i18n as i18nCore } from '@kbn/i18n';
 
 import { DataViewBase, DataViewFieldBase } from '@kbn/es-query';
+import { FormattedMessage } from '@kbn/i18n-react';
 import {
   DEFAULT_INDEX_KEY,
+  DEFAULT_USE_RULE_INDEX_PATTERNS,
   DEFAULT_THREAT_INDEX_KEY,
   DEFAULT_THREAT_MATCH_QUERY,
 } from '../../../../../common/constants';
@@ -68,6 +72,10 @@ import { ThreatMatchInput } from '../threatmatch_input';
 import { BrowserField, BrowserFields, useFetchIndex } from '../../../../common/containers/source';
 import { RulePreview } from '../rule_preview';
 import { getIsRulePreviewDisabled } from '../rule_preview/helpers';
+import { DocLink } from '../../../../common/components/links_to_docs/doc_link';
+
+const DATA_VIEW_SELECT_ID = 'dataView';
+const INDEX_PATTERN_SELECT_ID = 'indexPatterns';
 
 const CommonUseField = getUseField({ component: Field });
 
@@ -77,6 +85,7 @@ interface StepDefineRuleProps extends RuleStepProps {
 
 export const stepDefineDefaultValue: DefineStepRule = {
   anomalyThreshold: 50,
+  dataViewId: null,
   index: [],
   machineLearningJobId: [],
   ruleType: 'query',
@@ -148,43 +157,26 @@ const StepDefineRuleComponent: FC<StepDefineRuleProps> = ({
   setForm,
   kibanaDataViews,
 }) => {
-  const dataViewRadioButtonId = 'dataView';
-
-  // const {
-  //   // browserFields,
-  //   // docValueFields,
-  //   indexPattern: dataViewIndexPattern,
-  //   // selectedPatterns,
-  //   loading: isLoadingDataViewIndexPattern,
-  // } = useSourcererDataView(sourcererPathName);
-  // // console.log('SELECTED PATTERNS', selectedPatterns);
-  // console.log('INDEX PATTERN', indexPattern);
-  // console.log('RUNTIME MAPPINGS', JSON.stringify(runtimeMappings, null, 2));
-  // // console.log('DATA VIEW ID', selectedDataViewId);
-  // const sourcererScopeSelector = useMemo(() => sourcererSelectors.getSourcererScopeSelector(), []);
-  // const { kibanaDataViews } = useDeepEqualSelector((state) =>
-  //   sourcererScopeSelector(state, sourcererPathName)
-  // );
-
-  // console.log('ALL OPTIONS', kibanaDataViews);
   const mlCapabilities = useMlCapabilities();
   const [openTimelineSearch, setOpenTimelineSearch] = useState(false);
   const [indexModified, setIndexModified] = useState(false);
   const [threatIndexModified, setThreatIndexModified] = useState(false);
 
   const [indicesConfig] = useUiSetting$<string[]>(DEFAULT_INDEX_KEY);
+  const [strictlyUseRuleIndexPatterns] = useUiSetting$<boolean>(DEFAULT_USE_RULE_INDEX_PATTERNS);
   const [threatIndicesConfig] = useUiSetting$<string[]>(DEFAULT_THREAT_INDEX_KEY);
   const initialState = defaultValues ?? {
     ...stepDefineDefaultValue,
     index: indicesConfig,
     threatIndex: threatIndicesConfig,
   };
-  // console.error('initial state', JSON.stringify(initialState, null, 2));
+
   const { form } = useForm<DefineStepRule>({
     defaultValue: initialState,
     options: { stripEmptyFields: false },
     schema,
   });
+
   const { getFields, getFormData, reset, submit } = form;
   const [
     {
@@ -221,6 +213,7 @@ const StepDefineRuleComponent: FC<StepDefineRuleProps> = ({
   const [isQueryBarValid, setIsQueryBarValid] = useState(false);
   const [isThreatQueryBarValid, setIsThreatQueryBarValid] = useState(false);
   const index = formIndex || initialState.index;
+  const dataView = formDataViewId || initialState.dataViewId;
   const threatIndex = formThreatIndex || initialState.threatIndex;
   const machineLearningJobId = formMachineLearningJobId ?? initialState.machineLearningJobId;
   const anomalyThreshold = formAnomalyThreshold ?? initialState.anomalyThreshold;
@@ -231,20 +224,19 @@ const StepDefineRuleComponent: FC<StepDefineRuleProps> = ({
   // otherwise use the dataview browserfields
   const [initIsIndexPatternLoading, { browserFields, indexPatterns: initIndexPattern }] =
     useFetchIndex(index, false);
-
   const [indexPattern, setIndexPattern] = useState<DataViewBase>(initIndexPattern);
   const [isIndexPatternLoading, setIsIndexPatternLoading] = useState(initIsIndexPatternLoading);
-  const [radioIdSelected, setRadioIdSelected] = useState(
-    isUpdateView && (formDataViewId == null || formDataViewId === '')
-      ? 'indexPatterns'
-      : dataViewRadioButtonId
+  const [dataSourceRadioIdSelected, setDataSourceRadioIdSelected] = useState(
+    strictlyUseRuleIndexPatterns || (isUpdateView && (dataView == null || dataView === ''))
+      ? INDEX_PATTERN_SELECT_ID
+      : DATA_VIEW_SELECT_ID
   );
 
   useEffect(() => {
-    if (radioIdSelected === 'indexPatterns') {
+    if (dataSourceRadioIdSelected === INDEX_PATTERN_SELECT_ID) {
       setIndexPattern(initIndexPattern);
     }
-  }, [initIndexPattern, radioIdSelected]);
+  }, [initIndexPattern, dataSourceRadioIdSelected]);
 
   useEffect(() => {
     // adding the && !isUpdateView to ensure we
@@ -259,31 +251,11 @@ const StepDefineRuleComponent: FC<StepDefineRuleProps> = ({
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [radioIdSelected]);
+  }, [dataSourceRadioIdSelected]);
 
-  // useEffect(() => {
-  //   indexFieldsSearch(index);
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, []);
-
-  // useEffect(() => {
-  //   if (formDataViewId != null && formDataViewId !== '') {
-  //     console.error('SELECTED DATA VIEW');
-  //     fetchDataViewIndices(formDataViewId);
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [formDataViewId]);
-
-  // useEffect(() => {
-  //   if (radioIdSelected === 'indexPatterns' && index != null) {
-  //     // console.error('SELECTED INDEX', index);
-  //     indexFieldsSearch(index);
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [radioIdSelected, index]);
-
-  const onChangeRadioButton = (optionId: string) => {
-    setRadioIdSelected(optionId);
+  // Callback for when user toggles between Data Views and Index Patterns
+  const onChangeDataSource = (optionId: string) => {
+    setDataSourceRadioIdSelected(optionId);
   };
 
   const [aggFields, setAggregatableFields] = useState<DataViewFieldBase[]>([]);
@@ -348,8 +320,6 @@ const StepDefineRuleComponent: FC<StepDefineRuleProps> = ({
       onSubmit();
     }
   }, [onSubmit]);
-
-  // console.error('FORM DATA', JSON.stringify(getFormData(), null, 2));
 
   const getData = useCallback(async () => {
     const result = await submit();
@@ -429,6 +399,34 @@ const StepDefineRuleComponent: FC<StepDefineRuleProps> = ({
       threatIndexPatternsLoading,
     ]
   );
+
+  const dataViewIndexPatternToggleButtonOptions: EuiButtonGroupOptionProps[] = useMemo(
+    () => [
+      {
+        id: DATA_VIEW_SELECT_ID,
+        label: i18nCore.translate('xpack.securitySolution.ruleDefine.indexTypeSelect.dataView', {
+          defaultMessage: 'Data View',
+        }),
+        iconType:
+          dataSourceRadioIdSelected === DATA_VIEW_SELECT_ID ? 'checkInCircleFilled' : 'empty',
+        'data-test-subj': `rule-index-toggle-${DATA_VIEW_SELECT_ID}`,
+      },
+      {
+        id: INDEX_PATTERN_SELECT_ID,
+        label: i18nCore.translate(
+          'xpack.securitySolution.ruleDefine.indexTypeSelect.indexPattern',
+          {
+            defaultMessage: 'Index Patterns',
+          }
+        ),
+        iconType:
+          dataSourceRadioIdSelected === INDEX_PATTERN_SELECT_ID ? 'checkInCircleFilled' : 'empty',
+        'data-test-subj': 'rule-index-toggle-index-pattern',
+      },
+    ],
+    [dataSourceRadioIdSelected]
+  );
+
   const DataViewSelectorMemo = useMemo(() => {
     return (
       <UseField
@@ -437,46 +435,88 @@ const StepDefineRuleComponent: FC<StepDefineRuleProps> = ({
         component={DataViewSelector}
         componentProps={{
           kibanaDataViews,
-          dataViewId: formDataViewId,
           setIndexPattern,
           setIsIndexPatternLoading,
+          strictUseIndexPatternsSelected: strictlyUseRuleIndexPatterns,
         }}
       />
     );
-  }, [formDataViewId, kibanaDataViews]);
+  }, [kibanaDataViews, strictlyUseRuleIndexPatterns]);
   const DataSource = useMemo(() => {
-    if (radioIdSelected === dataViewRadioButtonId) {
-      return DataViewSelectorMemo;
-    } else {
-      return (
-        <EuiAccordion
-          data-test-subj="detectionEngineStepDefineRuleIndexPatternsAccordion"
-          id="indexPatternsAccoridion"
-          buttonContent={i18n.INDEX_PATTERNS}
-        >
-          <CommonUseField
-            path="index"
-            config={{
-              ...schema.index,
-              labelAppend: indexModified ? (
-                <MyLabelButton onClick={handleResetIndices} iconType="refresh">
-                  {i18n.RESET_DEFAULT_INDEX}
-                </MyLabelButton>
-              ) : null,
-            }}
-            componentProps={{
-              idAria: 'detectionEngineStepDefineRuleIndices',
-              'data-test-subj': 'detectionEngineStepDefineRuleIndices',
-              euiFieldProps: {
-                fullWidth: true,
-                placeholder: '',
-              },
-            }}
-          />
-        </EuiAccordion>
-      );
-    }
-  }, [radioIdSelected, DataViewSelectorMemo, indexModified, handleResetIndices]);
+    return (
+      <RuleTypeEuiFormRow $isVisible={true} fullWidth>
+        <EuiFlexGroup direction="column">
+          <EuiFlexItem>
+            <EuiFlexGroup direction="row" alignItems="stretch">
+              <EuiFlexItem grow={2}>
+                <EuiText size="s">
+                  <FormattedMessage
+                    id="telemetry.dataManagementDisclaimerPrivacy"
+                    defaultMessage="Use Kibana "
+                  />
+                  <DocLink guidePath="kibana" docPath="data-views.html" linkText="Data Views" />
+                  <FormattedMessage
+                    id="telemetry.dataManagementDisclaimerPrivacy"
+                    defaultMessage=" or specify individual "
+                  />
+                  <DocLink
+                    guidePath="kibana"
+                    docPath="index-patterns-api-create.html"
+                    linkText="index patterns"
+                  />
+                  <FormattedMessage
+                    id="telemetry.dataManagementDisclaimerPrivacy"
+                    defaultMessage=" as your rule's data source to be searched."
+                  />
+                </EuiText>
+              </EuiFlexItem>
+              <EuiFlexItem grow={1}>
+                <EuiButtonGroup
+                  legend="Rule index pattern or data view selector"
+                  idSelected={dataSourceRadioIdSelected}
+                  onChange={onChangeDataSource}
+                  options={dataViewIndexPatternToggleButtonOptions}
+                  color="primary"
+                />
+              </EuiFlexItem>
+            </EuiFlexGroup>
+          </EuiFlexItem>
+
+          <EuiFlexItem>
+            {dataSourceRadioIdSelected === DATA_VIEW_SELECT_ID ? (
+              DataViewSelectorMemo
+            ) : (
+              <CommonUseField
+                path="index"
+                config={{
+                  ...schema.index,
+                  labelAppend: indexModified ? (
+                    <MyLabelButton onClick={handleResetIndices} iconType="refresh">
+                      {i18n.RESET_DEFAULT_INDEX}
+                    </MyLabelButton>
+                  ) : null,
+                }}
+                componentProps={{
+                  idAria: 'detectionEngineStepDefineRuleIndices',
+                  'data-test-subj': 'detectionEngineStepDefineRuleIndices',
+                  euiFieldProps: {
+                    fullWidth: true,
+                    placeholder: '',
+                  },
+                }}
+              />
+            )}
+          </EuiFlexItem>
+        </EuiFlexGroup>
+      </RuleTypeEuiFormRow>
+    );
+  }, [
+    dataSourceRadioIdSelected,
+    dataViewIndexPatternToggleButtonOptions,
+    DataViewSelectorMemo,
+    indexModified,
+    handleResetIndices,
+  ]);
 
   const QueryBarMemo = useMemo(
     () => (
@@ -546,47 +586,6 @@ const StepDefineRuleComponent: FC<StepDefineRuleProps> = ({
           />
           <RuleTypeEuiFormRow $isVisible={!isMlRule(ruleType)} fullWidth>
             <>
-              <EuiFlexGroup>
-                <EuiFlexItem grow={1}>
-                  {/* <UseField
-                    path="dataViewId"
-                    component={DataViewSelector}
-                    componentProps={{
-                      kibanaDataViews,
-                    }}
-                  /> */}
-                  <EuiRadioGroup
-                    options={[
-                      {
-                        id: dataViewRadioButtonId,
-                        label: 'Data View',
-                        // labelProps: {
-                        //   style: { display: 'flex !important', width: '400px' },
-                        // },
-                      },
-                    ]}
-                    idSelected={radioIdSelected}
-                    onChange={onChangeRadioButton}
-                    name="radio group"
-                    data-test-subj="stepDefineRuleDataViewSelectedRadioGroup"
-                  />
-                </EuiFlexItem>
-
-                <EuiFlexItem grow={1}>
-                  <EuiRadioGroup
-                    options={[
-                      {
-                        id: 'indexPatterns',
-                        label: 'Index Patterns',
-                      },
-                    ]}
-                    idSelected={radioIdSelected}
-                    onChange={onChangeRadioButton}
-                    name="radio group"
-                    data-test-subj="stepDefineRuleIndexPatternsSelectedRadioGroup"
-                  />
-                </EuiFlexItem>
-              </EuiFlexGroup>
               <EuiSpacer size="s" />
               {DataSource}
               <EuiSpacer size="s" />
@@ -715,7 +714,6 @@ const StepDefineRuleComponent: FC<StepDefineRuleProps> = ({
     </>
   );
 };
-
 export const StepDefineRule = memo(StepDefineRuleComponent);
 
 export function aggregatableFields(browserFields: BrowserFields): BrowserFields {

@@ -54,6 +54,7 @@ export const createSavedQueryAlertType = (
     async executor(execOptions) {
       const {
         runOpts: {
+          inputIndex,
           buildRuleMessage,
           bulkCreate,
           exceptionItems,
@@ -68,6 +69,7 @@ export const createSavedQueryAlertType = (
       } = execOptions;
 
       const result = await queryExecutor({
+        inputIndex,
         buildRuleMessage,
         bulkCreate,
         exceptionItems,

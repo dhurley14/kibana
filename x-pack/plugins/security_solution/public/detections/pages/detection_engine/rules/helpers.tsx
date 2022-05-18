@@ -23,7 +23,6 @@ import type { Filter } from '@kbn/es-query';
 import { ActionVariables } from '@kbn/triggers-actions-ui-plugin/public';
 import { normalizeThresholdField } from '../../../../../common/detection_engine/utils';
 import { RuleAlertAction } from '../../../../../common/detection_engine/types';
-import { assertUnreachable } from '../../../../../common/utility_types';
 import { transformRuleToAlertAction } from '../../../../../common/detection_engine/transform_actions';
 import { Rule } from '../../../containers/detection_engine/rules';
 import {
@@ -83,7 +82,7 @@ export const getDefineStepsData = (rule: Rule): DefineStepRule => ({
   anomalyThreshold: rule.anomaly_threshold ?? 50,
   machineLearningJobId: rule.machine_learning_job_id ?? [],
   index: rule.index ?? [],
-  dataViewId: rule.data_view_id, // ?? 'security-solution-default',
+  dataViewId: rule.data_view_id ?? null,
   threatIndex: rule.threat_index ?? [],
   threatQueryBar: {
     query: { query: rule.threat_query ?? '', language: rule.threat_language ?? '' },
@@ -350,7 +349,6 @@ const getRuleSpecificRuleParamKeys = (ruleType: Type) => {
     case 'eql':
       return queryRuleParams;
   }
-  assertUnreachable(ruleType);
 };
 
 export const getActionMessageRuleParams = (ruleType: Type): string[] => {

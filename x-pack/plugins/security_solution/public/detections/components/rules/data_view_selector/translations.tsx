@@ -7,16 +7,24 @@
 
 import { i18n } from '@kbn/i18n';
 
-export const IMPORT_TIMELINE_MODAL = i18n.translate(
-  'xpack.securitySolution.detectionEngine.createRule.stepDefineRule.importTimelineModalTitle',
+export const PICK_INDEX_PATTERNS = i18n.translate(
+  'xpack.securitySolution.detectionEngine.stepDefineRule.pickDataView',
   {
-    defaultMessage: 'Import query from saved timeline',
+    defaultMessage: 'Select a Data View',
   }
 );
 
-export const PICK_INDEX_PATTERNS = i18n.translate(
-  'xpack.securitySolution.detectionEngine.createRule.stepDefineRule.pickDataView',
+export const ADVANCED_SETTING_WARNING_LABEL = i18n.translate(
+  'xpack.securitySolution.detectionEngine.stepDefineRule.dataViewsSettingWarningLabel',
   {
-    defaultMessage: 'Select a Data View',
+    defaultMessage: 'Option not available',
+  }
+);
+
+export const ADVANCED_SETTING_WARNING = i18n.translate(
+  'xpack.securitySolution.detectionEngine.stepDefineRule.dataViewsSettingWarningDescription',
+  {
+    defaultMessage:
+      'The `securitySolution:strictlyUseRuleIndexPatterns` setting is set to `true` disallowing the use of data views for rules.',
   }
 );
