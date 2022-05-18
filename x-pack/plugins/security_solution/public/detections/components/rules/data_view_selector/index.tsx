@@ -5,9 +5,15 @@
  * 2.0.
  */
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
-import { EuiComboBox, EuiComboBoxOptionOption, EuiFormRow } from '@elastic/eui';
+import {
+  EuiCallOut,
+  EuiComboBox,
+  EuiComboBoxOptionOption,
+  EuiFormRow,
+  EuiSpacer,
+} from '@elastic/eui';
 
 import { DataViewListItem } from '@kbn/data-views-plugin/common';
 import { DataViewBase } from '@kbn/es-query';
@@ -29,65 +35,83 @@ export const DataViewSelector = ({
 }: DataViewSelectorProps) => {
   const { data } = useKibana().services;
   const { isInvalid, errorMessage } = getFieldValidityAndErrorMessage(field);
-  const fieldValue = field.value;
-
-  const [selectedOptions, setSelectedOptions] = useState<Array<EuiComboBoxOptionOption<string>>>(
-    fieldValue != null && fieldValue.length > 0 ? [{ label: fieldValue }] : []
+  const dataViewId = field.value;
+  const kibanaDataViewsDefined = useMemo(
+    () => kibanaDataViews != null && Object.keys(kibanaDataViews).length > 0,
+    [kibanaDataViews]
   );
-  const [selectedDataView, setSelectedDataView] = useState<DataViewListItem>();
+
+  // Most likely case here is that a data view of an existing rule was deleted
+  // and can no longer be found
+  const selectedDataViewNotFound = useMemo(
+    () =>
+      dataViewId != null &&
+      dataViewId !== '' &&
+      kibanaDataViewsDefined &&
+      !Object.keys(kibanaDataViews).includes(dataViewId),
+    [kibanaDataViewsDefined, dataViewId, kibanaDataViews]
+  );
+  const [selectedOption, setSelectedOption] = useState<Array<EuiComboBoxOptionOption<string>>>(
+    !selectedDataViewNotFound && dataViewId != null && dataViewId !== ''
+      ? [{ id: kibanaDataViews[dataViewId].id, label: kibanaDataViews[dataViewId].title }]
+      : []
+  );
 
   // TODO: optimize this, pass down array of data view ids
   // at the same time we grab the data views in the top level form component
   const dataViewOptions = useMemo(() => {
-    return kibanaDataViews != null && Object.keys(kibanaDataViews).length > 0
-      ? Object.keys(kibanaDataViews).map((dvId) => ({
-          label: dvId,
-          id: dvId,
+    return kibanaDataViewsDefined
+      ? Object.values(kibanaDataViews).map((dv) => ({
+          label: dv.title,
+          id: dv.id,
         }))
       : [];
-  }, [kibanaDataViews]);
+  }, [kibanaDataViewsDefined, kibanaDataViews]);
 
-  // Fetch the individual dataview selected - returns all info
-  // regarding data view, including fields
-  useEffect(() => {
-    const fetchSingleDataView = async () => {
-      if (selectedDataView != null) {
-        const dv = await data.dataViews.get(selectedDataView.id);
-        setIndexPattern(dv);
-      }
-    };
+  const onChangeDataViews = async (options: Array<EuiComboBoxOptionOption<string>>) => {
+    const [selectedDataView] = options;
 
-    fetchSingleDataView();
-  }, [data.dataViews, selectedDataView, setIndexPattern]);
-  const onChangeDataViews = useCallback(
-    (options: Array<EuiComboBoxOptionOption<string>>) => {
-      const dataView = options;
+    if (selectedDataView != null && selectedDataView.id != null) {
+      const dv = await data.dataViews.get(selectedDataView.id);
 
-      setSelectedOptions(options);
-      setSelectedDataView(kibanaDataViews[dataView[0].label]);
-      field.setValue(dataView[0].label);
-    },
-    [field, kibanaDataViews]
-  );
+      setSelectedOption(options);
+      setIndexPattern(dv);
+      field.setValue(selectedDataView.id);
+    }
+  };
 
   return (
-    <EuiFormRow
-      label={field.label}
-      helpText={field.helpText}
-      error={errorMessage}
-      isInvalid={isInvalid}
-      data-test-subj="pick-rule-data-source"
-    >
-      <EuiComboBox
-        isClearable
-        singleSelection={{ asPlainText: true }}
-        onChange={onChangeDataViews}
-        options={dataViewOptions}
-        selectedOptions={selectedOptions}
-        aria-label={i18n.PICK_INDEX_PATTERNS}
-        placeholder={i18n.PICK_INDEX_PATTERNS}
-        data-test-subj="detectionsDataViewSelectorDropdown"
-      />
-    </EuiFormRow>
+    <>
+      {selectedDataViewNotFound && dataViewId != null && (
+        <>
+          <EuiCallOut
+            title={i18n.DATA_VIEW_NOT_FOUND_WARNING_LABEL}
+            color="warning"
+            iconType="help"
+          >
+            <p>{i18n.DATA_VIEW_NOT_FOUND_WARNING_DESCRIPTION(dataViewId)}</p>
+          </EuiCallOut>
+          <EuiSpacer size="s" />
+        </>
+      )}
+      <EuiFormRow
+        label={field.label}
+        helpText={field.helpText}
+        error={errorMessage}
+        isInvalid={isInvalid}
+        data-test-subj="pick-rule-data-source"
+      >
+        <EuiComboBox
+          isClearable
+          singleSelection={{ asPlainText: true }}
+          onChange={onChangeDataViews}
+          options={dataViewOptions}
+          selectedOptions={selectedOption}
+          aria-label={i18n.PICK_INDEX_PATTERNS}
+          placeholder={i18n.PICK_INDEX_PATTERNS}
+          data-test-subj="detectionsDataViewSelectorDropdown"
+        />
+      </EuiFormRow>
+    </>
   );
 };
