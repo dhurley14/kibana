@@ -57,7 +57,6 @@ export interface UsageStats {
   'timelion:es.default_index': string;
   'securitySolution:timeDefaults': string;
   'securitySolution:defaultAnomalyScore': number;
-  'securitySolution:strictlyUseRuleIndexPatterns': boolean;
   'securitySolution:refreshIntervalDefaults': string;
   'securitySolution:enableNewsFeed': boolean;
   'securitySolution:enableCcsWarning': boolean;

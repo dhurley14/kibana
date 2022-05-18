@@ -107,10 +107,6 @@ export const stackManagementSchema: MakeSchemaFrom<UsageStats> = {
     type: 'long',
     _meta: { description: 'Non-default value of setting.' },
   },
-  'securitySolution:strictlyUseRuleIndexPatterns': {
-    type: 'boolean',
-    _meta: { description: 'Non-default value of setting.' },
-  },
   'securitySolution:refreshIntervalDefaults': {
     type: 'keyword',
     _meta: { description: 'Non-default value of setting.' },

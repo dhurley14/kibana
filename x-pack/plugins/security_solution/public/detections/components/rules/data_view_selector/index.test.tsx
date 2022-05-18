@@ -16,17 +16,10 @@ describe('data_view_selector', () => {
     const Component = () => {
       const field = useFormFieldMock({ value: '' });
 
-      return (
-        <DataViewSelector
-          kibanaDataViews={[]}
-          setIndexPattern={jest.fn()}
-          strictUseIndexPatternsSelected={false}
-          field={field}
-        />
-      );
+      return <DataViewSelector kibanaDataViews={[]} setIndexPattern={jest.fn()} field={field} />;
     };
     const wrapper = shallow(<Component />);
 
-    expect(wrapper.dive().find('[data-test-subj="pick-timeline"]')).toHaveLength(1);
+    expect(wrapper.dive().find('[data-test-subj="pick-rule-data-source"]')).toHaveLength(1);
   });
 });

@@ -33,7 +33,6 @@ import {
   DEFAULT_RULES_TABLE_REFRESH_SETTING,
   DEFAULT_RULE_REFRESH_INTERVAL_ON,
   DEFAULT_RULE_REFRESH_INTERVAL_VALUE,
-  DEFAULT_USE_RULE_INDEX_PATTERNS,
 } from '../../../../common/constants';
 import { StartServices } from '../../../types';
 import { createSecuritySolutionStorageMock } from '../../mock/mock_local_storage';
@@ -49,7 +48,6 @@ const mockUiSettings: Record<string, unknown> = {
     from: DEFAULT_FROM,
     to: DEFAULT_TO,
   },
-  [DEFAULT_USE_RULE_INDEX_PATTERNS]: true,
   [DEFAULT_APP_REFRESH_INTERVAL]: {
     pause: DEFAULT_INTERVAL_PAUSE,
     value: DEFAULT_INTERVAL_VALUE,

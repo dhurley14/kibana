@@ -51,6 +51,7 @@ export const createEqlAlertType = (
       const {
         runOpts: {
           inputIndex,
+          runtimeMappings,
           bulkCreate,
           exceptionItems,
           completeRule,
@@ -64,6 +65,7 @@ export const createEqlAlertType = (
 
       const result = await eqlExecutor({
         inputIndex,
+        runtimeMappings,
         bulkCreate,
         exceptionItems,
         experimentalFeatures,

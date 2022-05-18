@@ -25,7 +25,6 @@ import { DataViewBase, DataViewFieldBase } from '@kbn/es-query';
 import { FormattedMessage } from '@kbn/i18n-react';
 import {
   DEFAULT_INDEX_KEY,
-  DEFAULT_USE_RULE_INDEX_PATTERNS,
   DEFAULT_THREAT_INDEX_KEY,
   DEFAULT_THREAT_MATCH_QUERY,
 } from '../../../../../common/constants';
@@ -79,6 +78,17 @@ const INDEX_PATTERN_SELECT_ID = 'indexPatterns';
 
 const CommonUseField = getUseField({ component: Field });
 
+const StyledButtonGroup = styled(EuiButtonGroup)`
+  display: flex;
+  justify-content: right;
+  .euiButtonGroupButton {
+    padding-right: ${(props) => props.theme.eui.paddingSizes.l};
+  }
+`;
+
+const StyledFlexGroup = styled(EuiFlexGroup)`
+  margin-bottom: -21px;
+`;
 interface StepDefineRuleProps extends RuleStepProps {
   defaultValues?: DefineStepRule;
 }
@@ -163,7 +173,6 @@ const StepDefineRuleComponent: FC<StepDefineRuleProps> = ({
   const [threatIndexModified, setThreatIndexModified] = useState(false);
 
   const [indicesConfig] = useUiSetting$<string[]>(DEFAULT_INDEX_KEY);
-  const [strictlyUseRuleIndexPatterns] = useUiSetting$<boolean>(DEFAULT_USE_RULE_INDEX_PATTERNS);
   const [threatIndicesConfig] = useUiSetting$<string[]>(DEFAULT_THREAT_INDEX_KEY);
   const initialState = defaultValues ?? {
     ...stepDefineDefaultValue,
@@ -227,9 +236,7 @@ const StepDefineRuleComponent: FC<StepDefineRuleProps> = ({
   const [indexPattern, setIndexPattern] = useState<DataViewBase>(initIndexPattern);
   const [isIndexPatternLoading, setIsIndexPatternLoading] = useState(initIsIndexPatternLoading);
   const [dataSourceRadioIdSelected, setDataSourceRadioIdSelected] = useState(
-    strictlyUseRuleIndexPatterns || (isUpdateView && (dataView == null || dataView === ''))
-      ? INDEX_PATTERN_SELECT_ID
-      : DATA_VIEW_SELECT_ID
+    dataView == null || dataView === '' ? INDEX_PATTERN_SELECT_ID : DATA_VIEW_SELECT_ID
   );
 
   useEffect(() => {
@@ -403,15 +410,6 @@ const StepDefineRuleComponent: FC<StepDefineRuleProps> = ({
   const dataViewIndexPatternToggleButtonOptions: EuiButtonGroupOptionProps[] = useMemo(
     () => [
       {
-        id: DATA_VIEW_SELECT_ID,
-        label: i18nCore.translate('xpack.securitySolution.ruleDefine.indexTypeSelect.dataView', {
-          defaultMessage: 'Data View',
-        }),
-        iconType:
-          dataSourceRadioIdSelected === DATA_VIEW_SELECT_ID ? 'checkInCircleFilled' : 'empty',
-        'data-test-subj': `rule-index-toggle-${DATA_VIEW_SELECT_ID}`,
-      },
-      {
         id: INDEX_PATTERN_SELECT_ID,
         label: i18nCore.translate(
           'xpack.securitySolution.ruleDefine.indexTypeSelect.indexPattern',
@@ -421,7 +419,16 @@ const StepDefineRuleComponent: FC<StepDefineRuleProps> = ({
         ),
         iconType:
           dataSourceRadioIdSelected === INDEX_PATTERN_SELECT_ID ? 'checkInCircleFilled' : 'empty',
-        'data-test-subj': 'rule-index-toggle-index-pattern',
+        'data-test-subj': `rule-index-toggle-${INDEX_PATTERN_SELECT_ID}`,
+      },
+      {
+        id: DATA_VIEW_SELECT_ID,
+        label: i18nCore.translate('xpack.securitySolution.ruleDefine.indexTypeSelect.dataView', {
+          defaultMessage: 'Data View',
+        }),
+        iconType:
+          dataSourceRadioIdSelected === DATA_VIEW_SELECT_ID ? 'checkInCircleFilled' : 'empty',
+        'data-test-subj': `rule-index-toggle-${DATA_VIEW_SELECT_ID}`,
       },
     ],
     [dataSourceRadioIdSelected]
@@ -437,17 +444,25 @@ const StepDefineRuleComponent: FC<StepDefineRuleProps> = ({
           kibanaDataViews,
           setIndexPattern,
           setIsIndexPatternLoading,
-          strictUseIndexPatternsSelected: strictlyUseRuleIndexPatterns,
         }}
       />
     );
-  }, [kibanaDataViews, strictlyUseRuleIndexPatterns]);
+  }, [kibanaDataViews]);
   const DataSource = useMemo(() => {
     return (
       <RuleTypeEuiFormRow $isVisible={true} fullWidth>
         <EuiFlexGroup direction="column">
           <EuiFlexItem>
-            <EuiFlexGroup direction="row" alignItems="stretch">
+            <StyledFlexGroup direction="row" alignItems="stretch">
+              <EuiFlexItem grow={1}>
+                <StyledButtonGroup
+                  legend="Rule index pattern or data view selector"
+                  idSelected={dataSourceRadioIdSelected}
+                  onChange={onChangeDataSource}
+                  options={dataViewIndexPatternToggleButtonOptions}
+                  color="primary"
+                />
+              </EuiFlexItem>
               <EuiFlexItem grow={2}>
                 <EuiText size="s">
                   <FormattedMessage
@@ -470,16 +485,7 @@ const StepDefineRuleComponent: FC<StepDefineRuleProps> = ({
                   />
                 </EuiText>
               </EuiFlexItem>
-              <EuiFlexItem grow={1}>
-                <EuiButtonGroup
-                  legend="Rule index pattern or data view selector"
-                  idSelected={dataSourceRadioIdSelected}
-                  onChange={onChangeDataSource}
-                  options={dataViewIndexPatternToggleButtonOptions}
-                  color="primary"
-                />
-              </EuiFlexItem>
-            </EuiFlexGroup>
+            </StyledFlexGroup>
           </EuiFlexItem>
 
           <EuiFlexItem>

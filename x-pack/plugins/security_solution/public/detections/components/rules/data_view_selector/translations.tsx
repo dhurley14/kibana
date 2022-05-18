@@ -13,18 +13,3 @@ export const PICK_INDEX_PATTERNS = i18n.translate(
     defaultMessage: 'Select a Data View',
   }
 );
-
-export const ADVANCED_SETTING_WARNING_LABEL = i18n.translate(
-  'xpack.securitySolution.detectionEngine.stepDefineRule.dataViewsSettingWarningLabel',
-  {
-    defaultMessage: 'Option not available',
-  }
-);
-
-export const ADVANCED_SETTING_WARNING = i18n.translate(
-  'xpack.securitySolution.detectionEngine.stepDefineRule.dataViewsSettingWarningDescription',
-  {
-    defaultMessage:
-      'The `securitySolution:strictlyUseRuleIndexPatterns` setting is set to `true` disallowing the use of data views for rules.',
-  }
-);

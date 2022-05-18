@@ -7,13 +7,7 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import {
-  EuiCallOut,
-  EuiComboBox,
-  EuiComboBoxOptionOption,
-  EuiFormRow,
-  EuiSpacer,
-} from '@elastic/eui';
+import { EuiComboBox, EuiComboBoxOptionOption, EuiFormRow } from '@elastic/eui';
 
 import { DataViewListItem } from '@kbn/data-views-plugin/common';
 import { DataViewBase } from '@kbn/es-query';
@@ -26,14 +20,12 @@ interface DataViewSelectorProps {
   kibanaDataViews: { [x: string]: DataViewListItem };
   field: FieldHook<DefineStepRule['dataViewId']>;
   setIndexPattern: (indexPattern: DataViewBase) => void;
-  strictUseIndexPatternsSelected: boolean;
 }
 
 export const DataViewSelector = ({
   kibanaDataViews,
   field,
   setIndexPattern,
-  strictUseIndexPatternsSelected = false,
 }: DataViewSelectorProps) => {
   const { data } = useKibana().services;
   const { isInvalid, errorMessage } = getFieldValidityAndErrorMessage(field);
@@ -55,9 +47,8 @@ export const DataViewSelector = ({
       : [];
   }, [kibanaDataViews]);
 
-  // QUESTION: Does this need to be a useEffect or can it just be a
-  // normal function? Do we refetch here to make sure that it exists
-  // or can we just pull from the `kibanaDataViews` prop?
+  // Fetch the individual dataview selected - returns all info
+  // regarding data view, including fields
   useEffect(() => {
     const fetchSingleDataView = async () => {
       if (selectedDataView != null) {
@@ -80,33 +71,23 @@ export const DataViewSelector = ({
   );
 
   return (
-    <>
-      {strictUseIndexPatternsSelected && (
-        <>
-          <EuiCallOut title={i18n.ADVANCED_SETTING_WARNING_LABEL} color="warning" iconType="help">
-            <p>{i18n.ADVANCED_SETTING_WARNING}</p>
-          </EuiCallOut>
-          <EuiSpacer size="s" />
-        </>
-      )}
-      <EuiFormRow
-        label={field.label}
-        helpText={field.helpText}
-        error={errorMessage}
-        isInvalid={isInvalid}
-      >
-        <EuiComboBox
-          isDisabled={strictUseIndexPatternsSelected}
-          isClearable
-          singleSelection={{ asPlainText: true }}
-          onChange={onChangeDataViews}
-          options={dataViewOptions}
-          selectedOptions={selectedOptions}
-          aria-label={i18n.PICK_INDEX_PATTERNS}
-          placeholder={i18n.PICK_INDEX_PATTERNS}
-          data-test-subj="detectionsDataViewSelectorDropdown"
-        />
-      </EuiFormRow>
-    </>
+    <EuiFormRow
+      label={field.label}
+      helpText={field.helpText}
+      error={errorMessage}
+      isInvalid={isInvalid}
+      data-test-subj="pick-rule-data-source"
+    >
+      <EuiComboBox
+        isClearable
+        singleSelection={{ asPlainText: true }}
+        onChange={onChangeDataViews}
+        options={dataViewOptions}
+        selectedOptions={selectedOptions}
+        aria-label={i18n.PICK_INDEX_PATTERNS}
+        placeholder={i18n.PICK_INDEX_PATTERNS}
+        data-test-subj="detectionsDataViewSelectorDropdown"
+      />
+    </EuiFormRow>
   );
 };

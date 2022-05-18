@@ -11,7 +11,6 @@ import { parseScheduleDates } from '@kbn/securitysolution-io-ts-utils';
 import agent from 'elastic-apm-node';
 
 import { createPersistenceRuleTypeWrapper } from '@kbn/rule-registry-plugin/server';
-import { DataViewAttributes, SavedObject } from '@kbn/data-views-plugin/common';
 import type * as estypes from '@elastic/elasticsearch/lib/api/typesWithBodyKey';
 
 import { buildRuleMessageFactory } from './factories/build_rule_message_factory';
@@ -81,7 +80,7 @@ export const createSecurityRuleTypeWrapper: CreateSecurityRuleTypeWrapper =
           let runState = state;
           let hasError = false;
           let inputIndex: string[] = [];
-          let runtimeMappings: estypes.MappingRuntimeFields | null = {};
+          let runtimeMappings: estypes.MappingRuntimeFields = {};
           const { from, maxSignals, meta, ruleId, timestampOverride, to } = params;
           const {
             alertWithPersistence,
@@ -150,37 +149,25 @@ export const createSecurityRuleTypeWrapper: CreateSecurityRuleTypeWrapper =
           // index patterns. This checks for a few error states and also
           // determines the index pattern to be used
           if (!isMachineLearningParams(params)) {
-            const {
-              index,
-              runtimeMappings: dataViewRuntimeMappings,
-              errorToWrite,
-              warningToWrite,
-            } = await getInputIndex({
-              index: params.index,
-              services,
-              version,
-              dataViewId: params.dataViewId,
-            });
+            try {
+              const { index, runtimeMappings: dataViewRuntimeMappings } = await getInputIndex({
+                index: params.index,
+                services,
+                version,
+                dataViewId: params.dataViewId,
+              });
 
-            if (errorToWrite != null) {
-              hasError = true;
-              logger.error(buildRuleMessage(errorToWrite.trimEnd()));
-              await ruleExecutionLogger.logStatusChange({
-                newStatus: RuleExecutionStatus.failed,
-                message: errorToWrite,
-              });
-              return;
-            } else if (warningToWrite != null) {
-              wroteWarningStatus = true;
-              logger.error(buildRuleMessage(warningToWrite.trimEnd()));
-              await ruleExecutionLogger.logStatusChange({
-                newStatus: RuleExecutionStatus['partial failure'],
-                message: warningToWrite,
-              });
-              return;
-            } else {
               inputIndex = index ?? [];
               runtimeMappings = dataViewRuntimeMappings ?? {};
+            } catch (exc) {
+              const errorMessage = buildRuleMessage(`Check for indices to search failed ${exc}`);
+              logger.error(errorMessage);
+              await ruleExecutionLogger.logStatusChange({
+                newStatus: RuleExecutionStatus.failed,
+                message: errorMessage,
+              });
+
+              return result.state;
             }
           }
 
@@ -193,15 +180,13 @@ export const createSecurityRuleTypeWrapper: CreateSecurityRuleTypeWrapper =
 
               const privileges = await checkPrivilegesFromEsClient(esClient, inputIndex);
 
-              if (!wroteWarningStatus) {
-                wroteWarningStatus = await hasReadIndexPrivileges({
-                  privileges,
-                  logger,
-                  buildRuleMessage,
-                  ruleExecutionLogger,
-                  uiSettingsClient,
-                });
-              }
+              wroteWarningStatus = await hasReadIndexPrivileges({
+                privileges,
+                logger,
+                buildRuleMessage,
+                ruleExecutionLogger,
+                uiSettingsClient,
+              });
 
               if (!wroteWarningStatus) {
                 const timestampFieldCaps = await withSecuritySpan('fieldCaps', () =>
@@ -229,7 +214,6 @@ export const createSecurityRuleTypeWrapper: CreateSecurityRuleTypeWrapper =
               }
             }
           } catch (exc) {
-            console.error(exc);
             const errorMessage = buildRuleMessage(`Check privileges failed to execute ${exc}`);
             logger.warn(errorMessage);
             await ruleExecutionLogger.logStatusChange({
