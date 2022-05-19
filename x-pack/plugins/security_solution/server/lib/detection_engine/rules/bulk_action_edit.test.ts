@@ -98,39 +98,6 @@ describe('bulk_action_edit', () => {
         expect(editedRule.params).toHaveProperty('index', ['index']);
       });
 
-      test('should throw error on adding index pattern if rule has "dataViewId" defined', () => {
-        expect(() =>
-          applyBulkActionEditToRule(getRuleMock({ ruleId: 'rule_1', dataViewId: 'logs-*' }) as RuleAlertType, {
-            type: BulkActionEditType.add_index_patterns,
-            value: ['my-index-*'],
-          })
-        ).toThrow(
-          "rule_1 has a data view defined. Index patterns property is not in use and rule index patterns will not be added."
-        );
-      });
-
-      test('should throw error on deleting index pattern if rule has "dataViewId" defined', () => {
-        expect(() =>
-          applyBulkActionEditToRule(getRuleMock({ ruleId: 'rule_1', dataViewId: 'logs-*' }) as RuleAlertType, {
-            type: BulkActionEditType.delete_index_patterns,
-            value: ['my-index-*'],
-          })
-        ).toThrow(
-          "rule_1 has a data view defined. Index patterns property is not in use and rule index patterns will not be deleted."
-        );
-      });
-
-      test('should throw error on overwriting index pattern if rule has "dataViewId" defined', () => {
-        expect(() =>
-          applyBulkActionEditToRule(getRuleMock({ ruleId: 'rule_1', dataViewId: 'logs-*' }) as RuleAlertType, {
-            type: BulkActionEditType.set_index_patterns,
-            value: ['my-index-*'],
-          })
-        ).toThrow(
-          "rule_1 has a data view defined. Index patterns property is not in use and rule index patterns will not be overwritten."
-        );
-      });
-
       test('should throw error on adding index pattern if rule is of machine learning type', () => {
         expect(() =>
           applyBulkActionEditToRule({ params: { type: 'machine_learning' } } as RuleAlertType, {
@@ -181,6 +148,90 @@ describe('bulk_action_edit', () => {
           })
         ).toThrow("Index patterns can't be overwritten with empty list");
       });
+
+      describe('overwriteDataViews', () => {
+        describe('overwriteDataViews is true', () => {
+          test('should add new index pattern to rule', () => {
+            const editedRule = applyBulkActionEditToRule(
+                getRuleMock({dataViewId: 'logs-*', index: []}) as RuleAlertType, 
+                {
+                  type: BulkActionEditType.add_index_patterns,
+                  value: ['my-index-*'],
+                  overwriteDataViews: true,
+                },
+              );
+            expect(editedRule.params).toHaveProperty('index', ['my-index-*']);
+            expect(editedRule.params).toHaveProperty('dataViewId', undefined);
+          });
+
+          test('should remove index pattern from rule', () => {
+            const editedRule = applyBulkActionEditToRule(
+              getRuleMock({dataViewId: 'logs-*', index: ['index', 'index-2-*']}) as RuleAlertType,
+              {
+                type: BulkActionEditType.delete_index_patterns,
+                value: ['index-2-*'],
+                overwriteDataViews: true,
+              },
+            );
+            expect(editedRule.params).toHaveProperty('index', ['index']);
+            expect(editedRule.params).toHaveProperty('dataViewId', undefined);
+          });
+    
+          test('should rewrite index  pattern in rule', () => {
+            const editedRule = applyBulkActionEditToRule(
+              getRuleMock({dataViewId: 'logs-*', index: ['index', 'index-1']}) as RuleAlertType,
+              {
+                type: BulkActionEditType.set_index_patterns,
+                value: ['index'],
+                overwriteDataViews: true,
+              },
+            );
+            expect(editedRule.params).toHaveProperty('index', ['index']);
+            expect(editedRule.params).toHaveProperty('dataViewId', undefined);
+          });
+        });
+
+        describe('overwriteDataViews is false', () => {
+          test('should NOT add new index pattern to rule', () => {
+            const editedRule = applyBulkActionEditToRule(
+              getRuleMock({dataViewId: 'logs-*', index: []}) as RuleAlertType,  
+              {
+                type: BulkActionEditType.add_index_patterns,
+                value: ['my-index-*'],
+                overwriteDataViews: false,
+              },
+            );
+            expect(editedRule.params).toHaveProperty('index', []);
+            expect(editedRule.params).toHaveProperty('dataViewId', 'logs-*');
+          });
+
+          test('should NOT remove index pattern from rule', () => {
+            const editedRule = applyBulkActionEditToRule(
+              getRuleMock({dataViewId: 'logs-*', index: ['index', 'index-2-*']}) as RuleAlertType, 
+              {
+                type: BulkActionEditType.delete_index_patterns,
+                value: ['index-2-*'],
+                overwriteDataViews: false,
+              },
+            );
+            expect(editedRule.params).toHaveProperty('index', ['index', 'index-2-*']);
+            expect(editedRule.params).toHaveProperty('dataViewId', 'logs-*');
+          });
+    
+          test('should NOT rewrite index  pattern in rule', () => {
+            const editedRule = applyBulkActionEditToRule(
+              getRuleMock({dataViewId: 'logs-*', index: []}) as RuleAlertType,
+              {
+                type: BulkActionEditType.set_index_patterns,
+                value: ['index'],
+                overwriteDataViews: false,
+              },
+            );
+            expect(editedRule.params).toHaveProperty('index', []);
+            expect(editedRule.params).toHaveProperty('dataViewId', 'logs-*');
+          });
+        });
+      })
     });
 
     describe('timeline', () => {
