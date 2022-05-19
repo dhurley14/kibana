@@ -99,4 +99,28 @@ describe('inject_references', () => {
       })
     ).toEqual<FuncReturn>(returnParams as RuleParams);
   });
+
+  test('It returns params with an added dataViewId if the dataViewId is missing due to migration bugs', () => {
+    const params: Partial<RuleParams> = {
+      note: 'some note',
+    };
+    const returnParams: Partial<RuleParams> = {
+      note: 'some note',
+      exceptionsList: [],
+      dataViewId: 'auditbeat-*',
+    };
+    expect(
+      injectReferences({
+        logger,
+        params: params as RuleParams,
+        savedObjectReferences: [
+          {
+            id: 'auditbeat-*',
+            name: 'dataViewId_0',
+            type: 'index-pattern',
+          },
+        ],
+      })
+    ).toEqual<FuncReturn>(returnParams as RuleParams);
+  });
 });

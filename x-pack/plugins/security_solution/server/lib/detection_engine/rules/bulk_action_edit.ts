@@ -48,9 +48,12 @@ export const applyBulkActionEditToRule = (
         rule.params.type !== 'machine_learning',
         "Index patterns can't be added. Machine learning rule doesn't have index patterns property"
       );
+      invariant(
+        rule.params.dataViewId == null || rule.params.dataViewId.trim() == '',
+        `${rule.params.ruleId} has a data view defined. Index patterns property is not in use and rule index patterns will not be added.`
+      );
 
       rule.params.index = addItemsToArray(rule.params.index ?? [], action.value);
-      rule.params.dataViewId = undefined;
       break;
 
     case BulkActionEditType.delete_index_patterns:
@@ -58,9 +61,12 @@ export const applyBulkActionEditToRule = (
         rule.params.type !== 'machine_learning',
         "Index patterns can't be deleted. Machine learning rule doesn't have index patterns property"
       );
+      invariant(
+        rule.params.dataViewId == null || rule.params.dataViewId.trim() == '',
+        `${rule.params.ruleId} has a data view defined. Index patterns property is not in use and rule index patterns will not be deleted.`
+      );
 
       rule.params.index = deleteItemsFromArray(rule.params.index ?? [], action.value);
-      rule.params.dataViewId = undefined;
 
       invariant(
         rule.params.index.length !== 0,
@@ -74,6 +80,10 @@ export const applyBulkActionEditToRule = (
         "Index patterns can't be overwritten. Machine learning rule doesn't have index patterns property"
       );
       invariant(action.value.length !== 0, "Index patterns can't be overwritten with empty list");
+      invariant(
+        rule.params.dataViewId == null || rule.params.dataViewId.trim() == '',
+        `${rule.params.ruleId} has a data view defined. Index patterns property is not in use and rule index patterns will not be overwritten.`
+      );
 
       rule.params.index = action.value;
       rule.params.dataViewId = undefined;
