@@ -6,7 +6,7 @@
  */
 
 import { Logger, SavedObjectReference } from '@kbn/core/server';
-import { getSavedObjectReferenceForDataView, logMissingSavedObjectError } from './utils';
+import { getSavedObjectReferenceForDataView } from './utils';
 
 /**
  * This injects any "dataViewId" from saved object reference and returns the "dataViewId" using the saved object reference. If for
@@ -19,11 +19,9 @@ import { getSavedObjectReferenceForDataView, logMissingSavedObjectError } from '
  */
 export const injectDataViewReferences = ({
   logger,
-  dataViewId,
   savedObjectReferences,
 }: {
   logger: Logger;
-  dataViewId: string | null | undefined;
   savedObjectReferences: SavedObjectReference[];
 }): string | null | undefined => {
   const foundSavedObject = getSavedObjectReferenceForDataView({
@@ -34,11 +32,6 @@ export const injectDataViewReferences = ({
     const reference = foundSavedObject.id;
     return reference;
   } else {
-    if (dataViewId == null || dataViewId.trim() === '') {
-      return undefined;
-    }
-
-    logMissingSavedObjectError({ logger, missingFieldValue: dataViewId, missingField: 'dataViewId' });
-    return dataViewId;
+    return undefined;
   }
 };

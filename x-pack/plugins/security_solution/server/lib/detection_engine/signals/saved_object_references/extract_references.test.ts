@@ -32,9 +32,10 @@ describe('extract_references', () => {
 
   test('It returns params untouched and the references extracted', () => {
     const params: Partial<RuleParams> = {
+      type: 'eql',
       note: 'some note',
       exceptionsList: mockExceptionsList(),
-      dataViewId: 'logs-*'
+      dataViewId: 'logs-*',
     };
     expect(
       extractReferences({
@@ -50,7 +51,7 @@ describe('extract_references', () => {
           type: EXCEPTION_LIST_NAMESPACE_AGNOSTIC,
         },
         {
-          id: 'logs-*', 
+          id: 'logs-*',
           name: 'dataViewId_0',
           type: 'index-pattern',
         },
@@ -80,7 +81,7 @@ describe('extract_references', () => {
         ],
       });
     });
-  
+
     test('It returns params untouched and the references extracted as 2 exception list saved object references', () => {
       const params: Partial<RuleParams> = {
         note: 'some note',
@@ -110,7 +111,7 @@ describe('extract_references', () => {
         ],
       });
     });
-  
+
     test('It returns params untouched and the references an empty array if the exceptionsList is an empty array', () => {
       const params: Partial<RuleParams> = {
         note: 'some note',
@@ -126,7 +127,7 @@ describe('extract_references', () => {
         references: [],
       });
     });
-  
+
     test('It returns params untouched and the references an empty array if the exceptionsList is missing for any reason', () => {
       const params: Partial<RuleParams> = {
         note: 'some note',
@@ -146,9 +147,10 @@ describe('extract_references', () => {
   describe('data view', () => {
     test('It returns params untouched and the references extracted as data view saved object references', () => {
       const params: Partial<RuleParams> = {
+        type: 'eql',
         note: 'some note',
         exceptionsList: [],
-        dataViewId: 'logs-*'
+        dataViewId: 'logs-*',
       };
       expect(
         extractReferences({
@@ -159,16 +161,17 @@ describe('extract_references', () => {
         params: params as RuleParams,
         references: [
           {
-            id: 'logs-*', 
+            id: 'logs-*',
             name: 'dataViewId_0',
             type: 'index-pattern',
           },
         ],
       });
     });
-  
+
     test('It returns params untouched and the references an empty array if the data view is an empty string', () => {
       const params: Partial<RuleParams> = {
+        type: 'eql',
         note: 'some note',
         exceptionsList: [],
         dataViewId: ' ',
@@ -186,9 +189,9 @@ describe('extract_references', () => {
 
     test('It returns params untouched and the references an empty array if the data view is null', () => {
       const params: Partial<RuleParams> = {
+        type: 'eql',
         note: 'some note',
         exceptionsList: [],
-        dataViewId: null,
       };
       expect(
         extractReferences({
@@ -216,5 +219,5 @@ describe('extract_references', () => {
         references: [],
       });
     });
-  })
+  });
 });
