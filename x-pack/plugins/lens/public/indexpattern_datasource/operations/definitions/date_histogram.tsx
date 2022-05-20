@@ -197,15 +197,12 @@ export const dateHistogramOperation: OperationDefinition<
 
     const onChangeDropPartialBuckets = useCallback(
       (ev: EuiSwitchEvent) => {
-        // updateColumnParam will be called async
-        // store the checked value before the event pooling clears it
-        const value = ev.target.checked;
         updateLayer((newLayer) =>
           updateColumnParam({
             layer: newLayer,
             columnId,
             paramName: 'dropPartials',
-            value,
+            value: ev.target.checked,
           })
         );
       },

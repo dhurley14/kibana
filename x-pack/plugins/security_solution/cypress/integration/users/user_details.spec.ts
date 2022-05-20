@@ -24,14 +24,13 @@ describe('user details flyout', () => {
   before(() => {
     cleanKibana();
     login();
-  });
-
-  it('shows user detail flyout from alert table', () => {
     visitWithoutDateRange(ALERTS_URL);
     createCustomRuleEnabled({ ...getNewRule(), customQuery: 'user.name:*' });
     refreshPage();
     waitForAlertsToPopulate();
+  });
 
+  it('shows user detail flyout from alert table', () => {
     scrollAlertTableColumnIntoView(USER_COLUMN);
     expandAlertTableCellValue(USER_COLUMN);
     openUserDetailsFlyout();

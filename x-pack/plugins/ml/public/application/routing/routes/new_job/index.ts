@@ -10,4 +10,3 @@ export * from './job_type';
 export * from './new_job';
 export * from './wizard';
 export * from './recognize';
-export * from './from_lens';

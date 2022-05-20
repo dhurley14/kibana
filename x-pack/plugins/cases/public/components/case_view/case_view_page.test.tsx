@@ -585,7 +585,8 @@ describe('CaseViewPage', () => {
       appMockRender = createAppMockRenderer();
     });
 
-    it('renders tabs correctly', async () => {
+    // unskip when alerts tab is activated
+    it.skip('renders tabs correctly', async () => {
       const result = appMockRender.render(<CaseViewPage {...caseProps} />);
       await act(async () => {
         expect(result.getByTestId('case-view-tab-title-alerts')).toBeTruthy();

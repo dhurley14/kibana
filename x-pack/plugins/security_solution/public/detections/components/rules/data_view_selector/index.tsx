@@ -5,7 +5,7 @@
  * 2.0.
  */
 
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import {
   EuiCallOut,
@@ -66,8 +66,6 @@ export const DataViewSelector = ({
       : []
   );
 
-  const [selectedDataView, setSelectedDataView] = useState<DataViewListItem>();
-
   // TODO: optimize this, pass down array of data view ids
   // at the same time we grab the data views in the top level form component
   const dataViewOptions = useMemo(() => {
@@ -79,28 +77,15 @@ export const DataViewSelector = ({
       : [];
   }, [kibanaDataViewsDefined, kibanaDataViews]);
 
-  useEffect(() => {
-    const fetchSingleDataView = async () => {
-      if (selectedDataView != null) {
-        const dv = await data.dataViews.get(selectedDataView.id);
-        setIndexPattern(dv);
-      }
-    };
-
-    fetchSingleDataView();
-  }, [data.dataViews, selectedDataView, setIndexPattern]);
-
   const onChangeDataViews = async (options: Array<EuiComboBoxOptionOption<string>>) => {
-    const selectedDataViewOption = options;
+    const [selectedDataView] = options;
 
-    if (
-      selectedDataViewOption != null &&
-      selectedDataViewOption.length > 0 &&
-      selectedDataViewOption[0].id != null
-    ) {
-      setSelectedOption(selectedDataViewOption);
-      setSelectedDataView(kibanaDataViews[selectedDataViewOption[0].id]);
-      field?.setValue(selectedDataViewOption[0].id);
+    if (selectedDataView != null && selectedDataView.id != null) {
+      const dv = await data.dataViews.get(selectedDataView.id);
+
+      setSelectedOption(options);
+      setIndexPattern(dv);
+      field?.setValue(selectedDataView.id);
     }
   };
 

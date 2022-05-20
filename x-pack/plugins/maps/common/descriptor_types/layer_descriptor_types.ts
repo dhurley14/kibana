@@ -61,7 +61,6 @@ export type LayerDescriptor = {
   attribution?: Attribution;
   id: string;
   label?: string | null;
-  locale?: string | null;
   areLabelsOnTop?: boolean;
   minZoom?: number;
   maxZoom?: number;

@@ -91,7 +91,6 @@ The API returns a JSON object with the retrieved case. For example:
     "syncAlerts": true
   },
   "owner": "securitySolution",
-  "severity": "low",
   "duration": null,
   "tags": [
     "phishing",

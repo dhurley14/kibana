@@ -48,15 +48,17 @@ import {
   getAnnotationsLayers,
   getDataLayers,
   Series,
-  getFormat,
   getFormattedTablesByLayers,
+  validateExtent,
+  getFormat,
+} from '../helpers';
+import {
   getFilteredLayers,
   getReferenceLayers,
   isDataLayer,
   getAxesConfiguration,
   GroupsConfiguration,
   getLinesCausedPaddings,
-  validateExtent,
 } from '../helpers';
 import { getXDomain, XyEndzones } from './x_domain';
 import { getLegendAction } from './legend_action';
@@ -569,7 +571,6 @@ export function XYChart({
               shouldRotate
             ),
           },
-          markSizeRatio: args.markSizeRatio,
         }}
         baseTheme={chartBaseTheme}
         tooltip={{

@@ -37,7 +37,6 @@ export class SecurityPageObject extends FtrService {
   private readonly common = this.ctx.getPageObject('common');
   private readonly header = this.ctx.getPageObject('header');
   private readonly monacoEditor = this.ctx.getService('monacoEditor');
-  private readonly es = this.ctx.getService('es');
 
   public loginPage = Object.freeze({
     login: async (username?: string, password?: string, options: LoginOptions = {}) => {
@@ -351,6 +350,13 @@ export class SecurityPageObject extends FtrService {
 
     const btn = await this.find.byButtonText(privilege);
     await btn.click();
+
+    // const options = await this.find.byCssSelector(`.euiFilterSelectItem`);
+    // Object.entries(options).forEach(([key, prop]) => {
+    //   console.log({ key, proto: prop.__proto__ });
+    // });
+
+    // await options.click();
   }
 
   async assignRoleToUser(role: string) {
@@ -510,13 +516,6 @@ export class SecurityPageObject extends FtrService {
     await this.clickUserByUserName(user.username ?? '');
     await this.testSubjects.click('editUserDisableUserButton');
     await this.testSubjects.click('confirmModalConfirmButton');
-    await this.testSubjects.missingOrFail('confirmModalConfirmButton');
-    if (user.username) {
-      await this.retry.waitForWithTimeout('ES to acknowledge deactivation', 15000, async () => {
-        const userResponse = await this.es.security.getUser({ username: user.username });
-        return userResponse[user.username!].enabled === false;
-      });
-    }
     await this.submitUpdateUserForm();
   }
 
@@ -524,13 +523,6 @@ export class SecurityPageObject extends FtrService {
     await this.clickUserByUserName(user.username ?? '');
     await this.testSubjects.click('editUserEnableUserButton');
     await this.testSubjects.click('confirmModalConfirmButton');
-    await this.testSubjects.missingOrFail('confirmModalConfirmButton');
-    if (user.username) {
-      await this.retry.waitForWithTimeout('ES to acknowledge activation', 15000, async () => {
-        const userResponse = await this.es.security.getUser({ username: user.username });
-        return userResponse[user.username!].enabled === true;
-      });
-    }
     await this.submitUpdateUserForm();
   }
 

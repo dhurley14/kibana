@@ -31,13 +31,12 @@ export const getLensAliasConfig = (): VisTypeAlias => ({
       docTypes: ['lens'],
       searchFields: ['title^3'],
       toListItem(savedObject) {
-        const { id, type, updatedAt, attributes } = savedObject;
+        const { id, type, attributes } = savedObject;
         const { title, description } = attributes as { title: string; description?: string };
         return {
           id,
           title,
           description,
-          updatedAt,
           editUrl: getEditPath(id),
           editApp: 'lens',
           icon: 'lensApp',

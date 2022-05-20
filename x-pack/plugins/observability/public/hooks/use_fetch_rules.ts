@@ -10,8 +10,8 @@ import { isEmpty } from 'lodash';
 import { loadRules, loadRuleTags } from '@kbn/triggers-actions-ui-plugin/public';
 import { RULES_LOAD_ERROR, RULE_TAGS_LOAD_ERROR } from '../pages/rules/translations';
 import { FetchRulesProps, RuleState, TagsState } from '../pages/rules/types';
+import { OBSERVABILITY_RULE_TYPES } from '../pages/rules/config';
 import { useKibana } from '../utils/kibana_react';
-import { usePluginContext } from './use_plugin_context';
 
 export function useFetchRules({
   searchText,
@@ -24,7 +24,6 @@ export function useFetchRules({
   sort,
 }: FetchRulesProps) {
   const { http } = useKibana().services;
-  const { observabilityRuleTypeRegistry } = usePluginContext();
 
   const [rulesState, setRulesState] = useState<RuleState>({
     isLoading: false,
@@ -61,7 +60,7 @@ export function useFetchRules({
         http,
         page,
         searchText,
-        typesFilter: typesFilter.length > 0 ? typesFilter : observabilityRuleTypeRegistry.list(),
+        typesFilter: typesFilter.length > 0 ? typesFilter : OBSERVABILITY_RULE_TYPES,
         tagsFilter,
         ruleExecutionStatusesFilter: ruleLastResponseFilter,
         ruleStatusesFilter,
@@ -94,15 +93,14 @@ export function useFetchRules({
   }, [
     http,
     page,
-    searchText,
-    typesFilter,
-    observabilityRuleTypeRegistry,
-    tagsFilter,
-    ruleLastResponseFilter,
-    ruleStatusesFilter,
-    sort,
-    loadRuleTagsAggs,
     setPage,
+    searchText,
+    ruleLastResponseFilter,
+    tagsFilter,
+    loadRuleTagsAggs,
+    ruleStatusesFilter,
+    typesFilter,
+    sort,
   ]);
   useEffect(() => {
     fetchRules();

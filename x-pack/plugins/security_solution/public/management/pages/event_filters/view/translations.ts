@@ -5,20 +5,47 @@
  * 2.0.
  */
 
-import { HttpFetchError } from '@kbn/core/public';
 import { i18n } from '@kbn/i18n';
-import { ArtifactFormComponentProps } from '../../../components/artifact_list_page';
 
-export const getCreationSuccessMessage = (item: ArtifactFormComponentProps['item']) => {
-  return i18n.translate('xpack.securitySolution.eventFilter.flyoutForm.creationSuccessToastTitle', {
+import { ServerApiError } from '../../../../common/types';
+import { EventFiltersForm } from '../types';
+
+export const getCreationSuccessMessage = (entry: EventFiltersForm['entry']) => {
+  return i18n.translate('xpack.securitySolution.eventFilter.form.creationSuccessToastTitle', {
     defaultMessage: '"{name}" has been added to the event filters list.',
-    values: { name: item?.name },
+    values: { name: entry?.name },
   });
 };
 
-export const getCreationErrorMessage = (creationError: HttpFetchError) => {
-  return {
-    title: 'There was an error creating the new event filter: "{error}"',
-    message: { error: creationError.message },
-  };
+export const getUpdateSuccessMessage = (entry: EventFiltersForm['entry']) => {
+  return i18n.translate('xpack.securitySolution.eventFilter.form.updateSuccessToastTitle', {
+    defaultMessage: '"{name}" has been updated successfully.',
+    values: { name: entry?.name },
+  });
 };
+
+export const getCreationErrorMessage = (creationError: ServerApiError) => {
+  return i18n.translate('xpack.securitySolution.eventFilter.form.failedToastTitle.create', {
+    defaultMessage: 'There was an error creating the new event filter: "{error}"',
+    values: { error: creationError.message },
+  });
+};
+
+export const getUpdateErrorMessage = (updateError: ServerApiError) => {
+  return i18n.translate('xpack.securitySolution.eventFilter.form.failedToastTitle.update', {
+    defaultMessage: 'There was an error updating the event filter: "{error}"',
+    values: { error: updateError.message },
+  });
+};
+
+export const getGetErrorMessage = (getError: ServerApiError) => {
+  return i18n.translate('xpack.securitySolution.eventFilter.form.failedToastTitle.get', {
+    defaultMessage: 'Unable to edit event filter: "{error}"',
+    values: { error: getError.message },
+  });
+};
+
+export const ABOUT_EVENT_FILTERS = i18n.translate('xpack.securitySolution.eventFilters.aboutInfo', {
+  defaultMessage:
+    'Add an event filter to exclude high volume or unwanted events from being written to Elasticsearch.',
+});

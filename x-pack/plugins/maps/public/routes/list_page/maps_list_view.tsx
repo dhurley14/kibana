@@ -113,7 +113,6 @@ async function findMaps(searchQuery: string) {
         title: savedObject.attributes.title,
         description: savedObject.attributes.description,
         references: savedObject.references,
-        updatedAt: savedObject.updatedAt,
       };
     }),
   };

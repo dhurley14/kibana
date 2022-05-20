@@ -6,14 +6,7 @@
  * Side Public License, v 1.
  */
 
-import {
-  EuiBadge,
-  EuiFlexGroup,
-  EuiFlexItem,
-  EuiText,
-  EuiButtonEmpty,
-  EuiPanel,
-} from '@elastic/eui';
+import { EuiFlexGroup, EuiFlexItem, EuiText, EuiButtonEmpty, EuiPanel } from '@elastic/eui';
 import React from 'react';
 import useLocalStorage from 'react-use/lib/useLocalStorage';
 
@@ -45,9 +38,6 @@ export const ControlsCallout = ({ getCreateControlButton }: CalloutProps) => {
           <EuiFlexGroup alignItems="center" gutterSize="s" responsive={false} wrap>
             <EuiFlexItem grow={false}>
               <ControlsIllustration />
-            </EuiFlexItem>
-            <EuiFlexItem className="emptyStateBadge" grow={false}>
-              <EuiBadge color="accent">{ControlGroupStrings.emptyState.getBadge()}</EuiBadge>
             </EuiFlexItem>
             <EuiFlexItem>
               <EuiText className="emptyStateText" size="s">

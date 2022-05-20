@@ -51,7 +51,10 @@ export async function executor(
         alertId,
         params as OnlySearchSourceAlertParams,
         latestTimestamp,
-        { searchSourceClient, logger }
+        {
+          searchSourceClient,
+          logger,
+        }
       );
 
   // apply the alert condition

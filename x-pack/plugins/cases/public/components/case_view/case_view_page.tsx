@@ -5,9 +5,8 @@
  * 2.0.
  */
 
-import { EuiBetaBadge, EuiFlexGroup, EuiFlexItem, EuiSpacer, EuiTab, EuiTabs } from '@elastic/eui';
+import { EuiFlexGroup, EuiFlexItem, EuiSpacer, EuiTab, EuiTabs } from '@elastic/eui';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import styled from 'styled-components';
 import { Case, UpdateKey } from '../../../common/ui';
 import { useCaseViewNavigation, useUrlParams } from '../../common/navigation';
 import { useGetCaseMetrics } from '../../containers/use_get_case_metrics';
@@ -17,7 +16,6 @@ import { useCasesFeatures } from '../cases_context/use_cases_features';
 import { CaseActionBar } from '../case_action_bar';
 import { HeaderPage } from '../header_page';
 import { EditableTitle } from '../header_page/editable_title';
-import { EXPERIMENTAL_DESC, EXPERIMENTAL_LABEL } from '../header_page/translations';
 import { useTimelineContext } from '../timeline_context/use_timeline_context';
 import { useCasesTitleBreadcrumbs } from '../use_breadcrumbs';
 import { WhitePageWrapperNoBorder } from '../wrappers';
@@ -28,9 +26,10 @@ import { ACTIVITY_TAB, ALERTS_TAB } from './translations';
 import { CaseViewPageProps, CASE_VIEW_PAGE_TABS } from './types';
 import { useOnUpdateField } from './use_on_update_field';
 
-const ExperimentalBadge = styled(EuiBetaBadge)`
-  margin-left: 5px;
-`;
+// This hardcoded constant is left here intentionally
+// as a way to hide a wip functionality
+// that will be merge in the 8.3 release.
+const ENABLE_ALERTS_TAB = true;
 
 export const CaseViewPage = React.memo<CaseViewPageProps>(
   ({
@@ -183,22 +182,11 @@ export const CaseViewPage = React.memo<CaseViewPageProps>(
             />
           ),
         },
-        ...(features.alerts.enabled
+        ...(features.alerts.enabled && ENABLE_ALERTS_TAB
           ? [
               {
                 id: CASE_VIEW_PAGE_TABS.ALERTS,
-                name: (
-                  <>
-                    {ALERTS_TAB}
-                    <ExperimentalBadge
-                      label={EXPERIMENTAL_LABEL}
-                      size="s"
-                      iconType="beaker"
-                      tooltipContent={EXPERIMENTAL_DESC}
-                      tooltipPosition="bottom"
-                    />
-                  </>
-                ),
+                name: ALERTS_TAB,
                 content: <CaseViewAlerts caseData={caseData} />,
               },
             ]

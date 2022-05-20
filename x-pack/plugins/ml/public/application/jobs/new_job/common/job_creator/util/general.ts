@@ -230,11 +230,10 @@ export function isSparseDataJob(job: Job, datafeed: Datafeed): boolean {
   return false;
 }
 
-export function stashJobForCloning(
+function stashJobForCloning(
   jobCreator: JobCreatorType,
   skipTimeRangeStep: boolean = false,
-  includeTimeRange: boolean = false,
-  autoSetTimeRange: boolean = false
+  includeTimeRange: boolean = false
 ) {
   mlJobService.tempJobCloningObjects.job = jobCreator.jobConfig;
   mlJobService.tempJobCloningObjects.datafeed = jobCreator.datafeedConfig;
@@ -243,12 +242,10 @@ export function stashJobForCloning(
   // skip over the time picker step of the wizard
   mlJobService.tempJobCloningObjects.skipTimeRangeStep = skipTimeRangeStep;
 
-  if (includeTimeRange === true && autoSetTimeRange === false) {
+  if (includeTimeRange === true) {
     // auto select the start and end dates of the time picker
     mlJobService.tempJobCloningObjects.start = jobCreator.start;
     mlJobService.tempJobCloningObjects.end = jobCreator.end;
-  } else if (autoSetTimeRange === true) {
-    mlJobService.tempJobCloningObjects.autoSetTimeRange = true;
   }
 
   mlJobService.tempJobCloningObjects.calendars = jobCreator.calendars;

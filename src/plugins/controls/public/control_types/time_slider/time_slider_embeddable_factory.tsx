@@ -10,11 +10,12 @@ import deepEqual from 'fast-deep-equal';
 
 import { EmbeddableFactoryDefinition, IContainer } from '@kbn/embeddable-plugin/public';
 import { TIME_SLIDER_CONTROL } from '../..';
-import { ControlEmbeddable, DataControlField, IEditableControlFactory } from '../../types';
+import { ControlEmbeddable, IEditableControlFactory } from '../../types';
 import {
   createOptionsListExtract,
   createOptionsListInject,
 } from '../../../common/control_types/options_list/options_list_persistable_state';
+import { TimeSliderEditor } from './time_slider_editor';
 import { TimeSliderControlEmbeddableInput } from '../../../common/control_types/time_slider/types';
 import { TimeSliderStrings } from './time_slider_strings';
 
@@ -47,11 +48,7 @@ export class TimesliderEmbeddableFactory
     return newInput;
   };
 
-  public isFieldCompatible = (dataControlField: DataControlField) => {
-    if (dataControlField.field.type === 'date') {
-      dataControlField.compatibleControlTypes.push(this.type);
-    }
-  };
+  public controlEditorComponent = TimeSliderEditor;
 
   public isEditable = () => Promise.resolve(false);
 

@@ -41,7 +41,6 @@ export default class CiStatsJestReporter extends BaseReporter {
   private startTime: number | undefined;
   private passCount = 0;
   private failCount = 0;
-  private testExecErrorCount = 0;
 
   private group: CiStatsReportTestsOptions['group'] | undefined;
   private readonly testRuns: CiStatsReportTestsOptions['testRuns'] = [];
@@ -91,10 +90,6 @@ export default class CiStatsJestReporter extends BaseReporter {
       return;
     }
 
-    if (testResult.testExecError) {
-      this.testExecErrorCount += 1;
-    }
-
     let elapsedTime = 0;
     for (const t of testResult.testResults) {
       const result = t.status === 'failed' ? 'fail' : t.status === 'passed' ? 'pass' : 'skip';
@@ -128,8 +123,7 @@ export default class CiStatsJestReporter extends BaseReporter {
     }
 
     this.group.durationMs = Date.now() - this.startTime;
-    this.group.result =
-      this.failCount || this.testExecErrorCount ? 'fail' : this.passCount ? 'pass' : 'skip';
+    this.group.result = this.failCount ? 'fail' : this.passCount ? 'pass' : 'skip';
 
     await this.reporter.reportTests({
       group: this.group,

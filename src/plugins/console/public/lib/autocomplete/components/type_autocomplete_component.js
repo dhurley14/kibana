@@ -8,7 +8,7 @@
 
 import _ from 'lodash';
 import { ListComponent } from './list_component';
-import { getTypes } from '../../autocomplete_entities';
+import { getTypes } from '../../mappings/mappings';
 function TypeGenerator(context) {
   return getTypes(context.indices);
 }

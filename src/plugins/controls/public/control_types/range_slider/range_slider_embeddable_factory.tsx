@@ -9,7 +9,8 @@
 import deepEqual from 'fast-deep-equal';
 
 import { EmbeddableFactoryDefinition, IContainer } from '@kbn/embeddable-plugin/public';
-import { ControlEmbeddable, DataControlField, IEditableControlFactory } from '../../types';
+import { RangeSliderEditor } from './range_slider_editor';
+import { ControlEmbeddable, IEditableControlFactory } from '../../types';
 import { RangeSliderEmbeddableInput, RANGE_SLIDER_CONTROL } from './types';
 import {
   createRangeSliderExtract,
@@ -45,11 +46,7 @@ export class RangeSliderEmbeddableFactory
     return newInput;
   };
 
-  public isFieldCompatible = (dataControlField: DataControlField) => {
-    if (dataControlField.field.aggregatable && dataControlField.field.type === 'number') {
-      dataControlField.compatibleControlTypes.push(this.type);
-    }
-  };
+  public controlEditorComponent = RangeSliderEditor;
 
   public isEditable = () => Promise.resolve(false);
 

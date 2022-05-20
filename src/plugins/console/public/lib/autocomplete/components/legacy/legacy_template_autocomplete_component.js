@@ -6,12 +6,12 @@
  * Side Public License, v 1.
  */
 
-import { getAutocompleteInfo } from '../../../../services';
+import { getLegacyTemplates } from '../../../mappings/mappings';
 import { ListComponent } from '../list_component';
 
 export class LegacyTemplateAutocompleteComponent extends ListComponent {
   constructor(name, parent) {
-    super(name, getAutocompleteInfo().getEntityProvider('legacyTemplates'), parent, true, true);
+    super(name, getLegacyTemplates, parent, true, true);
   }
   getContextKey() {
     return 'template';

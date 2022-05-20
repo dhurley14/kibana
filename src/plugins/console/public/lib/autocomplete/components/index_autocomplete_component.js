@@ -7,16 +7,14 @@
  */
 
 import _ from 'lodash';
-import { getAutocompleteInfo } from '../../../services';
+import { getIndices } from '../../mappings/mappings';
 import { ListComponent } from './list_component';
-
 function nonValidIndexType(token) {
   return !(token === '_all' || token[0] !== '_');
 }
-
 export class IndexAutocompleteComponent extends ListComponent {
   constructor(name, parent, multiValued) {
-    super(name, getAutocompleteInfo().getEntityProvider('indices'), parent, multiValued);
+    super(name, getIndices, parent, multiValued);
   }
   validateTokens(tokens) {
     if (!this.multiValued && tokens.length > 1) {

@@ -20,8 +20,15 @@ import type {
   SearchRequest as SearchRequestWithBody,
   AggregationsAggregate,
 } from '@elastic/elasticsearch/lib/api/typesWithBodyKey';
-import type { IScopedClusterClient, ElasticsearchClient, Logger } from '@kbn/core/server';
-import { SearchMetrics, RuleInfo } from './types';
+import { IScopedClusterClient, ElasticsearchClient, Logger } from '@kbn/core/server';
+import { Rule } from '../types';
+import { RuleRunMetrics } from './rule_run_metrics_store';
+
+type RuleInfo = Pick<Rule, 'name' | 'alertTypeId' | 'id'> & { spaceId: string };
+type SearchMetrics = Pick<
+  RuleRunMetrics,
+  'numSearches' | 'totalSearchDurationMs' | 'esSearchDurationMs'
+>;
 
 interface WrapScopedClusterClientFactoryOpts {
   scopedClusterClient: IScopedClusterClient;

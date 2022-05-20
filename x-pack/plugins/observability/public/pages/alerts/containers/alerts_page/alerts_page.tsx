@@ -38,6 +38,7 @@ import './styles.scss';
 import { AlertsStatusFilter, AlertsDisclaimer, AlertsSearchBar } from '../../components';
 import { renderRuleStats } from '../../components/rule_stats';
 import { ObservabilityAppServices } from '../../../../application/types';
+import { OBSERVABILITY_RULE_TYPES } from '../../../rules/config';
 
 interface RuleStatsState {
   total: number;
@@ -68,7 +69,7 @@ const ALERT_STATUS_REGEX = new RegExp(
 const ALERT_TABLE_STATE_STORAGE_KEY = 'xpack.observability.alert.tableState';
 
 function AlertsPage() {
-  const { ObservabilityPageTemplate, config, observabilityRuleTypeRegistry } = usePluginContext();
+  const { ObservabilityPageTemplate, config } = usePluginContext();
   const [alertFilterStatus, setAlertFilterStatus] = useState('' as AlertStatusFilterButton);
   const refetch = useRef<() => void>();
   const timefilterService = useTimefilterService();
@@ -109,7 +110,7 @@ function AlertsPage() {
     try {
       const response = await loadRuleAggregations({
         http,
-        typesFilter: observabilityRuleTypeRegistry.list(),
+        typesFilter: OBSERVABILITY_RULE_TYPES,
       });
       const { ruleExecutionStatus, ruleMutedStatus, ruleEnabledStatus, ruleSnoozedStatus } =
         response;

@@ -11,20 +11,16 @@ import { populateContext } from '../autocomplete/engine';
 
 import '../../application/models/sense_editor/sense_editor.test.mocks';
 import * as kb from '.';
-import { AutocompleteInfo, setAutocompleteInfo } from '../../services';
+import * as mappings from '../mappings/mappings';
 
 describe('Knowledge base', () => {
-  let autocompleteInfo;
   beforeEach(() => {
+    mappings.clear();
     kb.setActiveApi(kb._test.loadApisFromJson({}));
-    autocompleteInfo = new AutocompleteInfo();
-    setAutocompleteInfo(autocompleteInfo);
-    autocompleteInfo.mapping.clearMappings();
   });
   afterEach(() => {
+    mappings.clear();
     kb.setActiveApi(kb._test.loadApisFromJson({}));
-    autocompleteInfo = null;
-    setAutocompleteInfo(null);
   });
 
   const MAPPING = {
@@ -126,7 +122,7 @@ describe('Knowledge base', () => {
 
       kb.setActiveApi(testApi);
 
-      autocompleteInfo.mapping.loadMappings(MAPPING);
+      mappings.loadMappings(MAPPING);
       testUrlContext(tokenPath, otherTokenValues, expectedContext);
     });
   }
@@ -169,7 +165,7 @@ describe('Knowledge base', () => {
       );
       kb.setActiveApi(testApi);
 
-      autocompleteInfo.mapping.loadMappings(MAPPING);
+      mappings.loadMappings(MAPPING);
 
       testUrlContext(tokenPath, otherTokenValues, expectedContext);
     });

@@ -800,10 +800,6 @@ export class Embeddable
     return this.savedVis && this.savedVis.description;
   }
 
-  public getSavedVis(): Readonly<Document | undefined> {
-    return this.savedVis;
-  }
-
   destroy() {
     super.destroy();
     this.isDestroyed = true;

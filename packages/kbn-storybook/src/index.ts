@@ -6,13 +6,6 @@
  * Side Public License, v 1.
  */
 
-import {
-  defaultConfig,
-  defaultConfigWebFinal,
-  mergeWebpackFinal,
-  StorybookConfig,
-} from './lib/default_config';
-export { defaultConfig, defaultConfigWebFinal, mergeWebpackFinal };
-export type { StorybookConfig };
+export { defaultConfig, defaultConfigWebFinal, mergeWebpackFinal } from './lib/default_config';
 export { runStorybookCli } from './lib/run_storybook_cli';
 export { default as WebpackConfig } from './webpack.config';

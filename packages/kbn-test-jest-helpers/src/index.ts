@@ -18,8 +18,6 @@ export * from './redux_helpers';
 
 export * from './router_helpers';
 
-export * from './stub_broadcast_channel';
-
 export * from './stub_browser_storage';
 
 export * from './stub_web_worker';

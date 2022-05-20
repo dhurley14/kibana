@@ -84,8 +84,6 @@ settings:
     syncAlerts:
       type: boolean
       example: true
-severity:
-  $ref: 'severity.yaml'
 status:
   $ref: 'status.yaml'
 tags:

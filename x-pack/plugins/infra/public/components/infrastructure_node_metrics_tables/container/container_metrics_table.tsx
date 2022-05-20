@@ -68,11 +68,7 @@ export const ContainerMetricsTable = (props: ContainerMetricsTableProps) => {
   );
 
   if (isLoading) {
-    return (
-      <EuiFlexGroup alignItems="center" justifyContent="center" direction="column">
-        <EuiLoadingSpinner size="xl" data-test-subj="containerMetricsTableLoader" />
-      </EuiFlexGroup>
-    );
+    return <EuiLoadingSpinner size="xl" data-test-subj="containerMetricsTableLoader" />;
   }
 
   return (

@@ -5,6 +5,7 @@
  * 2.0.
  */
 
+import { enforceOptions } from 'broadcast-channel';
 import { Observable } from 'rxjs';
 
 import type { CoreSetup } from '@kbn/core/public';
@@ -13,15 +14,19 @@ import type { DataViewsPublicPluginStart } from '@kbn/data-views-plugin/public';
 import type { FeaturesPluginStart } from '@kbn/features-plugin/public';
 import { licensingMock } from '@kbn/licensing-plugin/public/mocks';
 import { managementPluginMock } from '@kbn/management-plugin/public/mocks';
-import { stubBroadcastChannel } from '@kbn/test-jest-helpers';
 
 import { ManagementService } from './management';
 import type { PluginStartDependencies } from './plugin';
 import { SecurityPlugin } from './plugin';
 
-stubBroadcastChannel();
-
 describe('Security Plugin', () => {
+  beforeAll(() => {
+    enforceOptions({ type: 'simulate' });
+  });
+  afterAll(() => {
+    enforceOptions(null);
+  });
+
   describe('#setup', () => {
     it('should be able to setup if optional plugins are not available', () => {
       const plugin = new SecurityPlugin(coreMock.createPluginInitializerContext());

@@ -81,7 +81,7 @@ export const ExpandedRowMessagesPane: React.FC<Props> = ({ transformId }) => {
     {
       name: '',
       render: (message: TransformMessage) => <JobIcon message={message} />,
-      width: theme.euiSizeXL,
+      width: `${theme.euiSizeXL}px`,
     },
     {
       name: i18n.translate(

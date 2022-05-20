@@ -9,8 +9,9 @@ import {
   elasticsearchServiceMock,
   savedObjectsClientMock,
   uiSettingsServiceMock,
+  httpServerMock,
 } from '@kbn/core/server/mocks';
-import { searchSourceCommonMock } from '@kbn/data-plugin/common/search/search_source/mocks';
+import { dataPluginMock } from '@kbn/data-plugin/server/mocks';
 import { rulesClientMock } from './rules_client.mock';
 import { PluginSetupContract, PluginStartContract } from './plugin';
 import { Alert, AlertFactoryDoneUtils } from './alert';
@@ -112,7 +113,11 @@ const createRuleExecutorServicesMock = <
     shouldWriteAlerts: () => true,
     shouldStopExecution: () => true,
     search: createAbortableSearchServiceMock(),
-    searchSourceClient: searchSourceCommonMock,
+    searchSourceClient: Promise.resolve(
+      dataPluginMock
+        .createStartContract()
+        .search.searchSource.asScoped(httpServerMock.createKibanaRequest())
+    ),
   };
 };
 export type RuleExecutorServicesMock = ReturnType<typeof createRuleExecutorServicesMock>;

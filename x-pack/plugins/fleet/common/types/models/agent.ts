@@ -98,7 +98,6 @@ export interface CurrentUpgrade {
   complete: boolean;
   nbAgents: number;
   nbAgentsAck: number;
-  version: string;
 }
 
 // Generated from FleetServer schema.json

@@ -67,8 +67,7 @@ export const Page: FC<PageProps> = ({ existingJobsAndGroups, jobType }) => {
       ? WIZARD_STEPS.ADVANCED_CONFIGURE_DATAFEED
       : WIZARD_STEPS.TIME_RANGE;
 
-  let autoSetTimeRange = mlJobService.tempJobCloningObjects.autoSetTimeRange;
-  mlJobService.tempJobCloningObjects.autoSetTimeRange = false;
+  let autoSetTimeRange = false;
 
   if (
     mlJobService.tempJobCloningObjects.job !== undefined &&
@@ -107,7 +106,7 @@ export const Page: FC<PageProps> = ({ existingJobsAndGroups, jobType }) => {
     } else {
       // if not start and end times are set and this is an advanced job,
       // auto set the time range based on the index
-      autoSetTimeRange = autoSetTimeRange || isAdvancedJobCreator(jobCreator);
+      autoSetTimeRange = isAdvancedJobCreator(jobCreator);
     }
 
     if (mlJobService.tempJobCloningObjects.calendars) {
@@ -149,7 +148,7 @@ export const Page: FC<PageProps> = ({ existingJobsAndGroups, jobType }) => {
     }
   }
 
-  if (autoSetTimeRange) {
+  if (autoSetTimeRange && isAdvancedJobCreator(jobCreator)) {
     // for advanced jobs, load the full time range start and end times
     // so they can be used for job validation and bucket span estimation
     jobCreator.autoSetTimeRange().catch((error) => {
@@ -184,7 +183,7 @@ export const Page: FC<PageProps> = ({ existingJobsAndGroups, jobType }) => {
   chartInterval.setInterval('auto');
 
   const chartLoader = useMemo(
-    () => new ChartLoader(mlContext.currentDataView, jobCreator.query),
+    () => new ChartLoader(mlContext.currentDataView, mlContext.combinedQuery),
     []
   );
 

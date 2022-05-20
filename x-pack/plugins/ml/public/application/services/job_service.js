@@ -35,7 +35,6 @@ class JobService {
       start: undefined,
       end: undefined,
       calendars: undefined,
-      autoSetTimeRange: false,
     };
 
     this.jobs = [];

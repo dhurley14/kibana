@@ -6,10 +6,10 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title><%= htmlWebpackPlugin.options.title || 'Storybook'%></title>
+    <title><%= options.title || 'Storybook'%></title>
 
-    <% if (htmlWebpackPlugin.files.favicon) { %>
-    <link rel="shortcut icon" href="<%= htmlWebpackPlugin.files.favicon%>" />
+    <% if (files.favicon) { %>
+    <link rel="shortcut icon" href="<%= files.favicon%>" />
     <% } %>
 
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -26,7 +26,7 @@
     <!--                                      -->
 
     <% if (typeof headHtmlSnippet !== 'undefined') { %> <%= headHtmlSnippet %> <% } %> <%
-    htmlWebpackPlugin.files.css.forEach(file => { %>
+    files.css.forEach(file => { %>
     <link href="<%= file %>" rel="stylesheet" />
     <% }); %>
 
@@ -58,7 +58,7 @@
       </script>
     <% } %>
 
-    <% htmlWebpackPlugin.files.js.forEach(file => { %>
+    <% files.js.forEach(file => { %>
       <script src="<%= file %>"></script>
     <% }); %>
   </body>

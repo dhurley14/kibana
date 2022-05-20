@@ -6,12 +6,12 @@
  * Side Public License, v 1.
  */
 
-import { getAutocompleteInfo } from '../../../services';
+import { getIndexTemplates } from '../../mappings/mappings';
 import { ListComponent } from './list_component';
 
 export class IndexTemplateAutocompleteComponent extends ListComponent {
   constructor(name, parent) {
-    super(name, getAutocompleteInfo().getEntityProvider('indexTemplates'), parent, true, true);
+    super(name, getIndexTemplates, parent, true, true);
   }
 
   getContextKey() {

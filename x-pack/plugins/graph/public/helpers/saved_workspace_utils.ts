@@ -53,7 +53,6 @@ function mapHits(hit: any, url: string): GraphWorkspaceSavedObject {
   const source = hit.attributes;
   source.id = hit.id;
   source.url = url;
-  source.updatedAt = hit.updatedAt;
   source.icon = 'fa-share-alt'; // looks like a graph
   return source;
 }

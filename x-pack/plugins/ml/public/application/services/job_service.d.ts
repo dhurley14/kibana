@@ -25,7 +25,6 @@ declare interface JobService {
     start?: number;
     end?: number;
     calendars: Calendar[] | undefined;
-    autoSetTimeRange?: boolean;
   };
   skipTimeRangeStep: boolean;
   saveNewJob(job: Job): Promise<any>;

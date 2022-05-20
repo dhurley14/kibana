@@ -11,7 +11,6 @@ import { EuiFlexGroup, EuiFlexItem, EuiPanel, EuiHorizontalRule, EuiSpacer } fro
 
 import { SplitField } from '../../../../../../../../../common/types/fields';
 import { JOB_TYPE } from '../../../../../../../../../common/constants/new_job';
-import './style.scss';
 
 interface Props {
   fieldValues: string[];
@@ -73,7 +72,7 @@ export const SplitCards: FC<Props> = memo(
           <div key={fieldName} ref={(ref) => storePanels(ref, marginBottom)} style={style}>
             <EuiPanel
               paddingSize="m"
-              className="mlPickFields__splitCard"
+              style={{ paddingTop: '4px' }}
               data-test-subj="mlSplitCard back"
             >
               <div
@@ -113,7 +112,7 @@ export const SplitCards: FC<Props> = memo(
               {getBackPanels()}
               <EuiPanel
                 paddingSize="m"
-                className="mlPickFields__splitCard"
+                style={{ paddingTop: '4px' }}
                 data-test-subj="mlSplitCard front"
               >
                 <div

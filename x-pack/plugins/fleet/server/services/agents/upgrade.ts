@@ -331,7 +331,6 @@ async function _getUpgradeActions(esClient: ElasticsearchClient, now = new Date(
           nbAgents: 0,
           complete: false,
           nbAgentsAck: 0,
-          version: hit._source.data?.version as string,
         };
       }
 

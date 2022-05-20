@@ -35,24 +35,19 @@ export function getDataLayers(layers: XYExtendedLayerConfigResult[]) {
   );
 }
 
-export function getAccessors<
-  T,
-  U extends { splitAccessor?: T; xAccessor?: T; accessors: T[]; markSizeAccessor?: T }
->(args: U, table: Datatable) {
+export function getAccessors<T, U extends { splitAccessor?: T; xAccessor?: T; accessors: T[] }>(
+  args: U,
+  table: Datatable
+) {
   let splitAccessor: T | string | undefined = args.splitAccessor;
   let xAccessor: T | string | undefined = args.xAccessor;
   let accessors: Array<T | string> = args.accessors ?? [];
-  let markSizeAccessor: T | string | undefined = args.markSizeAccessor;
-
-  if (!splitAccessor && !xAccessor && !(accessors && accessors.length) && !markSizeAccessor) {
+  if (!splitAccessor && !xAccessor && !(accessors && accessors.length)) {
     const y = table.columns.find((column) => column.id === PointSeriesColumnNames.Y)?.id;
     xAccessor = table.columns.find((column) => column.id === PointSeriesColumnNames.X)?.id;
     splitAccessor = table.columns.find((column) => column.id === PointSeriesColumnNames.COLOR)?.id;
     accessors = y ? [y] : [];
-    markSizeAccessor = table.columns.find(
-      (column) => column.id === PointSeriesColumnNames.SIZE
-    )?.id;
   }
 
-  return { splitAccessor, xAccessor, accessors, markSizeAccessor };
+  return { splitAccessor, xAccessor, accessors };
 }

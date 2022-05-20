@@ -77,7 +77,8 @@ export function AlertsFlyout({
   }
 
   const ruleId = alertData.fields['kibana.alert.rule.uuid'] ?? null;
-  const linkToRule = ruleId && prepend ? prepend(paths.observability.ruleDetails(ruleId)) : null;
+  const linkToRule = ruleId && prepend ? prepend(paths.management.ruleDetails(ruleId)) : null;
+
   const overviewListItems = [
     {
       title: translations.alertsFlyout.statusLabel,

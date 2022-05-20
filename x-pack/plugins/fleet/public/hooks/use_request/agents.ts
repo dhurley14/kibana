@@ -29,7 +29,6 @@ import type {
   PostBulkAgentUpgradeResponse,
   PostNewAgentActionRequest,
   PostNewAgentActionResponse,
-  GetCurrentUpgradesResponse,
 } from '../../types';
 
 import { useRequest, sendRequest } from './use_request';
@@ -176,19 +175,5 @@ export function sendPostBulkAgentUpgrade(
     method: 'post',
     body,
     ...options,
-  });
-}
-
-export function sendGetCurrentUpgrades() {
-  return sendRequest<GetCurrentUpgradesResponse>({
-    path: agentRouteService.getCurrentUpgradesPath(),
-    method: 'get',
-  });
-}
-
-export function sendPostCancelAction(actionId: string) {
-  return sendRequest<GetCurrentUpgradesResponse>({
-    path: agentRouteService.getCancelActionPath(actionId),
-    method: 'post',
   });
 }

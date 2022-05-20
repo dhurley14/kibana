@@ -18,7 +18,6 @@ import { UserActionUsernameWithAvatar } from '../avatar_username';
 import { MultipleAlertsCommentEvent, SingleAlertCommentEvent } from './alert_event';
 import { UserActionCopyLink } from '../copy_link';
 import { UserActionShowAlert } from './show_alert';
-import { ShowAlertTableLink } from './show_alert_table_link';
 
 type BuilderArgs = Pick<
   UserActionBuilderArgs,
@@ -135,9 +134,6 @@ const getMultipleAlertsUserAction = ({
         <EuiFlexGroup responsive={false}>
           <EuiFlexItem grow={false}>
             <UserActionCopyLink id={userAction.actionId} />
-          </EuiFlexItem>
-          <EuiFlexItem grow={false}>
-            <ShowAlertTableLink />
           </EuiFlexItem>
         </EuiFlexGroup>
       ),

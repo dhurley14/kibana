@@ -5,10 +5,7 @@
  * 2.0.
  */
 
-import {
-  CreateExceptionListSchema,
-  ExceptionListItemSchema,
-} from '@kbn/securitysolution-io-ts-list-types';
+import { ExceptionListItemSchema } from '@kbn/securitysolution-io-ts-list-types';
 import { act, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
@@ -19,26 +16,17 @@ import {
   createAppRootMockRenderer,
 } from '../../../../../../common/mock/endpoint';
 import { PolicyArtifactsDeleteModal } from './policy_artifacts_delete_modal';
-import { exceptionsListAllHttpMocks } from '../../../../mocks/exceptions_list_http_mocks';
-import { ExceptionsListApiClient } from '../../../../../services/exceptions_list/exceptions_list_api_client';
+import { eventFiltersListQueryHttpMock } from '../../../../event_filters/test_utils';
+import { EventFiltersApiClient } from '../../../../event_filters/service/event_filters_api_client';
 import { POLICY_ARTIFACT_DELETE_MODAL_LABELS } from './translations';
 
-const listType: Array<CreateExceptionListSchema['type']> = [
-  'endpoint_events',
-  'detection',
-  'endpoint',
-  'endpoint_trusted_apps',
-  'endpoint_host_isolation_exceptions',
-  'endpoint_blocklists',
-];
-
-describe.each(listType)('Policy details %s artifact delete modal', (type) => {
+describe('Policy details artifacts delete modal', () => {
   let policyId: string;
   let render: () => Promise<ReturnType<AppContextTestRender['render']>>;
   let renderResult: ReturnType<AppContextTestRender['render']>;
   let mockedContext: AppContextTestRender;
   let exception: ExceptionListItemSchema;
-  let mockedApi: ReturnType<typeof exceptionsListAllHttpMocks>;
+  let mockedApi: ReturnType<typeof eventFiltersListQueryHttpMock>;
   let onCloseMock: () => jest.Mock;
 
   beforeEach(() => {
@@ -46,30 +34,20 @@ describe.each(listType)('Policy details %s artifact delete modal', (type) => {
     mockedContext = createAppRootMockRenderer();
     exception = getExceptionListItemSchemaMock();
     onCloseMock = jest.fn();
-    mockedApi = exceptionsListAllHttpMocks(mockedContext.coreStart.http);
+    mockedApi = eventFiltersListQueryHttpMock(mockedContext.coreStart.http);
     render = async () => {
       await act(async () => {
         renderResult = mockedContext.render(
           <PolicyArtifactsDeleteModal
             policyId={policyId}
             policyName="fakeName"
-            apiClient={ExceptionsListApiClient.getInstance(
-              mockedContext.coreStart.http,
-              'test_list_id',
-              { description: 'test description', name: 'test_api_client', type }
-            )}
+            apiClient={EventFiltersApiClient.getInstance(mockedContext.coreStart.http)}
             exception={exception}
             onClose={onCloseMock}
             labels={POLICY_ARTIFACT_DELETE_MODAL_LABELS}
           />
         );
-
-        mockedApi.responseProvider.exceptionsFind.mockReturnValue({
-          data: [],
-          total: 0,
-          page: 1,
-          per_page: 10,
-        });
+        await waitFor(mockedApi.responseProvider.eventFiltersList);
       });
       return renderResult;
     };
@@ -97,9 +75,9 @@ describe.each(listType)('Policy details %s artifact delete modal', (type) => {
     const confirmButton = renderResult.getByTestId('confirmModalConfirmButton');
     userEvent.click(confirmButton);
     await waitFor(() => {
-      expect(mockedApi.responseProvider.exceptionUpdate).toHaveBeenLastCalledWith({
+      expect(mockedApi.responseProvider.eventFiltersUpdateOne).toHaveBeenLastCalledWith({
         body: JSON.stringify(
-          ExceptionsListApiClient.cleanExceptionsBeforeUpdate({
+          EventFiltersApiClient.cleanExceptionsBeforeUpdate({
             ...exception,
             tags: ['policy:1234', 'policy:4321', 'not-a-policy-tag'],
           })
@@ -115,7 +93,7 @@ describe.each(listType)('Policy details %s artifact delete modal', (type) => {
     userEvent.click(confirmButton);
 
     await waitFor(() => {
-      expect(mockedApi.responseProvider.exceptionUpdate).toHaveBeenCalled();
+      expect(mockedApi.responseProvider.eventFiltersUpdateOne).toHaveBeenCalled();
     });
 
     expect(onCloseMock).toHaveBeenCalled();
@@ -124,7 +102,7 @@ describe.each(listType)('Policy details %s artifact delete modal', (type) => {
 
   it('should show an error toast if the operation failed', async () => {
     const error = new Error('the server is too far away');
-    mockedApi.responseProvider.exceptionUpdate.mockImplementation(() => {
+    mockedApi.responseProvider.eventFiltersUpdateOne.mockImplementation(() => {
       throw error;
     });
 
@@ -133,7 +111,7 @@ describe.each(listType)('Policy details %s artifact delete modal', (type) => {
     userEvent.click(confirmButton);
 
     await waitFor(() => {
-      expect(mockedApi.responseProvider.exceptionUpdate).toHaveBeenCalled();
+      expect(mockedApi.responseProvider.eventFiltersUpdateOne).toHaveBeenCalled();
     });
 
     expect(mockedContext.coreStart.notifications.toasts.addError).toHaveBeenCalledWith(error, {

@@ -5,6 +5,7 @@
  * 2.0.
  */
 
+import { combineReducers, createStore } from 'redux';
 import type {
   FoundExceptionListItemSchema,
   ExceptionListItemSchema,
@@ -17,9 +18,25 @@ import { getSummaryExceptionListSchemaMock } from '@kbn/lists-plugin/common/sche
 import { Ecs } from '../../../../../common/ecs';
 
 import {
+  MANAGEMENT_STORE_GLOBAL_NAMESPACE,
+  MANAGEMENT_STORE_EVENT_FILTERS_NAMESPACE,
+} from '../../../common/constants';
+
+import { eventFiltersPageReducer } from '../store/reducer';
+import {
   httpHandlerMockFactory,
   ResponseProvidersInterface,
 } from '../../../../common/mock/endpoint/http_handler_mock_factory';
+
+export const createGlobalNoMiddlewareStore = () => {
+  return createStore(
+    combineReducers({
+      [MANAGEMENT_STORE_GLOBAL_NAMESPACE]: combineReducers({
+        [MANAGEMENT_STORE_EVENT_FILTERS_NAMESPACE]: eventFiltersPageReducer,
+      }),
+    })
+  );
+};
 
 export const ecsEventMock = (): Ecs => ({
   _id: 'unLfz3gB2mJZsMY3ytx3',
@@ -189,8 +206,6 @@ export const esResponseData = () => ({
       ],
     },
   },
-  indexFields: [],
-  indicesExist: [],
   isPartial: false,
   isRunning: false,
   total: 1,

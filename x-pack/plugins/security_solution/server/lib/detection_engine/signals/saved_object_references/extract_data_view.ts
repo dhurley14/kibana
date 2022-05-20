@@ -7,13 +7,6 @@
 
 import { SavedObjectReference } from '@kbn/core/server';
 
-import {
-  EqlRuleParams,
-  QueryRuleParams,
-  ThreatRuleParams,
-  ThresholdRuleParams,
-} from '../../schemas/rule_schemas';
-
 /**
  * This extracts the "dataViewId" and returns it as a saved object reference.
  * @param dataViewId The data view SO "id" to be returned as a saved object reference.
@@ -22,13 +15,7 @@ import {
 export const extractDataView = ({
   dataViewId,
 }: {
-  dataViewId:
-    | ThresholdRuleParams['dataViewId']
-    | ThreatRuleParams['dataViewId']
-    | QueryRuleParams['dataViewId']
-    | EqlRuleParams['dataViewId']
-    | undefined
-    | null;
+  dataViewId: string | undefined | null;
 }): SavedObjectReference[] => {
   if (dataViewId == null || dataViewId.trim() === '') {
     return [];
