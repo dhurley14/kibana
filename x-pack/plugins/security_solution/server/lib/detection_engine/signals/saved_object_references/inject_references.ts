@@ -7,6 +7,12 @@
 
 import { Logger, SavedObjectReference } from '@kbn/core/server';
 import { RuleParams } from '../../schemas/rule_schemas';
+import {
+  isEqlRuleParams,
+  isQueryRuleParams,
+  isThreatRuleParams,
+  isThresholdRuleParams,
+} from '../../schemas/utils';
 import { injectExceptionsReferences } from './inject_exceptions_list';
 import { injectDataViewReferences } from './inject_data_view';
 
@@ -43,16 +49,27 @@ export const injectReferences = <TParams extends RuleParams>({
     exceptionsList: params.exceptionsList,
     savedObjectReferences,
   });
-  const dataViewId = injectDataViewReferences({
-    logger,
-    dataViewId: params.dataViewId,
-    savedObjectReferences,
-  });
+
   let ruleParamsWithSavedObjectReferences: TParams = {
     ...params,
     exceptionsList,
-    dataViewId
   };
+
+  if (
+    isEqlRuleParams(params) ||
+    isQueryRuleParams(params) ||
+    isThreatRuleParams(params) ||
+    isThresholdRuleParams(params)
+  ) {
+    const dataView = injectDataViewReferences({
+      logger,
+      savedObjectReferences,
+    });
+    ruleParamsWithSavedObjectReferences = {
+      ...ruleParamsWithSavedObjectReferences,
+      dataViewId: dataView,
+    };
+  }
 
   return ruleParamsWithSavedObjectReferences;
 };
