@@ -23,6 +23,7 @@ export const createPersistenceRuleTypeWrapper: CreatePersistenceRuleTypeWrapper 
           services: {
             ...options.services,
             alertWithPersistence: async (alerts, refresh) => {
+              console.error('INSIDE ALERTS WITH PERSISTENCE');
               const numAlerts = alerts.length;
               logger.debug(`Found ${numAlerts} alerts.`);
 
@@ -45,6 +46,7 @@ export const createPersistenceRuleTypeWrapper: CreatePersistenceRuleTypeWrapper 
                 const CHUNK_SIZE = 10000;
                 const alertChunks = chunk(alerts, CHUNK_SIZE);
                 const filteredAlerts: typeof alerts = [];
+                console.error('ALERT CHUNKS', alertChunks);
 
                 for (const alertChunk of alertChunks) {
                   const request: estypes.SearchRequest = {

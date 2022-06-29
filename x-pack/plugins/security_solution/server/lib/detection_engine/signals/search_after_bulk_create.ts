@@ -144,8 +144,11 @@ export const searchAfterAndBulkCreate = async ({
         if (includedEvents.length !== 0) {
           // make sure we are not going to create more signals than maxSignals allows
           const limitedEvents = includedEvents.slice(0, tuple.maxSignals - signalsCreatedCount);
+          console.error('BEFORE ENRICHMENT');
           const enrichedEvents = await enrichment(limitedEvents);
+          console.error('AFTER ENRICHMENT');
           const wrappedDocs = wrapHits(enrichedEvents, buildReasonMessage);
+          console.error('AFTER WRAP HITS');
 
           const {
             bulkCreateDuration: bulkDuration,

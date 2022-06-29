@@ -37,13 +37,16 @@ export const wrapHitsFactory =
     events: Array<estypes.SearchHit<SignalSource>>,
     buildReasonMessage: BuildReasonMessage
   ): Array<WrappedFieldsLatest<BaseFieldsLatest>> => {
+    console.error('START WRAPPED HITS');
     const wrappedDocs = events.map((event): WrappedFieldsLatest<BaseFieldsLatest> => {
+      console.error('BEFORE GENERATE ID');
       const id = generateId(
         event._index,
         event._id,
         String(event._version),
         `${spaceId}:${completeRule.alertId}`
       );
+      console.error('BEFORE RETURN ENTERING BULK BODY');
       return {
         _id: id,
         _index: '',
@@ -62,6 +65,7 @@ export const wrapHitsFactory =
         },
       };
     });
+    console.error('RETURNING WRAPPED HITS');
     return wrappedDocs.filter(
       (doc) =>
         !doc._source['kibana.alert.ancestors'].some(

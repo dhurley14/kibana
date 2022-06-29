@@ -10,6 +10,36 @@ import { set } from '@elastic/safer-lodash-set/fp';
 import { SearchTypes } from '../../../../../../common/detection_engine/types';
 import { FieldsType } from '../types';
 
+class Queue {
+  elements: { [x: number]: unknown };
+  head: number;
+  tail: number;
+  constructor() {
+    this.elements = {};
+    this.head = 0;
+    this.tail = 0;
+  }
+  enqueue(element: unknown) {
+    this.elements[this.tail] = element;
+    this.tail++;
+  }
+  dequeue() {
+    const item = this.elements[this.head];
+    delete this.elements[this.head];
+    this.head++;
+    return item;
+  }
+  peek() {
+    return this.elements[this.head];
+  }
+  public get length(): number {
+    return this.tail - this.head;
+  }
+  public get isEmpty(): boolean {
+    return this.length === 0;
+  }
+}
+
 /**
  * Recursively unboxes fields from an array when it is common sense to unbox them and safe to
  * make an assumption to unbox them when we compare them to the "fieldsValue" and the "valueInMergedDocument"
@@ -25,6 +55,8 @@ export const recursiveUnboxingFields = (
   fieldsValue: FieldsType | FieldsType[0],
   valueInMergedDocument: SearchTypes
 ): FieldsType | FieldsType[0] => {
+  // console.error('INSIDE RECURSIVE UNBOXING');
+  const queue = new Queue();
   if (Array.isArray(fieldsValue)) {
     const fieldsValueMapped = (fieldsValue as Array<string | number | boolean | object>).map(
       (value, index) => {

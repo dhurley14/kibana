@@ -1,0 +1,18 @@
+{
+  "value": {
+    "id": "index-pattern:my-fake-data-view",
+    "index": ".kibana_1",
+    "source": {
+      "index-pattern": {
+        "title": "auditbeat-*,myfakeindex*",
+        "fieldAttrs": "{}",
+        "fields": "[]",
+        "fieldFormatMap": "{}",
+        "timeFieldName": "@timestamp",
+        "typeMeta": "{}",
+        "runtimeFieldMap": ""
+      },
+      "type": "index-pattern"
+    }
+  }
+}

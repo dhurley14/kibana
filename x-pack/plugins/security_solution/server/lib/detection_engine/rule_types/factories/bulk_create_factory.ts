@@ -48,6 +48,7 @@ export const bulkCreateFactory =
     }
 
     const start = performance.now();
+    console.error('BEFORE ALERT WITH PERSISTENCE');
 
     const { createdAlerts, errors } = await alertWithPersistence(
       wrappedDocs.map((doc) => ({
@@ -57,6 +58,8 @@ export const bulkCreateFactory =
       })),
       refreshForBulkCreate
     );
+
+    console.error('AFTER ALERT WITH PERSISTENCE');
 
     const end = performance.now();
 

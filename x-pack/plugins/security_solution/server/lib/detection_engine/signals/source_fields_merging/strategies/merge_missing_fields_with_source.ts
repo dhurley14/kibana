@@ -27,9 +27,12 @@ import { isNestedObject } from '../utils/is_nested_object';
 export const mergeMissingFieldsWithSource: MergeStrategyFunction = ({ doc, ignoreFields }) => {
   const source = doc._source ?? {};
   const fields = doc.fields ?? {};
+  console.error('BEFORE OBJECT.KEYS');
   const fieldEntries = Object.entries(fields);
   const filteredEntries = filterFieldEntries(fieldEntries, ignoreFields);
 
+  console.error('BEFORE REDUCE');
+  console.error('FILTERED ENTIRES . LENGTH', filteredEntries.length);
   const transformedSource = filteredEntries.reduce(
     (merged, [fieldsKey, fieldsValue]: [string, FieldsType]) => {
       if (
@@ -42,7 +45,9 @@ export const mergeMissingFieldsWithSource: MergeStrategyFunction = ({ doc, ignor
         return merged;
       }
 
+      // console.error('BEFORE GET');
       const valueInMergedDocument = get(fieldsKey, merged);
+      // console.error('BEFORE RECURSIVE UNBOXING');
       const valueToMerge = recursiveUnboxingFields(fieldsValue, valueInMergedDocument);
       return set(fieldsKey, valueToMerge, merged);
     },

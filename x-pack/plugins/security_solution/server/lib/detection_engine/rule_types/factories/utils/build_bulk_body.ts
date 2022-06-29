@@ -52,10 +52,13 @@ export const buildBulkBody = (
   buildReasonMessage: BuildReasonMessage,
   indicesToQuery: string[]
 ): BaseFieldsLatest => {
+  console.error('BEFORE MERGED DOC');
   const mergedDoc = getMergeStrategy(mergeStrategy)({ doc, ignoreFields });
+  console.error('BEFORE BUILD EVENT TYPE');
   const eventFields = buildEventTypeAlert(mergedDoc);
+  console.error('BEFORE FILTER SOURCE');
   const filteredSource = filterSource(mergedDoc);
-
+  console.error('BEFORE APPLY OVERRIDES');
   const overrides = applyOverrides
     ? {
         nameOverride: buildRuleNameFromMapping({
@@ -76,13 +79,15 @@ export const buildBulkBody = (
       }
     : undefined;
 
+  console.error('BEFORE BUILD REASON MESSAGE');
   const reason = buildReasonMessage({
     name: overrides?.nameOverride ?? completeRule.ruleConfig.name,
     severity: overrides?.severityOverride ?? completeRule.ruleParams.severity,
     mergedDoc,
   });
-
+  console.error('BEFORE IS SOURCE DOC');
   if (isSourceDoc(mergedDoc)) {
+    console.error('BEFORE RETURN');
     return {
       ...filteredSource,
       ...eventFields,
