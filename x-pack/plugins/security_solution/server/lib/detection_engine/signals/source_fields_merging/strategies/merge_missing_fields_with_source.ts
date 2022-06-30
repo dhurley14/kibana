@@ -31,6 +31,7 @@ export const mergeMissingFieldsWithSource: MergeStrategyFunction = ({ doc, ignor
   const fieldEntries = Object.entries(fields);
   const filteredEntries = filterFieldEntries(fieldEntries, ignoreFields);
 
+  const dt = new Date();
   console.error('BEFORE REDUCE');
   console.error('FILTERED ENTIRES . LENGTH', filteredEntries.length);
   const transformedSource = filteredEntries.reduce(
@@ -49,10 +50,14 @@ export const mergeMissingFieldsWithSource: MergeStrategyFunction = ({ doc, ignor
       const valueInMergedDocument = get(fieldsKey, merged);
       // console.error('BEFORE RECURSIVE UNBOXING');
       const valueToMerge = recursiveUnboxingFields(fieldsValue, valueInMergedDocument);
-      return set(fieldsKey, valueToMerge, merged);
+      merged[fieldsKey] = valueToMerge;
+      return merged;
+      // return set(fieldsKey, valueToMerge, merged);
     },
     { ...source }
   );
+
+  console.error('TIME: ', new Date().getTime() - dt.getTime());
 
   return {
     ...doc,
