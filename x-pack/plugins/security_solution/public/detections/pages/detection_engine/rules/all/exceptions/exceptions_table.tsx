@@ -59,7 +59,7 @@ import { MissingPrivilegesCallOut } from '../../../../../components/callouts/mis
 import { ALL_ENDPOINT_ARTIFACT_LIST_IDS } from '../../../../../../../common/endpoint/service/artifacts/constants';
 import { ExceptionsListCard } from './exceptions_list_card';
 import { useImportExceptionList } from './use_import_exception_list';
-import { AddExceptionFlyout } from '@kbn/security-solution-plugin/public/detection_engine/rule_exceptions/components/add_exception_flyout';
+import { AddSingleExceptionFlyout } from '../../../../../../detection_engine/rule_exceptions/components/manage_exceptions/add_single_exception';
 
 export type Func = () => Promise<void>;
 
@@ -458,7 +458,7 @@ export const ExceptionListsTable = React.memo(() => {
       </EuiFlexGroup>
 
       {openAddExceptionFlyout && (
-        <AddExceptionFlyout
+        <AddSingleExceptionFlyout
           ruleName={rule.name}
           ruleIndices={rule.index ?? DEFAULT_INDEX_PATTERN}
           dataViewId={rule.data_view_id}
