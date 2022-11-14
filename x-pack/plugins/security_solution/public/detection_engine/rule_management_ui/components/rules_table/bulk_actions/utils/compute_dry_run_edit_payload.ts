@@ -18,6 +18,7 @@ import { assertUnreachable } from '../../../../../../../common/utility_types';
 export function computeDryRunEditPayload(editAction: BulkActionEditType): BulkActionEditPayload[] {
   switch (editAction) {
     case BulkActionEditType.add_index_patterns:
+    case BulkActionEditType.add_exceptions:
     case BulkActionEditType.delete_index_patterns:
     case BulkActionEditType.set_index_patterns:
       return [

@@ -42,6 +42,7 @@ export enum BulkActionEditType {
   'add_rule_actions' = 'add_rule_actions',
   'set_rule_actions' = 'set_rule_actions',
   'set_schedule' = 'set_schedule',
+  'add_exceptions' = 'add_exceptions',
 }
 
 export type ThrottleForBulkActions = t.TypeOf<typeof ThrottleForBulkActions>;

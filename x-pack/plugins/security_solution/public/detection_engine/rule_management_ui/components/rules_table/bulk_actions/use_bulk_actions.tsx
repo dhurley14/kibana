@@ -178,6 +178,8 @@ export const useBulkActions = ({
         await downloadExportedRules(response);
       };
 
+      const handleBulkAddException = () => console.error('HANDLED BULK ADD EXCEPTION');
+
       const handleBulkEdit = (bulkEditActionType: BulkActionEditType) => async () => {
         let longTimeWarningToast: Toast;
         let isBulkEditFinished = false;
@@ -268,6 +270,19 @@ export const useBulkActions = ({
           id: 0,
           title: i18n.BULK_ACTION_MENU_TITLE,
           items: [
+            {
+              key: 'ADD EXCEPTIONS',
+              name: 'ADD EXCEPTIONS',
+              'data-test-subj': 'enableRuleBulk',
+              disabled:
+                missingActionPrivileges || containsLoading || (!containsDisabled && !isAllSelected),
+              onClick: handleBulkEdit(BulkActionEditType.add_exceptions),
+              toolTipContent: missingActionPrivileges
+                ? i18n.LACK_OF_KIBANA_ACTIONS_FEATURE_PRIVILEGES
+                : undefined,
+              toolTipPosition: 'right',
+              icon: undefined,
+            },
             {
               key: i18n.BULK_ACTION_ENABLE,
               name: i18n.BULK_ACTION_ENABLE,

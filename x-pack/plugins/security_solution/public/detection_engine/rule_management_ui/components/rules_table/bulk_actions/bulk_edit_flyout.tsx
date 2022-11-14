@@ -15,6 +15,7 @@ import { TagsForm } from './forms/tags_form';
 import { TimelineTemplateForm } from './forms/timeline_template_form';
 import { RuleActionsForm } from './forms/rule_actions_form';
 import { ScheduleForm } from './forms/schedule_form';
+import { AddExceptionFlyout } from '../../../../rule_exceptions/components/add_exception_flyout';
 
 interface BulkEditFlyoutProps {
   onClose: () => void;
@@ -43,6 +44,17 @@ const BulkEditFlyoutComponent = ({ editAction, ...props }: BulkEditFlyoutProps) 
       return <RuleActionsForm {...props} />;
     case BulkActionEditType.set_schedule:
       return <ScheduleForm {...props} />;
+    case BulkActionEditType.add_exceptions:
+      return (
+        <AddExceptionFlyout
+          rules={null}
+          isBulkAction={false}
+          showAlertCloseOptions={false}
+          isEndpointItem={false}
+          onCancel={() => console.error('close me')}
+          onConfirm={() => console.error('confirm me')}
+        />
+      );
 
     default:
       return null;
