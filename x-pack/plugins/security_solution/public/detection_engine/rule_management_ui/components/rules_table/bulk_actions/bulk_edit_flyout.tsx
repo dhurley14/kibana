@@ -51,8 +51,8 @@ const BulkEditFlyoutComponent = ({ editAction, ...props }: BulkEditFlyoutProps) 
           isBulkAction={false}
           showAlertCloseOptions={false}
           isEndpointItem={false}
-          onCancel={() => console.error('close me')}
-          onConfirm={() => console.error('confirm me')}
+          onCancel={props.onClose}
+          onConfirm={props.onConfirm}
         />
       );
 
