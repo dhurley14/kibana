@@ -213,7 +213,7 @@ const CreateRulePageComponent: React.FC = () => {
 
   const { starting: isStartingJobs, startMlJobs } = useStartMlJobs();
 
-  useEffect(() => {
+  const fetchDataViews = useCallback(() => {
     const fetchDV = async () => {
       const dataViewsRefs = await dataViews.getIdsWithTitle();
       const dataViewIdIndexPatternMap = dataViewsRefs.reduce(
@@ -226,7 +226,10 @@ const CreateRulePageComponent: React.FC = () => {
       setDataViewOptions(dataViewIdIndexPatternMap);
     };
     fetchDV();
-  }, [dataViews]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => fetchDataViews(), [fetchDataViews]);
 
   const handleAccordionToggle = useCallback(
     (step: RuleStep, isOpen: boolean) =>

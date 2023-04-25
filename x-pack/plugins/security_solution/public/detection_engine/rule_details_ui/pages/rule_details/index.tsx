@@ -330,7 +330,7 @@ const RuleDetailsPageComponent: React.FC<DetectionEngineComponentProps> = ({
   const [indicesConfig] = useUiSetting$<string[]>(DEFAULT_INDEX_KEY);
   const [threatIndicesConfig] = useUiSetting$<string[]>(DEFAULT_THREAT_INDEX_KEY);
 
-  useEffect(() => {
+  const fetchDataViews = useCallback(() => {
     const fetchDV = async () => {
       const dataViewsRefs = await data.dataViews.getIdsWithTitle();
       const dataViewIdIndexPatternMap = dataViewsRefs.reduce(
@@ -343,11 +343,10 @@ const RuleDetailsPageComponent: React.FC<DetectionEngineComponentProps> = ({
       setDataViewOptions(dataViewIdIndexPatternMap);
     };
     fetchDV();
-    // if this array is not empty the data.dataViews dependency
-    // causes the jest tests for this file to re-render the
-    // step_define_rule component infinitely for some reason.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => fetchDataViews(), [fetchDataViews]);
 
   // TODO: Refactor license check + hasMlAdminPermissions to common check
   const hasMlPermissions = hasMlLicense(mlCapabilities) && hasMlAdminPermissions(mlCapabilities);

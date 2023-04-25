@@ -5,7 +5,7 @@
  * 2.0.
  */
 
-import { isEmpty, isEqual, keyBy, pick } from 'lodash/fp';
+import { isEmpty, keyBy, pick } from 'lodash/fp';
 import memoizeOne from 'memoize-one';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { DataViewBase } from '@kbn/es-query';
@@ -130,15 +130,14 @@ export const useFetchIndex = (
 ): [boolean, FetchIndexReturn] => {
   const { data } = useKibana().services;
   const abortCtrl = useRef(new AbortController());
-  const previousIndexesName = useRef<string[]>([]);
+  const [isLoading, setLoading] = useState(false);
 
-  const [state, setState] = useState<FetchIndexReturn & { loading: boolean }>({
+  const [state, setState] = useState<FetchIndexReturn>({
     browserFields: DEFAULT_BROWSER_FIELDS,
     indexes: indexNames,
     indexExists: true,
     indexPatterns: DEFAULT_INDEX_PATTERNS,
     dataView: undefined,
-    loading: false,
   });
   const { addError } = useAppToasts();
 
@@ -146,8 +145,8 @@ export const useFetchIndex = (
     (iNames) => {
       const asyncSearch = async () => {
         try {
-          setState({ ...state, loading: true });
           abortCtrl.current = new AbortController();
+          setLoading(true);
           const dv = await data.dataViews.create({ title: iNames.join(','), allowNoIndex: true });
           const { browserFields } = getDataViewStateFromIndexFields(
             iNames,
@@ -155,42 +154,30 @@ export const useFetchIndex = (
             includeUnmapped
           );
 
-          previousIndexesName.current = dv.getIndexPattern().split(',');
-
           setState({
-            loading: false,
             dataView: dv,
             browserFields,
             indexes: dv.getIndexPattern().split(','),
             indexExists: dv.getIndexPattern().split(',').length > 0,
             indexPatterns: getIndexFields(dv.getIndexPattern(), dv.fields, includeUnmapped),
           });
+          setLoading(false);
         } catch (exc) {
-          setState({
-            browserFields: DEFAULT_BROWSER_FIELDS,
-            indexes: indexNames,
-            indexExists: true,
-            indexPatterns: DEFAULT_INDEX_PATTERNS,
-            dataView: undefined,
-            loading: false,
-          });
           addError(exc?.message, { title: i18n.ERROR_INDEX_FIELDS_SEARCH });
         }
       };
 
       asyncSearch();
     },
-    [addError, data.dataViews, includeUnmapped, indexNames, state]
+    [addError, data.dataViews, includeUnmapped]
   );
 
   useEffect(() => {
-    if (!isEmpty(indexNames) && !isEqual(previousIndexesName.current, indexNames)) {
+    if (!isEmpty(indexNames)) {
       indexFieldsSearch(indexNames);
     }
-    return () => {
-      abortCtrl.current.abort();
-    };
-  }, [indexFieldsSearch, indexNames, previousIndexesName]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [indexNames]);
 
-  return [state.loading, state];
+  return [isLoading, state];
 };
