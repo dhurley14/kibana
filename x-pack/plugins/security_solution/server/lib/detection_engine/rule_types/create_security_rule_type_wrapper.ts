@@ -330,7 +330,7 @@ export const createSecurityRuleTypeWrapper: CreateSecurityRuleTypeWrapper =
           }
 
           if (remainingGap.asMilliseconds() > 0) {
-            hasError = true;
+            // hasError = true;
 
             const gapDuration = `${remainingGap.humanize()} (${remainingGap.asMilliseconds()}ms)`;
 
