@@ -84,11 +84,7 @@ import type {
 import type { BuildReasonMessage } from './reason_formatters';
 import { getSuppressionTerms } from './suppression_utils';
 import { robustGet } from './source_fields_merging/utils/robust_field_access';
-import {
-  SECURITY_NUM_EXCEPTION_ITEMS,
-  SECURITY_NUM_INDICES_MATCHING_PATTERN,
-  SECURITY_QUERY_SPAN_S,
-} from './apm_field_names';
+import { SECURITY_NUM_INDICES_MATCHING_PATTERN, SECURITY_QUERY_SPAN_S } from './apm_field_names';
 import { buildTimeRangeFilter } from './build_events_query';
 export const MAX_RULE_GAP_RATIO = 4;
 
@@ -346,7 +342,6 @@ export const getExceptions = async ({
           sortOrder: undefined,
           sortField: undefined,
         });
-        agent.setCustomContext({ [SECURITY_NUM_EXCEPTION_ITEMS]: items.length });
         return items;
       } catch (e) {
         throw new Error(

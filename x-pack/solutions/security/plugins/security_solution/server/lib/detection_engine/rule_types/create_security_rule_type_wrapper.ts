@@ -53,10 +53,8 @@ import type { RuleParams } from '../rule_schema';
 import {
   SECURITY_FROM,
   SECURITY_IMMUTABLE,
-  SECURITY_INPUT_INDEX,
   SECURITY_MAX_SIGNALS,
   SECURITY_MERGE_STRATEGY,
-  SECURITY_NUM_ALERTS_CREATED,
   SECURITY_NUM_IGNORE_FIELDS_REGEX,
   SECURITY_NUM_IGNORE_FIELDS_STANDARD,
   SECURITY_NUM_RANGE_TUPLES,
@@ -81,7 +79,7 @@ const addApmLabelsFromParams = (params: RuleParams) => {
       [SECURITY_FROM]: params.from,
       [SECURITY_IMMUTABLE]: params.immutable,
       [SECURITY_MAX_SIGNALS]: params.maxSignals,
-      [SECURITY_RULE_ID]: params.ruleId,
+      [SECURITY_RULE_ID]: params.ruleId, // Also tracked in execution outcome document as rule_uuid
       [SECURITY_TO]: params.to,
     },
     false
@@ -300,10 +298,6 @@ export const createSecurityRuleTypeWrapper: CreateSecurityRuleTypeWrapper =
               return { state: result.state };
             }
           }
-
-          // Make a copy of `inputIndex` or else the APM agent reports it as [Circular] for most rule types because it's the same object
-          // as `index`
-          agent.setCustomContext({ [SECURITY_INPUT_INDEX]: [...inputIndex] });
 
           ruleExecutionLogger.stats({
             input_index_patterns: [...inputIndex],
@@ -626,8 +620,6 @@ export const createSecurityRuleTypeWrapper: CreateSecurityRuleTypeWrapper =
             }
 
             ruleExecutionLogger.info(`Alerts created: ${createdSignalsCount}`);
-
-            agent.setCustomContext({ [SECURITY_NUM_ALERTS_CREATED]: createdSignalsCount });
 
             const executionEndTime = Date.now();
             const totalSearchDurationMs = sum(result.searchAfterTimes.map(Number)) || 0;

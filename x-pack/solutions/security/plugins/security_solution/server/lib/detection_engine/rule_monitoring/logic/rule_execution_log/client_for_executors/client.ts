@@ -116,6 +116,7 @@ export const createRuleExecutionLogClientForExecutors = (
         const correlationIds = baseCorrelationIds.withStatus(args.newStatus);
         const logMeta = correlationIds.getLogMeta();
 
+        // Also tracked in execution outcome document as status
         agent.addLabels({ [SECURITY_RULE_STATUS]: args.newStatus });
 
         try {
@@ -211,6 +212,8 @@ export const createRuleExecutionLogClientForExecutors = (
         last_alert_created_at: s.last_alert_created_at,
         consecutive_no_alert_runs: s.consecutive_no_alert_runs,
       };
+
+      agent.setCustomContext({ execution_outcome: outcomeDocument });
 
       try {
         eventLog.logExecutionOutcome({
