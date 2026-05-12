@@ -20,8 +20,10 @@ import {
   EuiPageHeader,
   EuiPanel,
   EuiSpacer,
+  EuiTabbedContent,
   EuiTitle,
 } from '@elastic/eui';
+import type { EuiTabbedContentTab } from '@elastic/eui';
 import { useQuery } from '@kbn/react-query';
 import { ALERTING_V2_RULE_API_PATH } from '@kbn/alerting-v2-constants';
 import type { RuleResponse } from '@kbn/alerting-v2-schemas';
@@ -29,6 +31,7 @@ import { useHistory, useParams } from 'react-router-dom';
 import { useKibana } from '../../common/lib/kibana';
 import { SecuritySolutionPageWrapper } from '../../common/components/page_wrapper';
 import { RULES_V2_PATH } from '../../../common/constants';
+import { ExecutionLogTable } from '../components/execution_log_table';
 import * as i18n from '../translations';
 
 export const RulesV2ViewPage = () => {
@@ -63,7 +66,10 @@ export const RulesV2ViewPage = () => {
     );
   }
 
-  const descriptionItems = [
+  const descriptionItems: Array<{
+    title: NonNullable<React.ReactNode>;
+    description: NonNullable<React.ReactNode>;
+  }> = [
     ...(rule.metadata.description
       ? [{ title: i18n.VIEW_DESCRIPTION_LABEL, description: rule.metadata.description }]
       : []),
@@ -152,29 +158,69 @@ export const RulesV2ViewPage = () => {
 
       <EuiSpacer size="l" />
 
-      <EuiFlexGroup>
-        <EuiFlexItem>
-          <EuiPanel paddingSize="l">
-            <EuiTitle size="xs">
-              <h3>{i18n.VIEW_RULE}</h3>
-            </EuiTitle>
-            <EuiSpacer size="m" />
-            <EuiDescriptionList listItems={descriptionItems} type="column" />
-          </EuiPanel>
-        </EuiFlexItem>
-
-        <EuiFlexItem>
-          <EuiPanel paddingSize="l">
-            <EuiTitle size="xs">
-              <h3>{i18n.VIEW_QUERY_LABEL}</h3>
-            </EuiTitle>
-            <EuiSpacer size="m" />
-            <EuiCodeBlock language="esql" fontSize="m" paddingSize="m" isCopyable>
-              {rule.evaluation.query.base}
-            </EuiCodeBlock>
-          </EuiPanel>
-        </EuiFlexItem>
-      </EuiFlexGroup>
+      <RuleViewTabs rule={rule} ruleId={id} descriptionItems={descriptionItems} />
     </SecuritySolutionPageWrapper>
   );
+};
+
+const RuleViewTabs: React.FC<{
+  rule: RuleResponse;
+  ruleId: string;
+  descriptionItems: Array<{
+    title: NonNullable<React.ReactNode>;
+    description: NonNullable<React.ReactNode>;
+  }>;
+}> = ({ rule, ruleId, descriptionItems }) => {
+  const tabs: EuiTabbedContentTab[] = [
+    {
+      id: 'overview',
+      name: 'Overview',
+      content: (
+        <>
+          <EuiSpacer size="m" />
+          <EuiFlexGroup>
+            <EuiFlexItem>
+              <EuiPanel paddingSize="l">
+                <EuiTitle size="xs">
+                  <h3>{i18n.VIEW_RULE}</h3>
+                </EuiTitle>
+                <EuiSpacer size="m" />
+                <EuiDescriptionList listItems={descriptionItems} type="column" />
+              </EuiPanel>
+            </EuiFlexItem>
+
+            <EuiFlexItem>
+              <EuiPanel paddingSize="l">
+                <EuiTitle size="xs">
+                  <h3>{i18n.VIEW_QUERY_LABEL}</h3>
+                </EuiTitle>
+                <EuiSpacer size="m" />
+                <EuiCodeBlock language="esql" fontSize="m" paddingSize="m" isCopyable>
+                  {rule.evaluation.query.base}
+                </EuiCodeBlock>
+              </EuiPanel>
+            </EuiFlexItem>
+          </EuiFlexGroup>
+        </>
+      ),
+    },
+    {
+      id: 'execution-log',
+      name: 'Execution Log',
+      content: (
+        <>
+          <EuiSpacer size="m" />
+          <EuiPanel paddingSize="l">
+            <EuiTitle size="xs">
+              <h3>Execution History</h3>
+            </EuiTitle>
+            <EuiSpacer size="m" />
+            <ExecutionLogTable ruleId={ruleId} />
+          </EuiPanel>
+        </>
+      ),
+    },
+  ];
+
+  return <EuiTabbedContent tabs={tabs} initialSelectedTab={tabs[0]} autoFocus="selected" />;
 };
