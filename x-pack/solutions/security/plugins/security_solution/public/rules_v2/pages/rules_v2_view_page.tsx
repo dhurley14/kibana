@@ -5,7 +5,7 @@
  * 2.0.
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   EuiBadge,
   EuiButton,
@@ -32,44 +32,11 @@ import { useKibana } from '../../common/lib/kibana';
 import { SecuritySolutionPageWrapper } from '../../common/components/page_wrapper';
 import { RULES_V2_PATH } from '../../../common/constants';
 import { ExecutionLogTable } from '../components/execution_log_table';
+import { RuleAlertsTable } from '../components/rule_alerts_table';
 import * as i18n from '../translations';
 
-export const RulesV2ViewPage = () => {
-  const { id } = useParams<{ id: string }>();
-  const history = useHistory();
-  const { http } = useKibana().services;
-
-  const { data: rule, isLoading, isError, error } = useQuery(
-    ['rulesV2View', id],
-    () => http.get<RuleResponse>(`${ALERTING_V2_RULE_API_PATH}/${id}`)
-  );
-
-  if (isLoading) {
-    return (
-      <SecuritySolutionPageWrapper>
-        <EuiFlexGroup justifyContent="center">
-          <EuiFlexItem grow={false}>
-            <EuiLoadingSpinner size="xl" />
-          </EuiFlexItem>
-        </EuiFlexGroup>
-      </SecuritySolutionPageWrapper>
-    );
-  }
-
-  if (isError || !rule) {
-    return (
-      <SecuritySolutionPageWrapper>
-        <EuiCallOut title={i18n.RULE_LOAD_ERROR} color="danger" iconType="error">
-          {error instanceof Error ? error.message : String(error)}
-        </EuiCallOut>
-      </SecuritySolutionPageWrapper>
-    );
-  }
-
-  const descriptionItems: Array<{
-    title: NonNullable<React.ReactNode>;
-    description: NonNullable<React.ReactNode>;
-  }> = [
+const OverviewTab: React.FC<{ rule: RuleResponse }> = ({ rule }) => {
+  const descriptionItems = [
     ...(rule.metadata.description
       ? [{ title: i18n.VIEW_DESCRIPTION_LABEL, description: rule.metadata.description }]
       : []),
@@ -130,6 +97,107 @@ export const RulesV2ViewPage = () => {
   ];
 
   return (
+    <>
+      <EuiSpacer size="l" />
+      <EuiFlexGroup>
+        <EuiFlexItem>
+          <EuiPanel paddingSize="l">
+            <EuiTitle size="xs">
+              <h3>{i18n.VIEW_RULE}</h3>
+            </EuiTitle>
+            <EuiSpacer size="m" />
+            <EuiDescriptionList listItems={descriptionItems} type="column" />
+          </EuiPanel>
+        </EuiFlexItem>
+
+        <EuiFlexItem>
+          <EuiPanel paddingSize="l">
+            <EuiTitle size="xs">
+              <h3>{i18n.VIEW_QUERY_LABEL}</h3>
+            </EuiTitle>
+            <EuiSpacer size="m" />
+            <EuiCodeBlock language="esql" fontSize="m" paddingSize="m" isCopyable>
+              {rule.evaluation.query.base}
+            </EuiCodeBlock>
+          </EuiPanel>
+        </EuiFlexItem>
+      </EuiFlexGroup>
+    </>
+  );
+};
+
+const AlertsTab: React.FC<{ ruleId: string }> = ({ ruleId }) => (
+  <>
+    <EuiSpacer size="l" />
+    <RuleAlertsTable ruleId={ruleId} />
+  </>
+);
+
+export const RulesV2ViewPage = () => {
+  const { id } = useParams<{ id: string }>();
+  const history = useHistory();
+  const { http } = useKibana().services;
+
+  const {
+    data: rule,
+    isLoading,
+    isError,
+    error,
+  } = useQuery(['rulesV2View', id], () =>
+    http.get<RuleResponse>(`${ALERTING_V2_RULE_API_PATH}/${id}`)
+  );
+
+  const tabs = useMemo<EuiTabbedContentTab[]>(
+    () => [
+      {
+        id: 'overview',
+        name: i18n.TAB_OVERVIEW,
+        content: rule ? <OverviewTab rule={rule} /> : null,
+      },
+      {
+        id: 'alerts',
+        name: i18n.TAB_ALERTS,
+        content: <AlertsTab ruleId={id} />,
+      },
+      {
+        id: 'execution-log',
+        name: 'Execution results',
+        content: (
+          <>
+            <EuiSpacer size="m" />
+            <EuiPanel paddingSize="l" hasBorder>
+              <ExecutionLogTable ruleId={id} />
+            </EuiPanel>
+          </>
+        ),
+      },
+    ],
+    [rule, id]
+  );
+
+  if (isLoading) {
+    return (
+      <SecuritySolutionPageWrapper>
+        <EuiFlexGroup justifyContent="center">
+          <EuiFlexItem grow={false}>
+            <EuiLoadingSpinner size="xl" />
+          </EuiFlexItem>
+        </EuiFlexGroup>
+      </SecuritySolutionPageWrapper>
+    );
+  }
+
+  if (isError || !rule) {
+    return (
+      <SecuritySolutionPageWrapper>
+        <EuiCallOut title={i18n.RULE_LOAD_ERROR} color="danger" iconType="error">
+          {error instanceof Error ? error.message : String(error)}
+        </EuiCallOut>
+      </SecuritySolutionPageWrapper>
+    );
+  }
+
+  return (
     <SecuritySolutionPageWrapper>
       <EuiButtonEmpty
         iconType="arrowLeft"
@@ -158,65 +226,8 @@ export const RulesV2ViewPage = () => {
 
       <EuiSpacer size="l" />
 
-      <RuleViewTabs rule={rule} ruleId={id} descriptionItems={descriptionItems} />
+      <EuiTabbedContent tabs={tabs} initialSelectedTab={tabs[0]} autoFocus="selected" />
     </SecuritySolutionPageWrapper>
   );
 };
 
-const RuleViewTabs: React.FC<{
-  rule: RuleResponse;
-  ruleId: string;
-  descriptionItems: Array<{
-    title: NonNullable<React.ReactNode>;
-    description: NonNullable<React.ReactNode>;
-  }>;
-}> = ({ rule, ruleId, descriptionItems }) => {
-  const tabs: EuiTabbedContentTab[] = [
-    {
-      id: 'overview',
-      name: 'Overview',
-      content: (
-        <>
-          <EuiSpacer size="m" />
-          <EuiFlexGroup>
-            <EuiFlexItem>
-              <EuiPanel paddingSize="l">
-                <EuiTitle size="xs">
-                  <h3>{i18n.VIEW_RULE}</h3>
-                </EuiTitle>
-                <EuiSpacer size="m" />
-                <EuiDescriptionList listItems={descriptionItems} type="column" />
-              </EuiPanel>
-            </EuiFlexItem>
-
-            <EuiFlexItem>
-              <EuiPanel paddingSize="l">
-                <EuiTitle size="xs">
-                  <h3>{i18n.VIEW_QUERY_LABEL}</h3>
-                </EuiTitle>
-                <EuiSpacer size="m" />
-                <EuiCodeBlock language="esql" fontSize="m" paddingSize="m" isCopyable>
-                  {rule.evaluation.query.base}
-                </EuiCodeBlock>
-              </EuiPanel>
-            </EuiFlexItem>
-          </EuiFlexGroup>
-        </>
-      ),
-    },
-    {
-      id: 'execution-log',
-      name: 'Execution results',
-      content: (
-        <>
-          <EuiSpacer size="m" />
-          <EuiPanel paddingSize="l" hasBorder>
-            <ExecutionLogTable ruleId={ruleId} />
-          </EuiPanel>
-        </>
-      ),
-    },
-  ];
-
-  return <EuiTabbedContent tabs={tabs} initialSelectedTab={tabs[0]} autoFocus="selected" />;
-};
