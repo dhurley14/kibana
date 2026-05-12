@@ -206,15 +206,11 @@ const RuleViewTabs: React.FC<{
     },
     {
       id: 'execution-log',
-      name: 'Execution Log',
+      name: 'Execution results',
       content: (
         <>
           <EuiSpacer size="m" />
-          <EuiPanel paddingSize="l">
-            <EuiTitle size="xs">
-              <h3>Execution History</h3>
-            </EuiTitle>
-            <EuiSpacer size="m" />
+          <EuiPanel paddingSize="l" hasBorder>
             <ExecutionLogTable ruleId={ruleId} />
           </EuiPanel>
         </>

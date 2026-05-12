@@ -9,16 +9,25 @@ import React, { useState, useCallback, useMemo } from 'react';
 import type { EuiBasicTableColumn, CriteriaWithPagination } from '@elastic/eui';
 import {
   EuiBasicTable,
+  EuiFilterButton,
+  EuiFilterGroup,
+  EuiFilterSelectItem,
   EuiFlexGroup,
   EuiFlexItem,
   EuiHealth,
+  EuiPopover,
+  EuiSpacer,
   EuiSuperDatePicker,
   EuiText,
   EuiTextBlockTruncate,
+  EuiTitle,
   EuiCallOut,
 } from '@elastic/eui';
 import type { UnifiedExecutionResult } from '../../../common/api/detection_engine/rule_monitoring';
 import { useV2ExecutionResults } from '../hooks/use_v2_execution_results';
+import { useBoolState } from '../../common/hooks/use_bool_state';
+
+type V2ExecutionStatus = 'success' | 'warning' | 'failure';
 
 const STATUS_COLOR: Record<string, string> = {
   success: 'success',
@@ -31,6 +40,8 @@ const STATUS_LABEL: Record<string, string> = {
   warning: 'Warning',
   failure: 'Failed',
 };
+
+const V2_STATUS_FILTERS: V2ExecutionStatus[] = ['success', 'warning', 'failure'];
 
 const formatDuration = (ms: number | null): string => {
   if (ms === null) return '—';
@@ -51,6 +62,12 @@ const columns: Array<EuiBasicTableColumn<UnifiedExecutionResult>> = [
     ),
   },
   {
+    field: 'run_type',
+    name: 'Run type',
+    width: '110px',
+    render: () => <EuiText size="s">Scheduled</EuiText>,
+  },
+  {
     field: 'execution_start',
     name: 'Timestamp',
     sortable: true,
@@ -61,24 +78,18 @@ const columns: Array<EuiBasicTableColumn<UnifiedExecutionResult>> = [
   },
   {
     field: 'execution_duration_ms',
-    name: 'Duration',
+    name: 'Execution duration',
     sortable: true,
-    width: '120px',
+    width: '150px',
     render: (value: number | null) => <EuiText size="s">{formatDuration(value)}</EuiText>,
   },
   {
     field: 'metrics.alert_counts.new',
-    name: 'Alerts',
-    width: '100px',
+    name: 'Alerts created',
+    width: '120px',
     render: (_: unknown, record: UnifiedExecutionResult) => (
       <EuiText size="s">{record.metrics.alert_counts?.new ?? 0}</EuiText>
     ),
-  },
-  {
-    field: 'metrics.total_search_duration_ms',
-    name: 'Search Duration',
-    width: '140px',
-    render: (value: number | null) => <EuiText size="s">{formatDuration(value)}</EuiText>,
   },
   {
     field: 'outcome.message',
@@ -96,18 +107,20 @@ interface ExecutionLogTableProps {
 }
 
 export const ExecutionLogTable: React.FC<ExecutionLogTableProps> = ({ ruleId }) => {
-  const [dateRange, setDateRange] = useState({ start: 'now-24h', end: 'now' });
+  const [dateRange, setDateRange] = useState({ start: 'now-2h', end: 'now' });
   const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(5);
   const [sortField, setSortField] = useState<'execution_start' | 'execution_duration_ms'>(
     'execution_start'
   );
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+  const [statusFilters, setStatusFilters] = useState<V2ExecutionStatus[]>([]);
 
-  const { data, isLoading, isError, error } = useV2ExecutionResults({
+  const { data, isLoading, isFetching, isError, error, refetch } = useV2ExecutionResults({
     ruleId,
     from: dateRange.start,
     to: dateRange.end,
+    outcome: statusFilters.length > 0 ? statusFilters : undefined,
     sortField,
     sortOrder: sortDirection,
     page: pageIndex + 1,
@@ -135,6 +148,10 @@ export const ExecutionLogTable: React.FC<ExecutionLogTableProps> = ({ ruleId }) 
     },
     []
   );
+
+  const onRefresh = useCallback(() => {
+    refetch();
+  }, [refetch]);
 
   const pagination = useMemo(
     () => ({
@@ -166,17 +183,41 @@ export const ExecutionLogTable: React.FC<ExecutionLogTableProps> = ({ ruleId }) 
 
   return (
     <>
-      <EuiFlexGroup justifyContent="flexEnd" gutterSize="m">
+      <EuiFlexGroup gutterSize="s" alignItems="center">
+        <EuiFlexItem grow>
+          <div>
+            <EuiTitle size="xs">
+              <h3>Execution log</h3>
+            </EuiTitle>
+            <EuiText size="xs" color="subdued">
+              A log of rule execution results
+            </EuiText>
+          </div>
+        </EuiFlexItem>
         <EuiFlexItem grow={false}>
-          <EuiSuperDatePicker
-            start={dateRange.start}
-            end={dateRange.end}
-            onTimeChange={onTimeChange}
-            showUpdateButton={false}
-            compressed
-          />
+          <EuiFlexGroup gutterSize="s" alignItems="center">
+            <EuiFlexItem grow={false}>
+              <StatusFilter
+                selectedItems={statusFilters}
+                onChange={setStatusFilters}
+              />
+            </EuiFlexItem>
+            <EuiFlexItem grow={false}>
+              <EuiSuperDatePicker
+                start={dateRange.start}
+                end={dateRange.end}
+                onTimeChange={onTimeChange}
+                onRefresh={onRefresh}
+                isLoading={isFetching}
+                width="auto"
+                data-test-subj="v2ExecutionLogDatePicker"
+              />
+            </EuiFlexItem>
+          </EuiFlexGroup>
         </EuiFlexItem>
       </EuiFlexGroup>
+
+      <EuiSpacer size="s" />
 
       <EuiBasicTable
         items={data?.data ?? []}
@@ -185,8 +226,64 @@ export const ExecutionLogTable: React.FC<ExecutionLogTableProps> = ({ ruleId }) 
         pagination={pagination}
         sorting={sorting}
         onChange={onTableChange}
+        tableCaption="A log of rule execution results"
         data-test-subj="v2ExecutionLogTable"
       />
     </>
+  );
+};
+
+const StatusFilter: React.FC<{
+  selectedItems: V2ExecutionStatus[];
+  onChange: (items: V2ExecutionStatus[]) => void;
+}> = ({ selectedItems, onChange }) => {
+  const [isOpen, , closePopover, togglePopover] = useBoolState();
+
+  const handleItemClick = useCallback(
+    (item: V2ExecutionStatus) => {
+      const next = selectedItems.includes(item)
+        ? selectedItems.filter((i) => i !== item)
+        : [...selectedItems, item];
+      onChange(next);
+    },
+    [selectedItems, onChange]
+  );
+
+  return (
+    <EuiFilterGroup data-test-subj="v2ExecutionStatusFilter">
+      <EuiPopover
+        button={
+          <EuiFilterButton
+            iconType="chevronSingleDown"
+            grow={false}
+            numFilters={V2_STATUS_FILTERS.length}
+            numActiveFilters={selectedItems.length}
+            hasActiveFilters={selectedItems.length > 0}
+            isSelected={isOpen}
+            onClick={togglePopover}
+            data-test-subj="v2ExecutionStatusFilterButton"
+          >
+            Status
+          </EuiFilterButton>
+        }
+        isOpen={isOpen}
+        closePopover={closePopover}
+        panelPaddingSize="none"
+        repositionOnScroll
+      >
+        {V2_STATUS_FILTERS.map((status) => (
+          <EuiFilterSelectItem
+            key={status}
+            checked={selectedItems.includes(status) ? 'on' : undefined}
+            onClick={() => handleItemClick(status)}
+            data-test-subj={`v2ExecutionStatusFilter-item-${status}`}
+          >
+            <EuiHealth color={STATUS_COLOR[status]}>
+              {STATUS_LABEL[status]}
+            </EuiHealth>
+          </EuiFilterSelectItem>
+        ))}
+      </EuiPopover>
+    </EuiFilterGroup>
   );
 };
