@@ -343,14 +343,14 @@ export const EventSchema = schema.maybe(
                       schema.object({
                         query: schema.maybe(
                           schema.object({
-                            total_search_duration_ms: ecsNumber(),
-                            number_of_rows_returned: ecsNumber(),
+                            total_search_duration_ms: ecsStringOrNumber(),
+                            number_of_rows_returned: ecsStringOrNumber(),
                           })
                         ),
                         events_written: schema.maybe(
                           schema.object({
-                            breached: ecsNumber(),
-                            recovered: ecsNumber(),
+                            breached: ecsStringOrNumber(),
+                            recovered: ecsStringOrNumber(),
                           })
                         ),
                       })
